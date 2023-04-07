@@ -7,14 +7,12 @@
     </div>
     <!-- component -->
     <div class="content">
-      <ElFormItem>
-        <!-- <component :is="dynamicComp(element.componentType)" v-bind="attrs" v-model="value">
-        </component> -->
-      </ElFormItem>
+      <DynamicLayoutComponent v-if="IsLayoutComponent" />
+      <DynamicFormItem v-else :element="element" v-model="model[element.componentType + '123']" />
     </div>
     <!-- component operation -->
     <div class="operation">
-      <el-link>
+      <el-link @click="handleDelete">
         <el-icon :size="20">
           <Delete />
         </el-icon>
@@ -25,18 +23,13 @@
 
 <script setup lang="ts">
 import { Delete, Rank } from '@element-plus/icons-vue'
-import {
-  ElFormItem,
-  ElInput,
-  ElSelect,
-  ElOption,
-  ElCheckbox,
-  ElRadioGroup,
-  ElCheckboxGroup,
-  ElAlert
-} from 'element-plus'
 import type { INode } from '@/utils/tree'
-import { computed, reactive, render, h } from 'vue'
+import { reactive, ref, onMounted, inject, computed } from 'vue'
+import DynamicFormItem from './dynamicFormItem.vue'
+import DynamicLayoutComponent from './dynamicLayoutComponent.vue'
+import { ElLink } from 'element-plus'
+
+const model = inject('formModel')
 
 const props = defineProps<{
   element: INode
@@ -44,39 +37,49 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'change', value: string | null): void
+  (e: 'delete', value: string | null): void
 }>()
+
+const handleDelete = () => {
+  console.log('emit delete')
+  emit('delete', null)
+}
 
 const attrs = reactive<{ placeholder: string }>({
   placeholder: '默认提示文字'
 })
 
-// 动态组件
-const dynamicComp = (type: string) => {
-  switch (type) {
-    case 'input':
-      return ElInput
-    case 'select':
-      return ElSelect
-    default:
-      return ElAlert
-  }
-}
+const compRef = ref(null)
 
-const renderComp = dynamicComp(props.element.componentType)
+const IsLayoutComponent = computed(() => {
+  return ![
+    'input',
+    'select',
+    'radio',
+    'checkbox',
+    'date',
+    'time',
+    'datetime',
+    'rate',
+    'slider',
+    'switch',
+    'color',
+    'upload',
+    'cascader',
+    'transfer',
+    'inputNumber',
+    'timePicker',
+    'timeSelect',
+    'datePicker',
+    'dateTimePicker',
+    'weekPicker',
+    'monthPicker',
+    'yearPicker'
+  ].includes(props.element.componentType)
+})
 
-// todo: 抽出封装
-const optionItems = h() 
-
-//
-const dynamicSlot = () => {
-
-}
-
-const value = computed({
-  get: () => props.element.value,
-  set: (val) => {
-    emit('change', val)
-  }
+onMounted(() => {
+  // console.log(compRef.value)
 })
 </script>
 

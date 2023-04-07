@@ -1,6 +1,8 @@
+import { type reactive } from 'vue'
+
 export interface INode {
   name: string
-  id: string
+  id?: string | null
   key?: string
   componentType: string
   componentName: string
@@ -8,7 +10,8 @@ export interface INode {
   style: any
   action: any
   attribute: any
-  value: string | null
+  value?: string | null
+  options?: Array<any>
 }
 
 export class Node implements INode {

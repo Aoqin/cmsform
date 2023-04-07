@@ -1,20 +1,18 @@
 <template>
   <div>
-    <Draggable :list="components" group="components" item-key="id" @change="log">
-      <!-- Item slot must have only one child -->
-      <template #item="{ element }">
-        <DesignerComponent
-          :element="element"
-          @change="
-            (val) => {
-              element.value = val
-            }
-          "
-        />
-      </template>
-    </Draggable>
+    <ElForm :model="formModel" label-position="top">
+      <Draggable :list="config.children" :group="dragGroupOptions" item-key="id" @change="log">
+        <!-- Item slot must have only one child -->
+        <template #item="{ element, index }">
+          <DesignerComponent :element="element" @delete="deleteItem(index)" />
+        </template>
+      </Draggable>
+    </ElForm>
     <div class="source_code">
       {{ dataSource }}
+    </div>
+    <div class="source_code">
+      {{ formModel }}
     </div>
   </div>
 </template>
@@ -22,47 +20,46 @@
 <script setup lang="ts">
 import DesignerComponent from '../designerComponent.vue'
 import Draggable from 'vuedraggable'
-import { reactive, computed } from 'vue'
+import { reactive, computed, provide } from 'vue'
 import type { INode } from '@/utils/tree'
+import shortId from 'shortid'
+import { ElForm } from 'element-plus'
 
-let components = reactive<INode[]>([
-  {
-    name: 'form',
-    id: '123123',
-    componentType: 'input',
-    componentName: 'input',
-    children: null,
-    attribute: {},
-    style: {},
-    action: {},
-    value: ''
-  },
-  {
-    name: 'form',
-    id: '1231234',
-    componentType: 'select',
-    componentName: 'input',
-    children: null,
-    attribute: {},
-    style: {},
-    action: {},
-    value: ''
-  }
-])
+const formModel = reactive<Object>({})
 
-const dataSource = computed<INode[]>(() => components)
+provide('formModel', formModel)
 
-// const reactiveComponents: Array<any> = computed({
-//   get: () => {
-//     return components
-//   },
-//   set: (val) => {
-//     components.value = val
-//   }
-// })
+const dragGroupOptions = reactive({
+  name: 'components',
+  animation: 150,
+  ghostClass: 'ghost',
+  chosenClass: 'chosen',
+  dragClass: 'drag',
+  forceFallback: true,
+  fallbackClass: 'fallback',
+  fallbackOnBody: true,
+  fallbackTolerance: 0,
+  scroll: true,
+  scrollSensitivity: 30,
+  scrollSpeed: 10
+})
+
+const props = defineProps<{
+  config: INode
+}>()
+
+const dataSource = computed<INode>(() => props.config)
 
 const log = (evt: any) => {
   console.log(evt)
+  console.log(arguments)
+}
+
+const deleteItem = (index: number) => {
+  console.log('delete')
+  const item: INode = props.config.children![index]
+  props.config.children!.splice(index, 1)
+  delete formModel[item.componentType + '123']
 }
 </script>
 
