@@ -7,8 +7,10 @@
     </div>
     <!-- component -->
     <div class="content">
-      <DynamicLayoutComponent v-if="IsLayoutComponent" />
-      <DynamicFormItem v-else :element="element" v-model="model[element.componentType + '123']" />
+      <DynamicContainer v-if="IsContainerComponent" :element="element" />
+      <el-form-item v-else :label="element.name" prop="">
+        <DynamicFormItem :element="element" v-model="model[element.componentType + '123']" />
+      </el-form-item>
     </div>
     <!-- component operation -->
     <div class="operation">
@@ -24,12 +26,12 @@
 <script setup lang="ts">
 import { Delete, Rank } from '@element-plus/icons-vue'
 import type { INode } from '@/utils/tree'
-import { reactive, ref, onMounted, inject, computed } from 'vue'
+import { onMounted, inject, computed } from 'vue'
 import DynamicFormItem from './dynamicFormItem.vue'
-import DynamicLayoutComponent from './dynamicLayoutComponent.vue'
+import DynamicContainer from './dynamicContainer.vue'
 import { ElLink } from 'element-plus'
 
-const model = inject('formModel')
+const model: any = inject('formModel')
 
 const props = defineProps<{
   element: INode
@@ -45,13 +47,8 @@ const handleDelete = () => {
   emit('delete', null)
 }
 
-const attrs = reactive<{ placeholder: string }>({
-  placeholder: '默认提示文字'
-})
-
-const compRef = ref(null)
-
-const IsLayoutComponent = computed(() => {
+const IsContainerComponent = computed(() => {
+  console.log(props.element.componentType)
   return ![
     'input',
     'select',

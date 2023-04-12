@@ -12,7 +12,7 @@
       <el-container :direction="vertical">
         <el-main height="">
           <!-- Main content -->
-          <DesignerContent :config="designerConfig" />
+          <DesignerForm :config="store.root" />
         </el-main>
       </el-container>
       <el-aside>
@@ -23,41 +23,18 @@
 </template>
 
 <script setup lang="ts">
+import { Treestore } from '@/model/treeStore';
+import type { ITreeStore } from '@/model/treeStore'
+
 import AttributeBar from './components/layout/attributeBar.vue'
-import DesignerContent from './components/layout/designerContent.vue'
+import DesignerForm from './components/layout/designerForm.vue'
 import ElementList from './components/layout/elementList.vue'
 
 import { ref, reactive } from 'vue'
-import type { INode } from '@/utils/tree'
+// import type { INode } from '@/utils/tree'
 
-const props = defineProps<{
-  config: any
-  model: any
-}>()
-
-const designerConfig = reactive<INode>({
-  name: 'designer',
-  id: null,
-  componentType: 'designer',
-  componentName: 'designer',
-  children: [],
-  attribute: {},
-  style: {},
-  action: {}
-})
-
-interface IModel {
-  name: string
-  value: any
-}
-
-// const desingerModelsAdd = (model: IModel) => {
-//   designerModels[model.name] = model.value
-// }
-
-// const desingerModelsRemove = (name: string) => {
-//   delete designerModels[name]
-// }
+const store = reactive<ITreeStore>(new Treestore())
+store.initialize()
 
 const vertical = ref('vertical')
 const horizontal = ref('horizontal')

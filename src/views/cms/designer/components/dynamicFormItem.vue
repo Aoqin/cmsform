@@ -26,7 +26,6 @@ export default defineComponent({
   watch: {
     modelValue(val) {
       console.log('modelValue:: ', val)
-      // this.value = val
     }
   },
   render() {
@@ -36,7 +35,6 @@ export default defineComponent({
     let attr: any = {}
     const { componentType, options } = this.element!
     const { modelValue } = this
-    console.log(modelValue)
     switch (componentType) {
       case 'input':
         comp = ElInput
@@ -75,6 +73,7 @@ export default defineComponent({
         options?.map((item: { key: string; label: string }) =>
           h(optionNode as VNode, { ...item })
         ) || null
+
       if (defaultSlot) {
         slots = {
           default: defaultSlot

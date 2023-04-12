@@ -1,29 +1,33 @@
 <template>
-  <div>
-    <ElForm :model="formModel" label-position="top">
-      <Draggable :list="config.children" :group="dragGroupOptions" item-key="id" @change="log">
-        <!-- Item slot must have only one child -->
-        <template #item="{ element, index }">
-          <DesignerComponent :element="element" @delete="deleteItem(index)" />
-        </template>
-      </Draggable>
-    </ElForm>
-    <div class="source_code">
-      {{ dataSource }}
-    </div>
-    <div class="source_code">
-      {{ formModel }}
-    </div>
+  <ElForm :model="formModel" label-position="top">
+    <Draggable
+      :model-value="list"
+      :group="dragGroupOptions"
+      item-key="id"
+      @change="changeEvent"
+      @update:model-value="updateModel"
+    >
+      <!-- Item slot must have only one child -->
+      <template #item="{ element, index }">
+        <DesignerFormItem :element="element" @delete="deleteItem(index)" />
+      </template>
+    </Draggable>
+  </ElForm>
+  <div class="source_code">
+    {{ dataSource }}
+  </div>
+  <div class="source_code">
+    {{ formModel }}
   </div>
 </template>
 
 <script setup lang="ts">
-import DesignerComponent from '../designerComponent.vue'
+import DesignerFormItem from '../designerFromItem.vue'
 import Draggable from 'vuedraggable'
 import { reactive, computed, provide } from 'vue'
 import type { INode } from '@/utils/tree'
-import shortId from 'shortid'
 import { ElForm } from 'element-plus'
+import { Node } from '@/model/treeNode'
 
 const formModel = reactive<Object>({})
 
@@ -44,15 +48,27 @@ const dragGroupOptions = reactive({
   scrollSpeed: 10
 })
 
+const updateModel = (arr: INode[]) => {
+  console.log('updateModel::')
+  console.log(arr)
+}
+
 const props = defineProps<{
   config: INode
 }>()
 
+const list = props.config.children!
+
 const dataSource = computed<INode>(() => props.config)
 
-const log = (evt: any) => {
+const changeEvent = (evt: any) => {
   console.log(evt)
-  console.log(arguments)
+  if (evt.added) {
+    console.log('added')
+    console.log(evt.added.newIndex)
+    if (!(evt.added.element instanceof Node)) {
+    }
+  }
 }
 
 const deleteItem = (index: number) => {
