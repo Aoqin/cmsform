@@ -36,6 +36,8 @@ import { ref, reactive } from 'vue'
 const store = reactive<ITreeStore>(new Treestore())
 store.initialize()
 
+console.log(store)
+
 const vertical = ref('vertical')
 const horizontal = ref('horizontal')
 </script>

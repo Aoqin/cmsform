@@ -14,7 +14,7 @@ import { defineComponent, h, type VNode, type Slots, type DefineComponent } from
 export default defineComponent({
   props: {
     element: Object,
-    modelValue: String
+    modelValue: [Object, String, Number, Array, Boolean]
   },
   emits: ['update:modelValue'],
   data: () => {
@@ -23,11 +23,11 @@ export default defineComponent({
     }
   },
   setup(props) {},
-  watch: {
-    modelValue(val) {
-      console.log('modelValue:: ', val)
-    }
-  },
+  // watch: {
+  //   modelValue(val) {
+  //     console.log('modelValue:: ', val)
+  //   }
+  // },
   render() {
     console.log('render:: ', this)
     let comp: VNode | DefineComponent | Function

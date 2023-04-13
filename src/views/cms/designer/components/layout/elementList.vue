@@ -11,8 +11,8 @@
 <script setup lang="ts">
 import Draggable from 'vuedraggable'
 import { reactive, computed } from 'vue'
-import type { INode } from '@/utils/tree'
 import { config } from '@/config/demoConfig'
+import type { INodeOptions } from '@/model/treeNode'
 
 const dragGroupOptions = reactive({
   name: 'components',
@@ -31,9 +31,9 @@ const dragGroupOptions = reactive({
   put: false
 })
 
-const components = reactive<INode>(config)
+const components = reactive<INodeOptions>(config)
 
-const elements = computed<INode[]>(() => components.children!)
+const elements = computed<INodeOptions[]>(() => components.children!)
 
 const log = (evt: any) => {
   console.log(evt.added)

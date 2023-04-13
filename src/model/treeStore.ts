@@ -1,8 +1,9 @@
+import { reactive } from 'vue'
 import type { INode, INodeOptions } from './treeNode'
 import node from './treeNode'
 
 const formFileds = ['input', 'radio', 'checkbox', 'select']
-interface IObjectKeys {
+export interface IObjectKeys {
   [key: string]: any
 }
 
@@ -11,7 +12,7 @@ export interface ITreeStore {
   currentNodeKey: string | null
   nodesMap: Map<string, INode>
   root?: INode | null
-  model: IObjectKeys
+  model: IObjectKeys | null
   initialize(mergeParams?: any): void
   getCurrentNode(): INode | null
   setCurrentNode(node: INode | null): void
@@ -21,6 +22,7 @@ export interface ITreeStore {
   deregisterNode(node: INode): void
   registerModel(node: INode, value: any): void
   deregisterModel(node: INode): void
+  createModel(): void
   setModel(node: INode, value: any): void
 }
 
@@ -29,14 +31,15 @@ export class Treestore implements ITreeStore {
   currentNodeKey: string | null = null
   nodesMap = new Map<string, INode>()
   root: INode | null = null
-  model: IObjectKeys = {}
+  model: IObjectKeys | null = null
   constructor(options?: any) {}
   initialize(mergeParams?: INodeOptions) {
     this.root = new node({
       store: this,
       ...mergeParams
     })
-    this.root.initialize()
+    this.createModel()
+    this.root!.initialize()
   }
   registerNode(node: INode) {
     this.nodesMap.set(node.key, node)
@@ -50,13 +53,15 @@ export class Treestore implements ITreeStore {
     this.deregisterModel(node)
   }
   registerModel(node: INode): void {
-    if (formFileds.findIndex((item) => item === node.componentType) > -1) {
-      this.model[`${node.componentType}::${node.key}`] = null
+    const key = node.getModelKey()
+    if (key) {
+      this.model![key] = null
     }
   }
   deregisterModel(node: INode): void {
-    if (formFileds.findIndex((item) => item === node.componentType) > -1) {
-      delete this.model[`${node.componentType}::${node.key}`]
+    const key = node.getModelKey()
+    if (key) {
+      delete this.model![key]
     }
   }
   getCurrentNode(): INode | null {
@@ -71,7 +76,10 @@ export class Treestore implements ITreeStore {
   }
   setModel(node: INode, value: any): void {
     this.nodesMap.get(node.key)!.value = value
-    this.model[`${node.componentType}::${node.key}`] = value
+    this.model![`${node.componentType}::${node.key}`] = value
+  }
+  createModel() {
+    this.model = reactive<IObjectKeys>({})
   }
 }
 

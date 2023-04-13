@@ -120,7 +120,7 @@ export default defineComponent({
       ElRow,
       {},
       element!.children.map((el: INode, index: number) => {
-        return h(ElCol, { span: 24 }, dragableBuilder(el, index))
+        return h(ElCol, { span: 12 }, dragableBuilder(el, index))
       })
     )
   }

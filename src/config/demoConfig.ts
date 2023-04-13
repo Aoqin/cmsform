@@ -1,11 +1,11 @@
-import type { INode } from '@/utils/tree'
+import type { INodeOptions } from '@/model/treeNode'
 
-export const config: INode = {
+export const config: INodeOptions = {
   name: 'name',
-  id: null,
+  id: undefined,
   componentType: 'input',
   componentName: 'input',
-  attribute: {},
+  attributes: {},
   style: {},
   action: {},
   value: '',
@@ -16,7 +16,7 @@ export const config: INode = {
       componentType: 'input',
       componentName: 'input',
       children: null,
-      attribute: {},
+      attributes: {},
       style: {},
       action: {},
       value: ''
@@ -27,7 +27,7 @@ export const config: INode = {
       componentType: 'select',
       componentName: 'select',
       children: null,
-      attribute: {},
+      attributes: {},
       style: {},
       action: {},
       value: '',
@@ -50,7 +50,7 @@ export const config: INode = {
       componentType: 'radio',
       componentName: 'radio',
       children: null,
-      attribute: {},
+      attributes: {},
       style: {},
       action: {},
       value: '',
@@ -79,7 +79,7 @@ export const config: INode = {
           componentType: 'col',
           componentName: 'col',
           children: [],
-          attribute: {},
+          attributes: {},
           style: {},
           action: {},
           value: ''
@@ -90,13 +90,13 @@ export const config: INode = {
           componentType: 'col',
           componentName: 'col',
           children: [],
-          attribute: {},
+          attributes: {},
           style: {},
           action: {},
           value: ''
         }
       ],
-      attribute: {},
+      attributes: {},
       style: {},
       action: {}
     }

@@ -9,7 +9,7 @@
     <div class="content">
       <DynamicContainer v-if="IsContainerComponent" :element="element" />
       <el-form-item v-else :label="element.name" prop="">
-        <DynamicFormItem :element="element" v-model="model[element.componentType + '123']" />
+        <DynamicFormItem :element="element" v-model="model" />
       </el-form-item>
     </div>
     <!-- component operation -->
@@ -25,17 +25,26 @@
 
 <script setup lang="ts">
 import { Delete, Rank } from '@element-plus/icons-vue'
-import type { INode } from '@/utils/tree'
+import type { INode } from '@/model/treeNode'
 import { onMounted, inject, computed } from 'vue'
 import DynamicFormItem from './dynamicFormItem.vue'
 import DynamicContainer from './dynamicContainer.vue'
 import { ElLink } from 'element-plus'
-
-const model: any = inject('formModel')
+import type { IObjectKeys } from '@/model/treeStore'
+import { formFields } from '@/config/fields'
 
 const props = defineProps<{
   element: INode
 }>()
+
+const model: IObjectKeys = computed({
+  get() {
+    return props.element.store!.model![props.element.getModelKey()!]
+  },
+  set(value) {
+    props.element.store!.model![props.element.getModelKey()!] = value
+  }
+})
 
 const emit = defineEmits<{
   (e: 'change', value: string | null): void
@@ -48,31 +57,7 @@ const handleDelete = () => {
 }
 
 const IsContainerComponent = computed(() => {
-  console.log(props.element.componentType)
-  return ![
-    'input',
-    'select',
-    'radio',
-    'checkbox',
-    'date',
-    'time',
-    'datetime',
-    'rate',
-    'slider',
-    'switch',
-    'color',
-    'upload',
-    'cascader',
-    'transfer',
-    'inputNumber',
-    'timePicker',
-    'timeSelect',
-    'datePicker',
-    'dateTimePicker',
-    'weekPicker',
-    'monthPicker',
-    'yearPicker'
-  ].includes(props.element.componentType)
+  return !formFields.includes(props.element.componentType)
 })
 
 onMounted(() => {
@@ -96,7 +81,6 @@ onMounted(() => {
   z-index: 9;
 }
 .content {
-  border: 1px solid white;
   padding: 10px 15px;
 }
 .operation {

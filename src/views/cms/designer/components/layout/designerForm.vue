@@ -1,5 +1,5 @@
 <template>
-  <ElForm :model="formModel" label-position="top">
+  <ElForm :model="model" label-position="top">
     <Draggable
       :model-value="list"
       :group="dragGroupOptions"
@@ -17,7 +17,7 @@
     {{ dataSource }}
   </div>
   <div class="source_code">
-    {{ formModel }}
+    {{ model }}
   </div>
 </template>
 
@@ -25,13 +25,9 @@
 import DesignerFormItem from '../designerFromItem.vue'
 import Draggable from 'vuedraggable'
 import { reactive, computed, provide } from 'vue'
-import type { INode } from '@/utils/tree'
+import type { INode, INodeOptions } from '@/model/treeNode'
 import { ElForm } from 'element-plus'
-import { Node } from '@/model/treeNode'
-
-const formModel = reactive<Object>({})
-
-provide('formModel', formModel)
+import Node from '@/model/treeNode'
 
 const dragGroupOptions = reactive({
   name: 'components',
@@ -57,25 +53,23 @@ const props = defineProps<{
   config: INode
 }>()
 
-const list = props.config.children!
+const list = computed<INode[]>(() => props.config.children!)
+const model = computed<any>(() => props.config.store?.model)
 
-const dataSource = computed<INode>(() => props.config)
+const dataSource = computed<INodeOptions>(() => props.config.getReadOnlyNode())
 
 const changeEvent = (evt: any) => {
+  console.log('==========================')
   console.log(evt)
+  console.log(props.config)
+  console.log('==========================')
   if (evt.added) {
-    console.log('added')
-    console.log(evt.added.newIndex)
-    if (!(evt.added.element instanceof Node)) {
-    }
+    props.config.insertChild(evt.added.element, evt.added.newIndex)
   }
 }
 
 const deleteItem = (index: number) => {
   console.log('delete')
-  const item: INode = props.config.children![index]
-  props.config.children!.splice(index, 1)
-  delete formModel[item.componentType + '123']
 }
 </script>
 

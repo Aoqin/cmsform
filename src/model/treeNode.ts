@@ -1,9 +1,9 @@
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import type { INode as IReadOnlyNode } from '../utils/tree'
 import type { ITreeStore } from './treeStore'
 import { generate } from 'shortid'
 import { deepCopy } from '@/utils'
-import { type } from 'os'
+import { formFields } from '@/config/fields'
 
 type INodeOptionKes =
   | 'parent'
@@ -56,6 +56,7 @@ export interface INode {
   setAttribute(params: any): void
   getReadOnlyNode(exceptOptions?: INodeOptions): INodeOptions
   setData(): void
+  getModelKey(): string | null
 }
 
 export interface INodeOptions {
@@ -74,71 +75,49 @@ export interface INodeOptions {
   componentName?: string
   value?: string | null
   store?: ITreeStore
+  children: INodeOptions[] | undefined
   [key: string]: any
 }
 
 class Node implements INode {
-  private _attributes: any = reactive({})
-  private _options: Array<any> = reactive<Array<any>>([])
-  private _actions: any = reactive({})
-  private _style: any = reactive({})
-  private _data: any = reactive([])
+  // parent 不在构造函数中初始化
   parent: INode | null = null
   key: string = ''
   id: string = ''
-  data: any = {}
   visible: boolean = true
   name: string = ''
   index: number = 0
   componentType: string = ''
   componentName: string = ''
   value?: string | null = null
-  children?: Array<INode> | null = []
   store?: ITreeStore | undefined
+  // 引用类型的属性，需要在构造函数中初始化隔离数据
+  attributes: any
+  options: any
+  actions: any
+  style: any
+  data: any = {}
+  // children 不能在构造函数中直接赋值
+  children?: Array<INode> | null = []
   constructor(options: INodeOptions) {
     for (const key in options) {
       if (Object.prototype.hasOwnProperty.call(this, key)) {
-        if (key === 'children') {
-          options.children?.forEach((item: INodeOptions, index: number) => {
-            this.insertChild(new Node(item), index)
-          })
+        if (
+          key === 'options' ||
+          key === 'attributes' ||
+          key === 'actions' ||
+          key === 'style' ||
+          key === 'data'
+        ) {
+          // 隔离每个node的数据
+          this[key] = deepCopy(options[key])
+        } else if (key === 'children') {
+          console.log(options)
         } else {
           this[key] = options[key]
         }
       }
     }
-  }
-
-  get attributes() {
-    return this._attributes
-  }
-
-  set attributes(value) {
-    this._attributes.value = value
-  }
-
-  get options() {
-    return this._options
-  }
-
-  set options(value) {
-    this._options.value = value
-  }
-
-  get actions() {
-    return this._actions
-  }
-
-  set actions(value) {
-    this._actions.value = value
-  }
-
-  get style() {
-    return this._style
-  }
-
-  set style(value) {
-    this._style.value = value
   }
 
   initialize() {
@@ -156,32 +135,34 @@ class Node implements INode {
   getChildren(): INode[] {
     return []
   }
-  insertChild(child: INode | INode[], index: number) {
+  insertChild(child: INode | INodeOptions, index: number) {
     if (!child) {
       throw new Error('InsertChild error: child is required')
     }
-    if (Array.isArray(child)) {
-      child.forEach((item, i) => {
-        this.insertChild(item, i)
-      })
+    const tmpGrandChildren = child?.children?.map((item) => item)
+    let constructorOptions: INodeOptions
+    if (child instanceof Node) {
+      constructorOptions = child.getReadOnlyNode()
     } else {
-      Object.assign(child, {
+      constructorOptions = child as INodeOptions
+    }
+    child = reactive<INode>(
+      new Node({
+        ...constructorOptions,
         parent: this,
         store: this.store
       })
-      const grandChildren = child?.children?.map((item) => item)
-      child = reactive<INode>(new Node(child.getReadOnlyNode()))
-      child.initialize()
-      if (grandChildren && grandChildren?.length > 0) {
-        grandChildren!.forEach((item, i) => {
-          ;(child as Node).insertChild(item, i)
-        })
-      }
-      if (typeof index === 'undefined' || index < 0) {
-        this.children?.push(child)
-      } else {
-        this.children?.splice(index, 0, child)
-      }
+    )
+    child.initialize()
+    if (tmpGrandChildren && tmpGrandChildren?.length > 0) {
+      tmpGrandChildren!.forEach((item, i) => {
+        ;(child as Node).insertChild(item, i)
+      })
+    }
+    if (typeof index === 'undefined' || index < 0) {
+      this.children?.push(child)
+    } else {
+      this.children?.splice(index, 0, child)
     }
   }
   insertBefore() {}
@@ -207,7 +188,6 @@ class Node implements INode {
   setData(): void {}
   getReadOnlyNode(exceptOptions?: INodeOptions): INodeOptions {
     const tmp: INodeOptions = {
-      parent: this.parent,
       index: this.index,
       name: this.name,
       key: this.key,
@@ -221,7 +201,7 @@ class Node implements INode {
       componentType: this.componentType,
       componentName: this.componentName,
       value: this.value,
-      children: this.children?.forEach((item) => item.getReadOnlyNode(exceptOptions))
+      children: this.children?.map((item) => item.getReadOnlyNode(exceptOptions))
     }
 
     if (exceptOptions) {
@@ -232,6 +212,12 @@ class Node implements INode {
       }
     }
     return tmp
+  }
+  getModelKey(): string | null {
+    if (formFields.includes(this.componentType)) {
+      return `${this.componentType}.${this.key}`
+    }
+    return null
   }
 }
 
