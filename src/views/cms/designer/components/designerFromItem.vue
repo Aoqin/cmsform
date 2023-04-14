@@ -1,12 +1,12 @@
 <template>
-  <div class="dragable_component">
+  <div class="dragable_component" :class="{ active: isActive }" @click="selectNode">
     <div class="dragable_icon">
       <el-icon :size="20">
         <Rank />
       </el-icon>
     </div>
     <!-- component -->
-    <div class="content">
+    <div class="content" :class="{ container: IsContainerComponent }">
       <DynamicContainer v-if="IsContainerComponent" :element="element" />
       <el-form-item v-else :label="element.name" prop="">
         <DynamicFormItem :element="element" v-model="model" />
@@ -46,6 +46,10 @@ const model: IObjectKeys = computed({
   }
 })
 
+const isActive = computed(() => {
+  return props.element.store!.currentNodeKey === props.element.key
+})
+
 const emit = defineEmits<{
   (e: 'change', value: string | null): void
   (e: 'delete', value: string | null): void
@@ -53,12 +57,16 @@ const emit = defineEmits<{
 
 const handleDelete = () => {
   console.log('emit delete')
-  emit('delete', null)
+  props.element.remove()
 }
 
 const IsContainerComponent = computed(() => {
   return !formFields.includes(props.element.componentType)
 })
+
+const selectNode = () => {
+  props.element.store?.setCurrentNode(props.element)
+}
 
 onMounted(() => {
   // console.log(compRef.value)
@@ -66,12 +74,28 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.active > .dragable_icon {
+  display: block;
+}
+
+.active > .operation {
+  display: block;
+}
+.active.dragable_component {
+  border-color: #2d77d6;
+}
+
+.active .content.container {
+  border-color: 1px solid #2d77d6;
+}
+
 .dragable_component {
   position: relative;
   border: 1px dashed white;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 .dragable_icon {
+  display: none;
   position: absolute;
   width: 20px;
   height: 20px;
@@ -83,7 +107,11 @@ onMounted(() => {
 .content {
   padding: 10px 15px;
 }
+.content.container {
+  padding: 1px;
+}
 .operation {
+  display: none;
   position: absolute;
   bottom: 0px;
   right: 0px;

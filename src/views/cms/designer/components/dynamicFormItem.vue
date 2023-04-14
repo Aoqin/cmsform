@@ -76,7 +76,7 @@ export default defineComponent({
 
       if (defaultSlot) {
         slots = {
-          default: defaultSlot
+          default: ()=> defaultSlot
         }
       }
     }

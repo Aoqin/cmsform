@@ -3,7 +3,7 @@
     <Draggable
       :model-value="list"
       :group="dragGroupOptions"
-      item-key="id"
+      item-key="key"
       @change="changeEvent"
       @update:model-value="updateModel"
     >
@@ -24,10 +24,9 @@
 <script setup lang="ts">
 import DesignerFormItem from '../designerFromItem.vue'
 import Draggable from 'vuedraggable'
-import { reactive, computed, provide } from 'vue'
+import { reactive, computed } from 'vue'
 import type { INode, INodeOptions } from '@/model/treeNode'
 import { ElForm } from 'element-plus'
-import Node from '@/model/treeNode'
 
 const dragGroupOptions = reactive({
   name: 'components',
@@ -66,10 +65,17 @@ const changeEvent = (evt: any) => {
   if (evt.added) {
     props.config.insertChild(evt.added.element, evt.added.newIndex)
   }
+  if (evt.removed) {
+    props.config.removeChild(evt.removed.element)
+  }
+  if (evt.moved) {
+    props.config.moveChild(evt.moved.element, evt.moved.newIndex, evt.moved.oldIndex)
+  }
 }
 
 const deleteItem = (index: number) => {
   console.log('delete')
+  props.config.remove()
 }
 </script>
 

@@ -1,9 +1,9 @@
 <script lang="ts">
-import { defineComponent, h, ref, type VNode } from 'vue'
+import { defineComponent, h } from 'vue'
 import { Delete, Rank } from '@element-plus/icons-vue'
 import { ElRow, ElCol, ElIcon, ElLink } from 'element-plus'
 import Draggable from 'vuedraggable'
-import type { INode } from '@/utils/tree'
+import type { INode } from '@/model/treeNode'
 import DesignerFormItem from './designerFromItem.vue'
 
 const dragGroupOptions = {
@@ -86,16 +86,24 @@ const NodeBuilder = () =>
     ]
   )
 
-const dragableBuilder = (el: INode, index) =>
+const dragableBuilder = (el: INode) =>
   h(
     Draggable,
     {
       modelValue: el.children,
       group: dragGroupOptions,
       class: 'dragable_wrap',
-      'onUpdate:modelValue': (params: INode[]) => {
-        console.log('params::')
-        console.log(params)
+      itemKey: 'key',
+      onChange: (evt: any) => {
+        if (evt.added) {
+          el.insertChild(evt.added.element, evt.added.newIndex)
+        }
+        if (evt.removed) {
+          el.removeChild(evt.removed.element)
+        }
+        if (evt.moved) {
+          el.moveChild(evt.moved.element, evt.moved.newIndex, evt.moved.oldIndex)
+        }
       }
     },
     {
@@ -119,9 +127,11 @@ export default defineComponent({
     return h(
       ElRow,
       {},
-      element!.children.map((el: INode, index: number) => {
-        return h(ElCol, { span: 12 }, dragableBuilder(el, index))
-      })
+
+      () =>
+        element!.children.map((el: INode) => {
+          return h(ElCol, { span: 12 }, () => dragableBuilder(el))
+        })
     )
   }
 })
@@ -129,7 +139,8 @@ export default defineComponent({
 
 <style scoped>
 .dragable_wrap {
-  border: 1px dashed #e2e2e2;
+  border: 1px dotted #e2e2e2;
   padding: 5px;
+  min-height: 36px;
 }
 </style>

@@ -42,13 +42,12 @@ export interface INode {
   [key: string]: any
   initialize(): void
   remove(): void
-  removeChild(): void
+  removeChild(child: INode): void
   insertChild(child: INode, index: number): void
   getChildren(): INode[]
   insertBefore(): void
   insertAfter(): void
-  // clone(): INode
-  // cloneChildren(): INode[]
+  clone(): INode
   setValue(params: any): void
   setStyle(params: any): void
   setAction(params: any): void
@@ -57,6 +56,7 @@ export interface INode {
   getReadOnlyNode(exceptOptions?: INodeOptions): INodeOptions
   setData(): void
   getModelKey(): string | null
+  moveChild(child: INode, index: number, oldIndex?: number): void
 }
 
 export interface INodeOptions {
@@ -130,14 +130,36 @@ class Node implements INode {
     }
     store.registerNode(this)
   }
-  remove() {}
-  removeChild() {}
+  remove() {
+    if (this.parent) {
+      this.parent.removeChild(this)
+    }
+  }
+  removeChild(child: INode) {
+    const index = this.children?.indexOf(child)
+    if (index !== -1 && index !== undefined) {
+      if (child.parent !== this) {
+        // 如果child的parent不是当前node，说明child已经被移动到其他node下，不需要再从store中移除
+        this.children?.splice(index, 1)
+      } else {
+        this.store && this.store.deregisterNode(child)
+        child.parent = null
+        this.children?.splice(index, 1)
+      }
+    }
+  }
   getChildren(): INode[] {
     return []
   }
   insertChild(child: INode | INodeOptions, index: number) {
     if (!child) {
       throw new Error('InsertChild error: child is required')
+    }
+    if (this.store && child.key && this.store.getNode(child.key) && child instanceof Node) {
+      // 已在store中注册过的node，直接移动位置
+      this.children?.splice(index, 0, child)
+      child.parent = this
+      return
     }
     const tmpGrandChildren = child?.children?.map((item) => item)
     let constructorOptions: INodeOptions
@@ -165,21 +187,29 @@ class Node implements INode {
       this.children?.splice(index, 0, child)
     }
   }
+  moveChild(child: INode, index: number, oldIndex?: number) {
+    if (index === undefined || index < 0) {
+      throw new Error('MoveChild error: index is required')
+    }
+    if (oldIndex === undefined) {
+      oldIndex = this.children?.indexOf(child)
+    }
+    if (oldIndex === undefined || oldIndex < 0) {
+      throw new Error('MoveChild error: node is not a child of this node')
+    }
+    this.children?.splice(oldIndex, 1)
+    this.children?.splice(index, 0, child)
+  }
   insertBefore() {}
   insertAfter() {}
   clone(): INode {
     const node = new Node({
+      ...this.getReadOnlyNode(),
       parent: this.parent,
-      index: this.index,
-      name: this.name,
-      id: this.id,
-      key: generate()
+      store: this.store
     })
     return node
   }
-  // cloneChildren(): INode[] {
-  //   return []
-  // }
   setValue(params: any) {}
   setStyle(params: any) {}
   setAction(params: any) {}

@@ -2,7 +2,6 @@ import { reactive } from 'vue'
 import type { INode, INodeOptions } from './treeNode'
 import node from './treeNode'
 
-const formFileds = ['input', 'radio', 'checkbox', 'select']
 export interface IObjectKeys {
   [key: string]: any
 }
@@ -13,6 +12,7 @@ export interface ITreeStore {
   nodesMap: Map<string, INode>
   root?: INode | null
   model: IObjectKeys | null
+  functions: Object | null
   initialize(mergeParams?: any): void
   getCurrentNode(): INode | null
   setCurrentNode(node: INode | null): void
@@ -32,7 +32,10 @@ export class Treestore implements ITreeStore {
   nodesMap = new Map<string, INode>()
   root: INode | null = null
   model: IObjectKeys | null = null
-  constructor(options?: any) {}
+  functions: Object | null = null
+  constructor(options?: any) {
+    this.functions = {}
+  }
   initialize(mergeParams?: INodeOptions) {
     this.root = new node({
       store: this,
@@ -42,8 +45,10 @@ export class Treestore implements ITreeStore {
     this.root!.initialize()
   }
   registerNode(node: INode) {
-    this.nodesMap.set(node.key, node)
-    this.registerModel(node)
+    if (!this.nodesMap.get(node.key)) {
+      this.nodesMap.set(node.key, node)
+      this.registerModel(node)
+    }
   }
   deregisterNode(node: INode): void {
     node.children?.forEach((child) => {
@@ -51,6 +56,9 @@ export class Treestore implements ITreeStore {
     })
     this.nodesMap.delete(node.key)
     this.deregisterModel(node)
+    if (node.key === this.currentNodeKey) {
+      this.setCurrentNode(null)
+    }
   }
   registerModel(node: INode): void {
     const key = node.getModelKey()
@@ -68,7 +76,8 @@ export class Treestore implements ITreeStore {
     return this.currentNode
   }
   setCurrentNode(node: INode | null) {
-    this.currentNode = node
+    this.currentNode = node || null
+    this.currentNodeKey = node ? node.key : null
   }
   setCurrentNodeKey(key: string | null) {}
   getNode(key: any) {

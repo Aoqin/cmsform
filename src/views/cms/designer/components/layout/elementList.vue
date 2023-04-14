@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Draggable :list="elements" :group="dragGroupOptions" item-key="id" @change="log">
+    <Draggable :model-value="elements" :group="dragGroupOptions" item-key="id" @change="log">
       <template #item="{ element }">
         <div>{{ element.componentName }}</div>
       </template>
