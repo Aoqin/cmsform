@@ -7,7 +7,9 @@ import {
   ElCheckbox,
   ElCheckboxGroup,
   ElRadioGroup,
-  ElSelect
+  ElSelect,
+  ElDatePicker,
+  ElTimePicker
 } from 'element-plus'
 import { defineComponent, h, type VNode, type Slots, type DefineComponent } from 'vue'
 
@@ -48,6 +50,12 @@ export default defineComponent({
       case 'checkbox':
         comp = ElCheckboxGroup
         break
+      case 'datePicker':
+        comp = ElDatePicker
+        break
+      case 'timePicker':
+        comp = ElTimePicker
+        break
       default:
         comp = ElAlert
     }
@@ -76,7 +84,7 @@ export default defineComponent({
 
       if (defaultSlot) {
         slots = {
-          default: ()=> defaultSlot
+          default: () => defaultSlot
         }
       }
     }

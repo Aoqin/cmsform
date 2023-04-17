@@ -36,7 +36,7 @@ export interface INode {
   options?: Array<any>
   componentType: string
   componentName: string
-  value?: string | null
+  value?: string | number | Array<any> | object | null
   children?: Array<INode> | null
   store?: ITreeStore
   [key: string]: any

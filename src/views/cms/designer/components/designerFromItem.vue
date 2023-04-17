@@ -42,6 +42,7 @@ const model: IObjectKeys = computed({
     return props.element.store!.model![props.element.getModelKey()!]
   },
   set(value) {
+    console.log('set model to', value)
     props.element.store!.model![props.element.getModelKey()!] = value
   }
 })

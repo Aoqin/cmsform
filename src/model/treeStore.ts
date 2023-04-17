@@ -1,6 +1,7 @@
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import type { INode, INodeOptions } from './treeNode'
 import node from './treeNode'
+import { deepCopy } from '@/utils'
 
 export interface IObjectKeys {
   [key: string]: any
@@ -63,7 +64,18 @@ export class Treestore implements ITreeStore {
   registerModel(node: INode): void {
     const key = node.getModelKey()
     if (key) {
-      this.model![key] = null
+      // todo: 一套标准的初始化对应model的方法
+      if (node.value === undefined || node.value === null) {
+        this.model![key] = ref(null)
+      } else {
+        if (node.value instanceof Array) {
+          this.model![key] = ref([...node.value])
+        } else if (node.value instanceof Object) {
+          this.model![key] = reactive({ ...deepCopy(node.value) })
+        } else {
+          this.model![key] = ref(node.value)
+        }
+      }
     }
   }
   deregisterModel(node: INode): void {

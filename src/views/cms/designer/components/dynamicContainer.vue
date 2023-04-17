@@ -1,7 +1,7 @@
 <script lang="ts">
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, type DefineComponent, type VNode } from 'vue'
 import { Delete, Rank } from '@element-plus/icons-vue'
-import { ElRow, ElCol, ElIcon, ElLink } from 'element-plus'
+import { ElRow, ElCol, ElIcon, ElLink, ElTabs } from 'element-plus'
 import Draggable from 'vuedraggable'
 import type { INode } from '@/model/treeNode'
 import DesignerFormItem from './designerFromItem.vue'
@@ -123,16 +123,32 @@ export default defineComponent({
   setup(props) {},
   render() {
     const { element } = this.$props
-
-    return h(
-      ElRow,
-      {},
-
-      () =>
-        element!.children.map((el: INode) => {
-          return h(ElCol, { span: 12 }, () => dragableBuilder(el))
-        })
-    )
+    const { componentType, attributes, children } = element!
+    let comp: VNode | DefineComponent | Function
+    let childCompBuilder: VNode | DefineComponent | Function
+    let attr = {}
+    switch (componentType) {
+      case 'row':
+        comp = ElRow
+        childCompBuilder = () =>
+          children.map((el: INode) => {
+            return h(ElCol, { span: 12 }, () => dragableBuilder(el))
+          })
+        break
+      case 'tabs':
+        comp = ElTabs
+        childCompBuilder = () =>
+          children.map((el: INode) => {
+            return h(ElTabs.TabPane, { label: el.name }, () => dragableBuilder(el))
+          })
+        attr = {
+          modelValue: attributes?.defaultActive || children[0].name
+        }
+    }
+    if (!comp || !childCompBuilder) {
+      return h('div', 'error')
+    }
+    return h(comp, attributes, childCompBuilder)
   }
 })
 </script>
@@ -142,5 +158,8 @@ export default defineComponent({
   border: 1px dotted #e2e2e2;
   padding: 5px;
   min-height: 36px;
+}
+.dragable_wrap :deep .dragable_component:last-child {
+  margin-bottom: 0;
 }
 </style>

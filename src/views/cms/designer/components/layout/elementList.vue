@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="field_list">
     <Draggable :model-value="elements" :group="dragGroupOptions" item-key="id" @change="log">
       <template #item="{ element }">
-        <div>{{ element.componentName }}</div>
+        <div class="field">{{ element.componentName }}</div>
       </template>
     </Draggable>
   </div>
@@ -40,4 +40,19 @@ const log = (evt: any) => {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.field_list {
+  padding: 20px 15px;
+}
+.field {
+  padding: 5px 10px;
+  border: 1px dashed #e2e2e2;
+  margin-bottom: 5px;
+  cursor: move;
+  font-size: 12px;
+}
+.drag {
+  display: flex;
+  flex-direction: row;
+}
+</style>
