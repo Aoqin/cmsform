@@ -179,6 +179,28 @@ export const config: INodeOptions = {
       attributes: {},
       style: {},
       action: {}
+    },
+    {
+      name: 'flexContainer',
+      id: null,
+      componentType: 'flexContainer',
+      componentName: '组容器',
+      children: [
+        {
+          name: 'flexContainer1',
+          id: null,
+          componentType: 'flexContainerItem',
+          componentName: '分组',
+          children: [],
+          attributes: {},
+          style: {},
+          action: {},
+          value: ''
+        }
+      ],
+      attributes: {},
+      style: {},
+      action: {}
     }
   ]
 }

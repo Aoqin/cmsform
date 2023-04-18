@@ -64,7 +64,7 @@ export interface INodeOptions {
   index?: number
   name?: string
   key?: string
-  id?: string
+  id?: string | null
   data?: any
   visible?: boolean
   style?: any

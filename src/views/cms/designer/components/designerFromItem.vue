@@ -1,5 +1,5 @@
 <template>
-  <div class="dragable_component" :class="{ active: isActive }" @click="selectNode">
+  <div class="dragable_component" :class="{ active: isActive }" @click.stop="selectNode">
     <div class="dragable_icon">
       <el-icon :size="20">
         <Rank />

@@ -1,10 +1,11 @@
 <script lang="ts">
 import { defineComponent, h, type DefineComponent, type VNode } from 'vue'
-import { Delete, Rank } from '@element-plus/icons-vue'
-import { ElRow, ElCol, ElIcon, ElLink, ElTabs } from 'element-plus'
+import { ElRow, ElCol, ElTabs } from 'element-plus'
 import Draggable from 'vuedraggable'
 import type { INode } from '@/model/treeNode'
 import DesignerFormItem from './designerFromItem.vue'
+import Group from './container/flexContainer/flexContainer.vue'
+import GroupItem from './container/flexContainer/flexContainerItem.vue'
 
 const dragGroupOptions = {
   name: 'components',
@@ -20,71 +21,6 @@ const dragGroupOptions = {
   scrollSensitivity: 30,
   scrollSpeed: 10
 }
-
-const NodeBuilder = () =>
-  h(
-    'div',
-    {
-      class: 'dragable_component'
-    },
-    [
-      h(
-        'div',
-        {
-          class: 'dragable_icon'
-        },
-        [
-          h(
-            ElIcon,
-            {
-              size: '20px'
-            },
-            [h(Rank, {})]
-          )
-        ]
-      ),
-      h(
-        'div',
-        {
-          class: 'content'
-        },
-        [h('div', 'hello world')]
-      ),
-      h(
-        'div',
-        {
-          class: 'operation'
-        },
-        [
-          h(
-            ElLink,
-            {
-              onClick: () => {
-                console.log('emit delete')
-              }
-            },
-            [
-              h(
-                ElIcon,
-                {
-                  size: 20
-                },
-                [
-                  h(
-                    Delete,
-                    {
-                      size: 20
-                    },
-                    {}
-                  )
-                ]
-              )
-            ]
-          )
-        ]
-      )
-    ]
-  )
 
 const dragableBuilder = (el: INode) =>
   h(
@@ -124,9 +60,9 @@ export default defineComponent({
   render() {
     const { element } = this.$props
     const { componentType, attributes, children } = element!
-    let comp: VNode | DefineComponent | Function
+    let comp: VNode | DefineComponent | Function | string
     let childCompBuilder: VNode | DefineComponent | Function
-    let attr = {}
+    let attr: any = {}
     switch (componentType) {
       case 'row':
         comp = ElRow
@@ -144,8 +80,16 @@ export default defineComponent({
         attr = {
           modelValue: attributes?.defaultActive || children[0].name
         }
+        break
+      case 'flexContainer':
+        comp = Group
+        childCompBuilder = () =>
+          children.map((el: INode) => {
+            return h(GroupItem, { label: el.name }, () => dragableBuilder(el))
+          })
+        break
     }
-    if (!comp || !childCompBuilder) {
+    if (!comp) {
       return h('div', 'error')
     }
     return h(comp, attributes, childCompBuilder)
