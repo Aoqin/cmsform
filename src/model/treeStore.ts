@@ -37,7 +37,7 @@ export interface ITreeStore {
   registerModel(node: INode, value: any): void
   deregisterModel(node: INode): void
   createModel(): void
-  setModel(node: INode, value: any): void
+  setModel(node: INode, value?: any): void
 }
 
 export class Treestore implements ITreeStore {
@@ -138,11 +138,28 @@ export class Treestore implements ITreeStore {
   getNode(key: any) {
     return this.nodesMap.get(key)
   }
-  setModel(node: INode, value: any): void {
-    this.model![node.getModelKey()!] = value
+  setModel(node: INode, value?: any): void {
+    const key = node.getModelKey()!
+    if (value === undefined || value === null) {
+      if (this.model![key] instanceof Object) {
+        this.model![key].value = {}
+      } else if (this.model![key] instanceof Array) {
+        this.model![key].value = []
+      } else {
+        this.model![key] = value
+      }
+    } else {
+      if (value instanceof Array) {
+        this.model![key] = [...value]
+      } else if (value instanceof Object) {
+        this.model![key] = { ...deepCopy(value) }
+      } else {
+        this.model![key] = value
+      }
+    }
   }
   createModel() {
-    this.model = reactive<IObjectKeys>({})
+    this.model = reactive<IObjectKeys<any>>({})
   }
 }
 
