@@ -6,6 +6,13 @@ import type { INode } from '@/model/treeNode'
 import DesignerFormItem from './designerFromItem.vue'
 import Group from './container/flexContainer/flexContainer.vue'
 import GroupItem from './container/flexContainer/flexContainerItem.vue'
+import { objMapToSet } from '@/utils'
+import {
+  defaultColAttributes,
+  defaultRowAttributes,
+  defaultTabsAttributes,
+  defaultTabPaneAttributes
+} from '@/config/fields'
 
 const dragGroupOptions = {
   name: 'components',
@@ -66,19 +73,38 @@ export default defineComponent({
     switch (componentType) {
       case 'row':
         comp = ElRow
+        objMapToSet(attr, attributes, defaultRowAttributes)
         childCompBuilder = () =>
           children.map((el: INode) => {
-            return h(ElCol, { span: 12 }, () => dragableBuilder(el))
+            const subAttr = {}
+            objMapToSet(subAttr, el.attributes, defaultColAttributes)
+            return h(
+              ElCol,
+              {
+                ...subAttr
+              },
+              () => dragableBuilder(el)
+            )
           })
         break
       case 'tabs':
         comp = ElTabs
+        objMapToSet(attr, attributes, defaultTabsAttributes)
         childCompBuilder = () =>
           children.map((el: INode) => {
-            return h(ElTabs.TabPane, { label: el.name }, () => dragableBuilder(el))
+            const subAttr = {}
+            objMapToSet(subAttr, el.attributes, defaultTabPaneAttributes)
+            return h(
+              ElTabs.TabPane,
+              {
+                ...subAttr,
+                name: el.key
+              },
+              () => dragableBuilder(el)
+            )
           })
-        attr = {
-          modelValue: attributes?.defaultActive || children[0].name
+        if (attr.modelValue === undefined) {
+          attr.modelValue = children[0].key
         }
         break
       case 'flexContainer':
@@ -92,7 +118,13 @@ export default defineComponent({
     if (!comp) {
       return h('div', 'error')
     }
-    return h(comp, attributes, childCompBuilder)
+    return h(
+      comp,
+      {
+        ...attr
+      },
+      childCompBuilder
+    )
   }
 })
 </script>

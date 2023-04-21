@@ -1,5 +1,14 @@
 <script lang="ts">
 import {
+  defaultCheckboxGroupAttributes,
+  defaultDatePickerAttributes,
+  defaultInputAttributes,
+  defaultRadioGroupAttributes,
+  defaultSelectAttributes,
+  defaultTimePickerAttributes
+} from '@/config/fields'
+import { objMapToSet } from '@/utils'
+import {
   ElAlert,
   ElInput,
   ElOption,
@@ -31,30 +40,35 @@ export default defineComponent({
   //   }
   // },
   render() {
-    console.log('render:: ', this)
     let comp: VNode | DefineComponent | Function
     let slots: Slots | null = null
     let attr: any = {}
-    const { componentType, options } = this.element!
+    const { componentType, options, attributes } = this.element!
     const { modelValue } = this
     switch (componentType) {
       case 'input':
         comp = ElInput
+        objMapToSet(attr, attributes, defaultInputAttributes)
         break
       case 'select':
         comp = ElSelect
+        objMapToSet(attr, attributes, defaultSelectAttributes)
         break
       case 'radio':
         comp = ElRadioGroup
+        objMapToSet(attr, attributes, defaultRadioGroupAttributes)
         break
       case 'checkbox':
         comp = ElCheckboxGroup
+        objMapToSet(attr, attributes, defaultCheckboxGroupAttributes)
         break
       case 'datePicker':
         comp = ElDatePicker
+        objMapToSet(attr, attributes, defaultDatePickerAttributes)
         break
       case 'timePicker':
         comp = ElTimePicker
+        objMapToSet(attr, attributes, defaultTimePickerAttributes)
         break
       default:
         comp = ElAlert
@@ -78,7 +92,7 @@ export default defineComponent({
       }
 
       defaultSlot =
-        options?.map((item: { key: string; label: string }) =>
+        options?.map((item: { key?: string; label?: string; value?: string }) =>
           h(optionNode as VNode, { ...item })
         ) || null
 
@@ -99,7 +113,9 @@ export default defineComponent({
         },
         ...attr
       },
-      slots
+      {
+        ...slots
+      }
     )
   }
 })

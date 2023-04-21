@@ -16,27 +16,33 @@
         </el-main>
       </el-container>
       <el-aside>
-        <AttributeBar />
+        <AttributeBar :node="store.currentNode" />
       </el-aside>
     </el-container>
   </el-container>
 </template>
 
 <script setup lang="ts">
-import { Treestore } from '@/model/treeStore';
+import { Treestore } from '@/model/treeStore'
 import type { ITreeStore } from '@/model/treeStore'
 
 import AttributeBar from './components/layout/attributeBar.vue'
 import DesignerForm from './components/layout/designerForm.vue'
 import ElementList from './components/layout/elementList.vue'
 
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
+import { rules } from '@/config/rules'
 // import type { INode } from '@/utils/tree'
 
-const store = reactive<ITreeStore>(new Treestore())
+const store = reactive<ITreeStore>(new Treestore({ rules }))
 store.initialize()
 
-console.log(store)
+watch(
+  () => store.currentNode,
+  (val) => {
+    console.log('val:: ', val)
+  }
+)
 
 const vertical = ref('vertical')
 const horizontal = ref('horizontal')

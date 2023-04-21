@@ -3,7 +3,7 @@ import type { INode as IReadOnlyNode } from '../utils/tree'
 import type { ITreeStore } from './treeStore'
 import { generate } from 'shortid'
 import { deepCopy } from '@/utils'
-import { formFields } from '@/config/fields'
+import { formFields, type IComponentType } from '@/config/fields'
 
 type INodeOptionKes =
   | 'parent'
@@ -22,23 +22,32 @@ type INodeOptionKes =
   | 'value'
   | 'store'
 
+type actionType = 'change' | 'loadData' | 'init'
+
 export interface INode {
   parent: INode | null
   index: number
-  name: string
-  key: string
-  id: string
+  name: String
+  key: String
+  id: String
   data: any
   visible: boolean
   style: any
   attributes: any
-  actions: any
+  actions: {
+    [key: string]: Promise<any>
+  }
   options?: Array<any>
-  componentType: string
-  componentName: string
-  value?: string | number | Array<any> | object | null
+  componentType: IComponentType
+  componentName: String
+  value?: String | number | Array<any> | object | null
   children?: Array<INode> | null
   store?: ITreeStore
+  remote?: boolean
+  remoteOptionProps?: {
+    label: String
+    value: String
+  }
   [key: string]: any
   initialize(): void
   remove(): void
@@ -54,28 +63,32 @@ export interface INode {
   setOptions(params: any): void
   setAttribute(params: any): void
   getReadOnlyNode(exceptOptions?: INodeOptions): INodeOptions
-  setData(): void
+  setData(data: any): void
   getModelKey(): string | null
   moveChild(child: INode, index: number, oldIndex?: number): void
+  resetChildrenIndex(): void
 }
 
 export interface INodeOptions {
   parent?: INode | null
-  index?: number
-  name?: string
-  key?: string
-  id?: string | null
-  data?: any
+  index?: Number
+  name?: String
+  key?: String
+  id?: String | null
+  data?: Array<any> | object
   visible?: boolean
   style?: any
   attributes?: any
-  actions?: any
+  actions: {
+    [key: string]: Promise<any>
+  }
   options?: Array<any>
-  componentType?: string
-  componentName?: string
-  value?: string | null
+  componentType?: IComponentType
+  componentName?: String
+  value?: String | null
   store?: ITreeStore
   children: INodeOptions[] | undefined
+  extendAttributes: any
   [key: string]: any
 }
 
@@ -87,15 +100,16 @@ class Node implements INode {
   visible: boolean = true
   name: string = ''
   index: number = 0
-  componentType: string = ''
+  componentType: IComponentType = ''
   componentName: string = ''
   value?: string | null = null
   store?: ITreeStore | undefined
   // 引用类型的属性，需要在构造函数中初始化隔离数据
-  attributes: any
-  options: any
-  actions: any
-  style: any
+  attributes: any = {}
+  extendAttributes: any = {}
+  options: any = {}
+  actions: any = {}
+  style: any = {}
   data: any = {}
   // children 不能在构造函数中直接赋值
   children?: Array<INode> | null = []
@@ -103,11 +117,8 @@ class Node implements INode {
     for (const key in options) {
       if (Object.prototype.hasOwnProperty.call(this, key)) {
         if (
-          key === 'options' ||
-          key === 'attributes' ||
-          key === 'actions' ||
-          key === 'style' ||
-          key === 'data'
+          ['options', 'attributes', 'extendAttributes', 'actions', 'style', 'data'].indexOf(key) !=
+          -1
         ) {
           // 隔离每个node的数据
           this[key] = deepCopy(options[key])
@@ -133,6 +144,7 @@ class Node implements INode {
   remove() {
     if (this.parent) {
       this.parent.removeChild(this)
+      this.parent.resetChildrenIndex()
     }
   }
   removeChild(child: INode) {
@@ -146,18 +158,19 @@ class Node implements INode {
         child.parent = null
         this.children?.splice(index, 1)
       }
+      this.resetChildrenIndex()
     }
   }
   getChildren(): INode[] {
     return []
   }
-  insertChild(child: INode | INodeOptions, index: number) {
+  insertChild(child: INode | INodeOptions, index?: number) {
     if (!child) {
       throw new Error('InsertChild error: child is required')
     }
     if (this.store && child.key && this.store.getNode(child.key) && child instanceof Node) {
       // 已在store中注册过的node，直接移动位置
-      this.children?.splice(index, 0, child)
+      this.children?.splice(index!, 0, child)
       child.parent = this
       return
     }
@@ -186,6 +199,7 @@ class Node implements INode {
     } else {
       this.children?.splice(index, 0, child)
     }
+    this.resetChildrenIndex()
   }
   moveChild(child: INode, index: number, oldIndex?: number) {
     if (index === undefined || index < 0) {
@@ -199,9 +213,15 @@ class Node implements INode {
     }
     this.children?.splice(oldIndex, 1)
     this.children?.splice(index, 0, child)
+    this.resetChildrenIndex()
   }
   insertBefore() {}
   insertAfter() {}
+  resetChildrenIndex(): void {
+    this.children?.forEach((child, index) => {
+      child.index = index
+    })
+  }
   clone(): INode {
     const node = new Node({
       ...this.getReadOnlyNode(),
@@ -210,12 +230,45 @@ class Node implements INode {
     })
     return node
   }
-  setValue(params: any) {}
+  setValue(params: any) {
+    this.store?.setModel(this, params)
+  }
   setStyle(params: any) {}
   setAction(params: any) {}
   setOptions(params: any) {}
-  setAttribute(params: any) {}
-  setData(): void {}
+  setAttribute(params: any) {
+    for (const key in params) {
+      this.attributes[key] = params[key]
+      if (key === 'multiple') {
+        // 多选属性对应的值需要手动重置
+        this.setValue(params[key] ? [] : '')
+      }
+    }
+  }
+  setExtendAttribute(params: any) {
+    console.log(params)
+    for (const key in params) {
+      this.extendAttributes[key] = params[key]
+    }
+  }
+  setData(data: any): void {
+    this.data = data
+  }
+  async action(actionName: string, params: any) {
+    // if (actionName === 'loadData') {
+    //   this.setData([])
+    //   const res = await this.actions[actionName](params)
+    //   this.setData(res)
+    // } else if (actionName === 'init') {
+    //   this.store?.setModel(this, null)
+    //   if (this.extendAttributes.remote) {
+    //     await this.action('loadData', params)
+    //   }
+    // } else (this.actions && this.actions[actionName]) {
+    //   await this.actions[actionName](params)
+    // }
+  }
+
   getReadOnlyNode(exceptOptions?: INodeOptions): INodeOptions {
     const tmp: INodeOptions = {
       index: this.index,
@@ -226,6 +279,7 @@ class Node implements INode {
       visible: this.visible,
       style: this.style,
       attributes: this.attributes,
+      extendAttributes: this.extendAttributes,
       actions: this.actions,
       options: this.options,
       componentType: this.componentType,

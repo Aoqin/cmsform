@@ -1,4 +1,14 @@
 import type { INodeOptions } from '@/model/treeNode'
+import {
+  colAttributes,
+  formCheckboxGroupAttributes,
+  formDatePickerAttributes,
+  formInputAttributes,
+  formRadioGroupAttributes,
+  formSelectAttributes,
+  formTimePickerAttributes,
+  rowAttributes
+} from './fields'
 
 export const config: INodeOptions = {
   name: 'name',
@@ -16,7 +26,9 @@ export const config: INodeOptions = {
       componentType: 'input',
       componentName: '单行文本',
       children: null,
-      attributes: {},
+      attributes: {
+        ...formInputAttributes
+      },
       style: {},
       action: {},
       value: ''
@@ -27,7 +39,9 @@ export const config: INodeOptions = {
       componentType: 'select',
       componentName: '下拉选择框',
       children: null,
-      attributes: {},
+      attributes: {
+        ...formSelectAttributes
+      },
       style: {},
       action: {},
       value: '',
@@ -50,7 +64,9 @@ export const config: INodeOptions = {
       componentType: 'radio',
       componentName: '单选',
       children: null,
-      attributes: {},
+      attributes: {
+        ...formRadioGroupAttributes
+      },
       style: {},
       action: {},
       value: '',
@@ -73,7 +89,9 @@ export const config: INodeOptions = {
       componentType: 'checkbox',
       componentName: '多选',
       children: null,
-      attributes: {},
+      attributes: {
+        ...formCheckboxGroupAttributes
+      },
       style: {},
       action: {},
       value: [],
@@ -96,7 +114,9 @@ export const config: INodeOptions = {
       componentType: 'datePicker',
       componentName: '日期选择器',
       children: null,
-      attributes: {},
+      attributes: {
+        ...formDatePickerAttributes
+      },
       style: {},
       action: {},
       value: '',
@@ -108,7 +128,9 @@ export const config: INodeOptions = {
       componentType: 'timePicker',
       componentName: '时间选择器',
       children: null,
-      attributes: {},
+      attributes: {
+        ...formTimePickerAttributes
+      },
       style: {},
       action: {},
       value: '',
@@ -126,7 +148,9 @@ export const config: INodeOptions = {
           componentType: 'col',
           componentName: 'col',
           children: [],
-          attributes: {},
+          attributes: {
+            ...colAttributes
+          },
           style: {},
           action: {},
           value: ''
@@ -137,13 +161,17 @@ export const config: INodeOptions = {
           componentType: 'col',
           componentName: 'col',
           children: [],
-          attributes: {},
+          attributes: {
+            ...colAttributes
+          },
           style: {},
           action: {},
           value: ''
         }
       ],
-      attributes: {},
+      attributes: {
+        ...rowAttributes
+      },
       style: {},
       action: {}
     },
@@ -159,7 +187,10 @@ export const config: INodeOptions = {
           componentType: 'tabPane',
           componentName: 'tabPane',
           children: [],
-          attributes: {},
+          attributes: {
+            label: 'tabpane1',
+            key: 'tabpane1'
+          },
           style: {},
           action: {},
           value: ''
@@ -170,7 +201,10 @@ export const config: INodeOptions = {
           componentType: 'tabPane',
           componentName: 'tabPane',
           children: [],
-          attributes: {},
+          attributes: {
+            label: 'tabpane2',
+            key: 'tabpane2'
+          },
           style: {},
           action: {},
           value: ''
@@ -184,7 +218,7 @@ export const config: INodeOptions = {
       name: 'flexContainer',
       id: null,
       componentType: 'flexContainer',
-      componentName: '组容器',
+      componentName: '弹性容器',
       children: [
         {
           name: 'flexContainer1',

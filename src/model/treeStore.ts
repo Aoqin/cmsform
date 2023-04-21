@@ -2,9 +2,17 @@ import { reactive, ref } from 'vue'
 import type { INode, INodeOptions } from './treeNode'
 import node from './treeNode'
 import { deepCopy } from '@/utils'
+import type { IRuleOption } from '@/config/rules'
+import type { IObjectKeys } from '@/config/common'
 
-export interface IObjectKeys {
-  [key: string]: any
+export interface IFunOption {
+  label: string
+  key: string
+  fun: Function
+}
+
+export interface IFunctions {
+  [key: string]: IFunOption
 }
 
 export interface ITreeStore {
@@ -12,13 +20,18 @@ export interface ITreeStore {
   currentNodeKey: string | null
   nodesMap: Map<string, INode>
   root?: INode | null
-  model: IObjectKeys | null
-  functions: Object | null
+  model: IObjectKeys<any> | null
+  functions: IObjectKeys<IFunOption> | null
+  rules: IObjectKeys<IRuleOption> | null
   initialize(mergeParams?: any): void
   getCurrentNode(): INode | null
   setCurrentNode(node: INode | null): void
   setCurrentNodeKey(key: string | null): void
   getNode(key: any): any
+  registerFunctions(functions: IFunctions): void
+  deregisterFunctions(key: string): void
+  registerRules(rules: IObjectKeys<IRuleOption>): void
+  deregisterRules(key: string): void
   registerNode(node: INode): void
   deregisterNode(node: INode): void
   registerModel(node: INode, value: any): void
@@ -32,10 +45,16 @@ export class Treestore implements ITreeStore {
   currentNodeKey: string | null = null
   nodesMap = new Map<string, INode>()
   root: INode | null = null
-  model: IObjectKeys | null = null
-  functions: Object | null = null
+  model: IObjectKeys<any> | null = null
+  functions: IObjectKeys<IFunOption> | null = {}
+  rules: IObjectKeys<IRuleOption> | null = {}
   constructor(options?: any) {
-    this.functions = {}
+    if (options && options.functions) {
+      this.registerFunctions(options.functions)
+    }
+    if (options && options.rules) {
+      this.registerRules(options.rules)
+    }
   }
   initialize(mergeParams?: INodeOptions) {
     this.root = new node({
@@ -84,6 +103,30 @@ export class Treestore implements ITreeStore {
       delete this.model![key]
     }
   }
+  registerRules(rule: IObjectKeys<IRuleOption>): void {
+    if (rule) {
+      for (const key in rule) {
+        this.rules![key] = deepCopy(rule[key])
+      }
+    }
+  }
+  deregisterRules(key: string): void {
+    if (key && Object.hasOwnProperty.call(this.rules, key)) {
+      delete this.rules![key]
+    }
+  }
+  registerFunctions(func: IObjectKeys<IFunOption>): void {
+    if (func) {
+      for (const key in func) {
+        this.functions![key] = func[key]
+      }
+    }
+  }
+  deregisterFunctions(key: string): void {
+    if (key && Object.hasOwnProperty.call(this.functions, key)) {
+      delete this.functions![key]
+    }
+  }
   getCurrentNode(): INode | null {
     return this.currentNode
   }
@@ -96,8 +139,7 @@ export class Treestore implements ITreeStore {
     return this.nodesMap.get(key)
   }
   setModel(node: INode, value: any): void {
-    this.nodesMap.get(node.key)!.value = value
-    this.model![`${node.componentType}::${node.key}`] = value
+    this.model![node.getModelKey()!] = value
   }
   createModel() {
     this.model = reactive<IObjectKeys>({})

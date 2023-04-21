@@ -39,3 +39,15 @@ export function deepCopy<T>(obj: T): T {
 
   return result as T
 }
+
+type ObjMap = {
+  [key: string]: any
+}
+
+export function objMapToSet(target: ObjMap, params: ObjMap, map: ObjMap): void {
+  for (const key in params) {
+    if (Object.prototype.hasOwnProperty.call(map, key)) {
+      target[key] = deepCopy(params[key])
+    }
+  }
+}
