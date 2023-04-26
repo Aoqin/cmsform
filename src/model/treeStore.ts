@@ -8,7 +8,7 @@ import type { IObjectKeys } from '@/config/common'
 export interface IFunOption {
   label: string
   key: string
-  fun: Function
+  fun: (params: { url: string; params: any; method?: 'GET' | 'POST' } | Object) => Promise<any>
 }
 
 export interface IFunctions {
@@ -21,8 +21,8 @@ export interface ITreeStore {
   nodesMap: Map<string, INode>
   root?: INode | null
   model: IObjectKeys<any> | null
-  functions: IObjectKeys<IFunOption> | null
-  rules: IObjectKeys<IRuleOption> | null
+  functions: IObjectKeys<IFunOption>
+  rules: IObjectKeys<IRuleOption>
   initialize(mergeParams?: any): void
   getCurrentNode(): INode | null
   setCurrentNode(node: INode | null): void
@@ -46,8 +46,8 @@ export class Treestore implements ITreeStore {
   nodesMap = new Map<string, INode>()
   root: INode | null = null
   model: IObjectKeys<any> | null = null
-  functions: IObjectKeys<IFunOption> | null = {}
-  rules: IObjectKeys<IRuleOption> | null = {}
+  functions: IObjectKeys<IFunOption> = {}
+  rules: IObjectKeys<IRuleOption> = {}
   constructor(options?: any) {
     if (options && options.functions) {
       this.registerFunctions(options.functions)
@@ -82,10 +82,11 @@ export class Treestore implements ITreeStore {
   }
   registerModel(node: INode): void {
     const key = node.getModelKey()
+    const multiple = node.properties?.multiple
     if (key) {
       // todo: 一套标准的初始化对应model的方法
       if (node.value === undefined || node.value === null) {
-        this.model![key] = ref(null)
+        this.model![key] = multiple ? ref([]) : ref(null)
       } else {
         if (node.value instanceof Array) {
           this.model![key] = ref([...node.value])
@@ -146,7 +147,7 @@ export class Treestore implements ITreeStore {
       } else if (this.model![key] instanceof Array) {
         this.model![key].value = []
       } else {
-        this.model![key] = value
+        this.model![key] = ''
       }
     } else {
       if (value instanceof Array) {

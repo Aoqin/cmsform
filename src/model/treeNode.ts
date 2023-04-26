@@ -1,52 +1,35 @@
-import { reactive, ref } from 'vue'
-import type { INode as IReadOnlyNode } from '../utils/tree'
+import { reactive } from 'vue'
 import type { ITreeStore } from './treeStore'
 import { generate } from 'shortid'
 import { deepCopy } from '@/utils'
 import { formFields, type IComponentType } from '@/config/fields'
 
-type INodeOptionKes =
-  | 'parent'
-  | 'index'
-  | 'name'
-  | 'key'
-  | 'id'
-  | 'data'
-  | 'visible'
-  | 'style'
-  | 'attributes'
-  | 'actions'
-  | 'options'
-  | 'componentType'
-  | 'componentName'
-  | 'value'
-  | 'store'
-
-type actionType = 'change' | 'loadData' | 'init'
+import type { NodeActionName, NodeActionParams } from '@/config/action'
+import type { IObjectKeys } from '@/config/common'
 
 export interface INode {
   parent: INode | null
   index: number
-  name: String
-  key: String
-  id: String
+  name: string
+  key: string
+  id: string
   data: any
   visible: boolean
   style: any
-  attributes: any
+  properties: any
   actions: {
     [key: string]: Promise<any>
   }
   options?: Array<any>
   componentType: IComponentType
-  componentName: String
-  value?: String | number | Array<any> | object | null
+  componentName: string
+  value?: string | number | Array<any> | object | null
   children?: Array<INode> | null
   store?: ITreeStore
   remote?: boolean
   remoteOptionProps?: {
-    label: String
-    value: String
+    label: string
+    value: string
   }
   [key: string]: any
   initialize(): void
@@ -61,7 +44,8 @@ export interface INode {
   setStyle(params: any): void
   setAction(params: any): void
   setOptions(params: any): void
-  setAttribute(params: any): void
+  setProperties(params: any): void
+  setExtendAttribute(params: any): void
   getReadOnlyNode(exceptOptions?: INodeOptions): INodeOptions
   setData(data: any): void
   getModelKey(): string | null
@@ -72,23 +56,23 @@ export interface INode {
 export interface INodeOptions {
   parent?: INode | null
   index?: Number
-  name?: String
-  key?: String
-  id?: String | null
+  name?: string
+  key?: string
+  id?: string | null
   data?: Array<any> | object
   visible?: boolean
   style?: any
-  attributes?: any
-  actions: {
+  properties?: any
+  actions?: {
     [key: string]: Promise<any>
   }
   options?: Array<any>
   componentType?: IComponentType
-  componentName?: String
-  value?: String | null
+  componentName?: string
+  value?: string | Array<any> | Number | null
   store?: ITreeStore
-  children: INodeOptions[] | undefined
-  extendAttributes: any
+  children?: INodeOptions[] | null
+  extendAttributes?: any
   [key: string]: any
 }
 
@@ -102,10 +86,10 @@ class Node implements INode {
   index: number = 0
   componentType: IComponentType = ''
   componentName: string = ''
-  value?: string | null = null
+  value: string | Array<any> | Number | null = null
   store?: ITreeStore | undefined
   // 引用类型的属性，需要在构造函数中初始化隔离数据
-  attributes: any = {}
+  properties: any = {}
   extendAttributes: any = {}
   options: any = {}
   actions: any = {}
@@ -113,19 +97,21 @@ class Node implements INode {
   data: any = {}
   // children 不能在构造函数中直接赋值
   children?: Array<INode> | null = []
+  // timer
+  // timer: any = null
   constructor(options: INodeOptions) {
     for (const key in options) {
       if (Object.prototype.hasOwnProperty.call(this, key)) {
         if (
-          ['options', 'attributes', 'extendAttributes', 'actions', 'style', 'data'].indexOf(key) !=
+          ['options', 'properties', 'extendAttributes', 'actions', 'style', 'data'].indexOf(key) !=
           -1
         ) {
           // 隔离每个node的数据
-          this[key] = deepCopy(options[key])
+          ;(this as INode)[key] = deepCopy(options[key])
         } else if (key === 'children') {
           console.log(options)
         } else {
-          this[key] = options[key]
+          ;(this as INode)[key] = options[key]
         }
       }
     }
@@ -141,12 +127,15 @@ class Node implements INode {
     }
     store.registerNode(this)
   }
+
   remove() {
     if (this.parent) {
-      this.parent.removeChild(this)
-      this.parent.resetChildrenIndex()
+      const parent = this.parent
+      parent.removeChild(this)
+      parent.resetChildrenIndex()
     }
   }
+
   removeChild(child: INode) {
     const index = this.children?.indexOf(child)
     if (index !== -1 && index !== undefined) {
@@ -161,9 +150,20 @@ class Node implements INode {
       this.resetChildrenIndex()
     }
   }
+
+  clone(): INode {
+    const node = new Node({
+      ...this.getReadOnlyNode(),
+      parent: this.parent,
+      store: this.store
+    })
+    return node
+  }
+
   getChildren(): INode[] {
     return []
   }
+
   insertChild(child: INode | INodeOptions, index?: number) {
     if (!child) {
       throw new Error('InsertChild error: child is required')
@@ -201,6 +201,7 @@ class Node implements INode {
     }
     this.resetChildrenIndex()
   }
+
   moveChild(child: INode, index: number, oldIndex?: number) {
     if (index === undefined || index < 0) {
       throw new Error('MoveChild error: index is required')
@@ -215,60 +216,172 @@ class Node implements INode {
     this.children?.splice(index, 0, child)
     this.resetChildrenIndex()
   }
+
   insertBefore() {}
+
   insertAfter() {}
+
   resetChildrenIndex(): void {
     this.children?.forEach((child, index) => {
       child.index = index
     })
   }
-  clone(): INode {
-    const node = new Node({
-      ...this.getReadOnlyNode(),
-      parent: this.parent,
-      store: this.store
-    })
-    return node
-  }
-  setValue(params: any) {
+
+  setValue(params?: any) {
     this.store?.setModel(this, params)
+    this.action('change', params)
   }
+
   setStyle(params: any) {}
+
   setAction(params: any) {}
+
   setOptions(params: any) {}
-  setAttribute(params: any) {
+
+  setProperties(params: any) {
     for (const key in params) {
-      this.attributes[key] = params[key]
+      this.properties[key] = params[key]
       if (key === 'multiple') {
-        // 多选属性对应的值需要手动重置
+        // 多选属性对应的初始值需要手动重置
         this.setValue(params[key] ? [] : '')
       }
     }
   }
+
+  setIndex(index: number, oldIndex?: number) {
+    if (oldIndex === undefined) {
+      oldIndex = this.parent?.children?.indexOf(this)
+    }
+    if (oldIndex === undefined || oldIndex < 0) {
+      throw new Error('MoveChild error: node is not a child of this node')
+    }
+    this.parent?.children?.splice(oldIndex, 1)
+    this.parent?.children?.splice(index, 0, this)
+    this.parent?.resetChildrenIndex()
+  }
+
+  /**
+   *
+   * @param params
+   */
   setExtendAttribute(params: any) {
-    console.log(params)
     for (const key in params) {
       this.extendAttributes[key] = params[key]
     }
   }
-  setData(data: any): void {
+
+  /**
+   *
+   * @param data
+   */
+  setData(data: Array<any>): void {
     this.data = data
-  }
-  async action(actionName: string, params: any) {
-    // if (actionName === 'loadData') {
-    //   this.setData([])
-    //   const res = await this.actions[actionName](params)
-    //   this.setData(res)
-    // } else if (actionName === 'init') {
-    //   this.store?.setModel(this, null)
-    //   if (this.extendAttributes.remote) {
-    //     await this.action('loadData', params)
-    //   }
-    // } else (this.actions && this.actions[actionName]) {
-    //   await this.actions[actionName](params)
-    // }
+    const remoteOptionProps: { label: string; value: string } =
+      this.extendAttributes.remoteOptionProps
+    this.options = data.map((item) => {
+      return {
+        label: item[remoteOptionProps.label],
+        value: item[remoteOptionProps.value]
+      }
+    })
   }
 
+  /**
+   *
+   * @param actionName
+   * @param params
+   * @returns
+   */
+  action(actionName: NodeActionName, params: NodeActionParams) {
+    console.log('================================')
+    console.log('actionName', actionName)
+    console.log('params', params)
+    console.log('================================')
+    const {
+      remote,
+      linkage,
+      linked,
+      remoteFunOrUrl,
+      isRemoteFun,
+      target,
+      targetAction,
+      remoteParams
+    } = this.extendAttributes
+    if (actionName === 'reset') {
+      this.setValue()
+    } else if (actionName === 'loadData') {
+      if (linked) {
+        // 如果是联动触发的，必须传入联动源值，获取联列表数据
+        if (!params.$value) return
+      }
+      if (remote && remoteFunOrUrl) {
+        // 如果是远程数据，需要调用远程接口获取数据
+        this.setProperties({ loading: true })
+        // 协议组装请求参数
+        let reqParams: IObjectKeys<any> = {}
+        if (remoteParams) {
+          const { $value, args = {} } = params
+          const { $value: $valueKey = undefined, ...others } = remoteParams
+            ? JSON.parse(remoteParams)
+            : {}
+          reqParams = {
+            ...args,
+            ...others
+          }
+          if ($valueKey) reqParams[$valueKey] = $value
+        }
+        if (!isRemoteFun) {
+          //  路径请求
+          const request = this.store?.functions?.request?.fun
+            ? this.store?.functions?.request.fun
+            : () => {
+                throw new Error('reqest is not defined')
+              }
+          request({ url: remoteFunOrUrl, reqParams })
+            .then((res: Array<any>) => {
+              this.setData(res)
+            })
+            .finally(() => {
+              this.setProperties({ loading: false })
+            })
+        } else {
+          // 库函数名请求
+          const request = this.store?.functions?.[remoteFunOrUrl]?.fun
+          if (request) {
+            request(reqParams)
+              .then((res: Array<any>) => {
+                this.setData(res)
+              })
+              .finally(() => {
+                this.setProperties({ loading: false })
+              })
+          }
+        }
+      }
+    } else if (actionName === 'change') {
+      if (linkage && target) {
+        const node = this.store?.getNode(target)
+        if (node) {
+          if (targetAction && targetAction.length > 0) {
+            // 如果配置联动目标的action，直接触发，将当前值传入
+            const val = this.getModel()
+            targetAction.forEach((actNam: string) => {
+              node.action(actNam, { $value: val, args: params })
+            })
+          }
+        }
+      }
+    }
+    // todo init 事件
+    // todo click 事件
+    // todo show hide
+  }
+
+  /**
+   *
+   * @param exceptOptions 除了哪些属性
+   * @returns
+   */
   getReadOnlyNode(exceptOptions?: INodeOptions): INodeOptions {
     const tmp: INodeOptions = {
       index: this.index,
@@ -278,7 +391,7 @@ class Node implements INode {
       data: this.data,
       visible: this.visible,
       style: this.style,
-      attributes: this.attributes,
+      properties: this.properties,
       extendAttributes: this.extendAttributes,
       actions: this.actions,
       options: this.options,
@@ -297,11 +410,20 @@ class Node implements INode {
     }
     return tmp
   }
+
+  /**
+   *
+   * @returns {string | null} 返回当前节点的modelKey，如果不是表单组件，返回null
+   */
   getModelKey(): string | null {
     if (formFields.includes(this.componentType)) {
       return `${this.componentType}.${this.key}`
     }
     return null
+  }
+
+  getModel() {
+    return this.store?.model![this.getModelKey()!]
   }
 }
 

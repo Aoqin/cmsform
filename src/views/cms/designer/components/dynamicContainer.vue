@@ -66,18 +66,18 @@ export default defineComponent({
   setup(props) {},
   render() {
     const { element } = this.$props
-    const { componentType, attributes, children } = element!
+    const { componentType, properties, children } = element!
     let comp: VNode | DefineComponent | Function | string
     let childCompBuilder: VNode | DefineComponent | Function
     let attr: any = {}
     switch (componentType) {
       case 'row':
         comp = ElRow
-        objMapToSet(attr, attributes, defaultRowAttributes)
+        objMapToSet(attr, properties, defaultRowAttributes)
         childCompBuilder = () =>
           children.map((el: INode) => {
             const subAttr = {}
-            objMapToSet(subAttr, el.attributes, defaultColAttributes)
+            objMapToSet(subAttr, el.properties, defaultColAttributes)
             return h(
               ElCol,
               {
@@ -89,11 +89,11 @@ export default defineComponent({
         break
       case 'tabs':
         comp = ElTabs
-        objMapToSet(attr, attributes, defaultTabsAttributes)
+        objMapToSet(attr, properties, defaultTabsAttributes)
         childCompBuilder = () =>
           children.map((el: INode) => {
             const subAttr = {}
-            objMapToSet(subAttr, el.attributes, defaultTabPaneAttributes)
+            objMapToSet(subAttr, el.properties, defaultTabPaneAttributes)
             return h(
               ElTabs.TabPane,
               {

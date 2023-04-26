@@ -20,14 +20,14 @@
       </el-form-item>
       <el-form-item label="label">
         <el-input
-          :modelValue="attributes.label"
-          @update:modelValue="setAttribute('label', $event)"
+          :modelValue="properties.label"
+          @update:modelValue="setProperties('label', $event)"
         />
       </el-form-item>
       <el-form-item label="placeholder">
         <el-input
-          :modelValue="attributes.placeholder"
-          @update:modelValue="setAttribute('placeholder', $event)"
+          :modelValue="properties.placeholder"
+          @update:modelValue="setProperties('placeholder', $event)"
         />
       </el-form-item>
       <el-form-item label="searchable">
@@ -44,15 +44,41 @@
       </el-form-item>
       <el-form-item label="disabled">
         <el-switch
-          :modelValue="attributes.disabled"
-          @update:modelValue="setAttribute('disabled', $event)"
+          :modelValue="properties.disabled"
+          @update:modelValue="setProperties('disabled', $event)"
         />
       </el-form-item>
       <el-form-item label="multiple">
         <el-switch
-          :modelValue="attributes.multiple"
-          @update:modelValue="setAttribute('multiple', $event)"
+          :modelValue="properties.multiple"
+          @update:modelValue="setProperties('multiple', $event)"
         />
+      </el-form-item>
+      <el-form-item label="action">
+        <el-switch
+          :modelValue="extendAttributes.action"
+          @update:modelValue="setExtendAttribute('action', $event)"
+        />
+      </el-form-item>
+      <el-form-item label="actions">
+        <el-select placeholder="">
+          <el-option
+            v-for="item in actionOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+            @click="addAction(item)"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="actionconfig">
+        <div class="" v-for="(item, index) in actions" :key="`action_${index}`">
+          <el-input
+            :modelValue="item.actionFunName"
+            @update:modelValue="setExtendAttribute('actionText', $event)"
+          />
+          <el-input v-model="item.params" placeholder="" />
+        </div>
       </el-form-item>
       <el-form-item label="linkage">
         <el-switch
@@ -70,18 +96,17 @@
         </el-select>
       </el-form-item>
       <el-form-item label="target">
-        <el-input
-          :modelValue="extendAttributes.target"
-          @update:modelValue="setExtendAttribute('target', $event)"
-        />
+        <el-input :modelValue="extendAttributes.target" @update:modelValue="setTarget" />
       </el-form-item>
-      <el-form-item label="targetActions">
+      <el-form-item label="targetAction">
         <el-select
-          :modelValue="extendAttributes.targetActions"
-          @update:modelValue="setExtendAttribute('targetActions', $event)"
+          :modelValue="extendAttributes.targetAction"
+          @update:modelValue="setExtendAttribute('targetAction', $event)"
+          :multiple="true"
         >
           <el-option label="change" value="change" />
-          <el-option label="init" value="init" />
+          <el-option label="reset" value="reset" />
+          <el-option label="loadData" value="loadData" />
         </el-select>
       </el-form-item>
       <el-form-item label="options">
@@ -112,27 +137,46 @@
           <div><el-link :underline="false" type="primary" @click="addOption">添加</el-link></div>
         </template>
         <template v-else>
-          <el-input v-model="attributes.remoteMethod">
+          <el-input
+            :modelValue="extendAttributes.remoteFunOrUrl"
+            @update:modelValue="setExtendAttribute('remoteFunOrUrl', $event)"
+            placeholder="请输入方法名或URL地址"
+          >
             <template #prepend>
               <div>远端方法</div>
             </template>
           </el-input>
-          <el-input v-model="attributes.remoteOptionProps.value">
+          <el-label>action</el-label>
+          <el-switch
+            :modelValue="extendAttributes.isRemoteFun"
+            @update:modelValue="setExtendAttribute('isRemoteFun', $event)"
+          />
+          <el-input
+            placeholder="{ 'key': value , '$value': 'key'}"
+            :modelValue="extendAttributes.remoteParams"
+            @update:modelValue="setExtendAttribute('remoteParams', $event)"
+          >
+            <template #prepend>
+              <div>参数</div>
+            </template>
+          </el-input>
+          <el-input v-model="extendAttributes.remoteOptionProps.value">
             <template #prepend>
               <div>值</div>
             </template>
           </el-input>
-          <el-input v-model="attributes.remoteOptionProps.label">
+          <el-input v-model="extendAttributes.remoteOptionProps.label">
             <template #prepend>
               <div>标签</div>
             </template>
           </el-input>
+          <el-button @click="handleLoadData">加载数据</el-button>
         </template>
       </el-form-item>
       <el-form-item label="row">
         <div v-for="(item, index) in children" :key="`col_${index}`">
           <el-input
-            :modelValue="item.attributes.span"
+            :modelValue="item.properties.span"
             @update:modelValue="changeSpan(item, $event)"
             placeholder=""
           >
@@ -146,7 +190,7 @@
       <el-form-item label="tabpane">
         <div v-for="(item, index) in children" :key="`tabpane_${index}`">
           <el-input
-            :modelValue="item.attributes.label"
+            :modelValue="item.properties.label"
             @update:modelValue="changeLabel(item, $event)"
             placeholder=""
           >
@@ -160,12 +204,12 @@
       <el-form-item label="validate">
         <el-checkbox
           label="required"
-          :modelValue="attributes.validate"
-          @update:modelValue="setAttribute('required', $event)"
+          :modelValue="properties.validate"
+          @update:modelValue="setProperties('required', $event)"
         />
         <el-select
-          :modelValue="attributes.validate"
-          @update:modelValue="setAttribute('validate', $event)"
+          :modelValue="properties.validate"
+          @update:modelValue="setProperties('validate', $event)"
         >
           <el-option
             v-for="item in validateOptions"
@@ -175,8 +219,8 @@
           />
         </el-select>
         <el-input
-          :modelValue="attributes.validate"
-          @update:modelValue="setAttribute('validate', $event)"
+          :modelValue="properties.validate"
+          @update:modelValue="setProperties('validate', $event)"
           placeholder="填写正则表达式"
         >
           <template #prepend>
@@ -189,8 +233,8 @@
       </el-form-item>
       <!-- <el-form-item label="readonly">
         <el-switch
-          :modelValue="attributes.readonly"
-          @update:modelValue="setAttribute('readonly', $event)"
+          :modelValue="properties.readonly"
+          @update:modelValue="setProperties('readonly', $event)"
         />
       </el-form-item> -->
     </el-form>
@@ -200,11 +244,10 @@
 <script setup lang="ts">
 import { colAttributes, tabPaneAttributes } from '@/config/fields'
 import Node from '@/model/treeNode'
-import type { IRule } from '@/model/treeStore'
-import { reactive, ref, defineProps, computed } from 'vue'
+import { reactive, ref, defineProps, computed, type PropType } from 'vue'
 
 const props = defineProps({
-  node: Node
+  node: [Node, null] as PropType<Node | null>
 })
 
 const attributeFormEl = ref()
@@ -213,7 +256,7 @@ const attributeForm = computed(() => {
   return props.node ? props.node : {}
 })
 
-const attributes = computed(() => (props.node ? props.node.attributes : {}))
+const properties = computed(() => (props.node ? props.node.properties : {}))
 
 const style = computed(() => (props.node ? props.node.style : {}))
 
@@ -223,13 +266,27 @@ const children = computed(() => (props.node ? props.node.children : []))
 
 const extendAttributes = computed(() => (props.node ? props.node.extendAttributes : {}))
 
-const setAttribute = (key: String, value: String | null | number) => {
+const actions = computed(() => {
+  const result = []
+  if (props.node && props.node.actions) {
+    for (const key in props.node.actions) {
+      result.push({
+        key,
+        funName: props.node.actions[key].funName,
+        params: props.node.actions[key].params
+      })
+    }
+  }
+  return result
+})
+
+const setProperties = (key: String, value: String | null | number) => {
   if (!props.node) return
   const attr: {
     [key: string]: String | null | number
   } = {}
   attr[key] = value
-  props.node?.setAttribute(attr)
+  props.node?.setProperties(attr)
 }
 
 const setExtendAttribute = (key: String, value: String | null | number) => {
@@ -239,6 +296,15 @@ const setExtendAttribute = (key: String, value: String | null | number) => {
   } = {}
   attr[key] = value
   props.node?.setExtendAttribute(attr)
+}
+
+const setAction = (key: String, value: String | null | number) => {
+  if (!props.node) return
+  const attr: {
+    [key: string]: String | null | number
+  } = {}
+  attr[key] = value
+  // props.node?.setAction(attr)
 }
 
 const rules = reactive({
@@ -254,6 +320,9 @@ const remote = computed({
   }
 })
 
+/**
+ * 添加配置项
+ */
 const addOption = () => {
   options.value.push({
     label: '',
@@ -261,19 +330,29 @@ const addOption = () => {
   })
 }
 
+/**
+ * 删除配置项
+ */
 const removeOption = (index: number) => {
   if (options.value.length <= 1) return
   options.value.splice(index, 1)
 }
 
+/**
+ * 类似row组件，删除col
+ * 删除字节点
+ */
 const removeChild = (item: Node) => {
   if (children.value.length <= 1) return
-  if (props.node?.attributes?.modelValue && props.node?.attributes?.modelValue === item.key) {
-    props.node?.setAttribute({ modelValue: '' })
+  if (props.node?.properties?.modelValue && props.node?.properties?.modelValue === item.key) {
+    props.node?.setProperties({ modelValue: '' })
   }
   item.remove()
 }
-
+/**
+ * 类似row的组件，添加col
+ * 添加子节点
+ */
 const addChild = () => {
   let type: 'col' | 'tabPane'
   const index = props.node?.children?.length || 0
@@ -297,7 +376,7 @@ const addChild = () => {
     componentType: type,
     componentName: componentName,
     children: [],
-    attributes: {
+    properties: {
       ...attr
     },
     style: {},
@@ -306,16 +385,43 @@ const addChild = () => {
   })
   props.node?.insertChild(node)
 }
-
+/**
+ * 修改 col 组件 span
+ */
 const changeSpan = (node: Node, index: string) => {
   if (Number(index) > 24) return
-  node.setAttribute({
+  node.setProperties({
     span: index ? Number(index) : null
   })
 }
 
+const setTarget = (key: string) => {
+  const oldTargetKey = props.node?.properties?.target
+  const oldTargetNode = props.node?.store?.getNode(oldTargetKey)
+  const newTargetNode = props.node?.store?.getNode(key)
+  if (oldTargetNode && oldTargetNode.extendAttributes?.linked) {
+    // 撤销关联
+    oldTargetNode.setExtendAttribute({ linked: false })
+  }
+  if (key && newTargetNode) {
+    if (newTargetNode.key === props.node?.key) {
+      throw new Error('不能关联自己')
+    }
+    if (newTargetNode.extendAttributes?.linked) {
+      throw new Error('已经关联了其他节点')
+    }
+    newTargetNode.setExtendAttribute({ linked: true })
+    props.node?.setExtendAttribute({ target: key })
+  }
+  if (!key) {
+    props.node?.setExtendAttribute({ target: '' })
+  }
+}
+
+const addAction = () => {}
+
 const changeLabel = (node: Node, label: string) => {
-  node.setAttribute({
+  node.setProperties({
     label
   })
 }
@@ -333,6 +439,25 @@ const validateOptions = computed(() => {
   }
   return _rules
 })
+
+const actionOptions = [
+  {
+    label: 'init',
+    value: 'init'
+  },
+  {
+    label: 'click',
+    value: 'click'
+  },
+  {
+    label: 'change',
+    value: 'change'
+  }
+]
+
+const handleLoadData = () => {
+  props.node?.action('loadData', {})
+}
 </script>
 
 <style scoped>

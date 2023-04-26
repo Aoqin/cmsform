@@ -15,9 +15,9 @@ export const config: INodeOptions = {
   id: undefined,
   componentType: 'input',
   componentName: 'input',
-  attributes: {},
+  properties: {},
   style: {},
-  action: {},
+  actions: {},
   value: '',
   children: [
     {
@@ -26,11 +26,12 @@ export const config: INodeOptions = {
       componentType: 'input',
       componentName: '单行文本',
       children: null,
-      attributes: {
+      properties: {
         ...formInputAttributes
       },
+      extendAttributes: {},
       style: {},
-      action: {},
+      actions: {},
       value: ''
     },
     {
@@ -39,11 +40,15 @@ export const config: INodeOptions = {
       componentType: 'select',
       componentName: '下拉选择框',
       children: null,
-      attributes: {
+      properties: {
         ...formSelectAttributes
       },
       style: {},
-      action: {},
+      actions: {},
+      extendAttributes: {
+        remote: false,
+        remoteOptionProps: { label: 'label', value: 'value' }
+      },
       value: '',
       options: [
         {
@@ -64,11 +69,15 @@ export const config: INodeOptions = {
       componentType: 'radio',
       componentName: '单选',
       children: null,
-      attributes: {
+      properties: {
         ...formRadioGroupAttributes
       },
+      extendAttributes: {
+        remote: false,
+        remoteOptionProps: { label: 'label', value: 'value' }
+      },
       style: {},
-      action: {},
+      actions: {},
       value: '',
       options: [
         {
@@ -89,11 +98,15 @@ export const config: INodeOptions = {
       componentType: 'checkbox',
       componentName: '多选',
       children: null,
-      attributes: {
+      properties: {
         ...formCheckboxGroupAttributes
       },
+      extendAttributes: {
+        remote: false,
+        remoteOptionProps: { label: 'label', value: 'value' }
+      },
       style: {},
-      action: {},
+      actions: {},
       value: [],
       options: [
         {
@@ -114,11 +127,12 @@ export const config: INodeOptions = {
       componentType: 'datePicker',
       componentName: '日期选择器',
       children: null,
-      attributes: {
+      properties: {
         ...formDatePickerAttributes
       },
+      extendAttributes: {},
       style: {},
-      action: {},
+      actions: {},
       value: '',
       options: []
     },
@@ -128,11 +142,12 @@ export const config: INodeOptions = {
       componentType: 'timePicker',
       componentName: '时间选择器',
       children: null,
-      attributes: {
+      properties: {
         ...formTimePickerAttributes
       },
+      extendAttributes: {},
       style: {},
-      action: {},
+      actions: {},
       value: '',
       options: []
     },
@@ -148,11 +163,12 @@ export const config: INodeOptions = {
           componentType: 'col',
           componentName: 'col',
           children: [],
-          attributes: {
+          properties: {
             ...colAttributes
           },
+          extendAttributes: {},
           style: {},
-          action: {},
+          actions: {},
           value: ''
         },
         {
@@ -161,15 +177,16 @@ export const config: INodeOptions = {
           componentType: 'col',
           componentName: 'col',
           children: [],
-          attributes: {
+          properties: {
             ...colAttributes
           },
+          extendAttributes: {},
           style: {},
-          action: {},
+          actions: {},
           value: ''
         }
       ],
-      attributes: {
+      properties: {
         ...rowAttributes
       },
       style: {},
@@ -187,12 +204,12 @@ export const config: INodeOptions = {
           componentType: 'tabPane',
           componentName: 'tabPane',
           children: [],
-          attributes: {
+          properties: {
             label: 'tabpane1',
             key: 'tabpane1'
           },
           style: {},
-          action: {},
+          actions: {},
           value: ''
         },
         {
@@ -201,16 +218,16 @@ export const config: INodeOptions = {
           componentType: 'tabPane',
           componentName: 'tabPane',
           children: [],
-          attributes: {
+          properties: {
             label: 'tabpane2',
             key: 'tabpane2'
           },
           style: {},
-          action: {},
+          actions: {},
           value: ''
         }
       ],
-      attributes: {},
+      properties: {},
       style: {},
       action: {}
     },
@@ -226,13 +243,13 @@ export const config: INodeOptions = {
           componentType: 'flexContainerItem',
           componentName: '分组',
           children: [],
-          attributes: {},
+          properties: {},
           style: {},
-          action: {},
+          actions: {},
           value: ''
         }
       ],
-      attributes: {},
+      properties: {},
       style: {},
       action: {}
     }

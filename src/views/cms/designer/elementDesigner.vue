@@ -12,7 +12,7 @@
       <el-container :direction="vertical">
         <el-main height="">
           <!-- Main content -->
-          <DesignerForm :config="store.root" />
+          <DesignerForm :config="store.root!" />
         </el-main>
       </el-container>
       <el-aside>
@@ -33,8 +33,9 @@ import ElementList from './components/layout/elementList.vue'
 import { ref, reactive, watch } from 'vue'
 import { rules } from '@/config/rules'
 // import type { INode } from '@/utils/tree'
+import functions from '@/config/functions'
 
-const store = reactive<ITreeStore>(new Treestore({ rules }))
+const store = reactive<ITreeStore>(new Treestore({ rules, functions }))
 store.initialize()
 
 watch(

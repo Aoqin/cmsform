@@ -9,7 +9,7 @@ export interface INode {
   children?: Array<INode> | null
   style: any
   action: any
-  attributes: any
+  properties: any
   value?: string | null
   options?: Array<any>
 }
@@ -23,7 +23,7 @@ export class Node implements INode {
   children: INode[] | undefined = []
   style: Object = {}
   action: Object = {}
-  attributes: Object = {}
+  properties: Object = {}
   value = null
   constructor(params: Node) {
     for (const key in params) {

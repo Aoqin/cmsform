@@ -103,7 +103,7 @@ export type ISelectAttributes = {
   filterable?: boolean
   remote?: boolean
   remoteOptionProps?: optionProps
-  remoteMethod?: String | null
+  remoteUrl?: String | null
   valueKey?: string
   loading?: boolean
   loadingText?: string
@@ -286,7 +286,7 @@ export const defaultSelectAttributes: ISelectAttributes = {
   filterable: false,
   remote: false,
   valueKey: '',
-  remoteMethod: null,
+  remoteUrl: null,
   loading: false,
   loadingText: '加载中',
   noMatchText: '无匹配数据',

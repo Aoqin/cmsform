@@ -8,7 +8,7 @@
     <!-- component -->
     <div class="content" :class="{ container: IsContainerComponent }">
       <DynamicContainer v-if="IsContainerComponent" :element="element" />
-      <el-form-item v-else v-bind="attributes">
+      <el-form-item v-else v-bind="properties">
         <DynamicFormItem :element="element" v-model="model" />
       </el-form-item>
     </div>
@@ -41,11 +41,10 @@ const props = defineProps<{
 
 const model: IObjectKeys<any> = computed({
   get() {
-    return props.element.store!.model![props.element.getModelKey()!]
+    return props.element.getModel()
   },
   set(value) {
-    console.log('set model to', value)
-    props.element.store!.model![props.element.getModelKey()!] = value
+    props.element.setValue(value)
   }
 })
 
@@ -62,8 +61,8 @@ const IsContainerComponent = computed(() => {
   return !formFields.includes(props.element.componentType as string)
 })
 
-const attributes = computed(() => {
-  const { label, required, rules = [], validate } = props.element.attributes
+const properties = computed(() => {
+  const { label, required, rules = [], validate } = props.element.properties
   const store = props.element.store!
   const attr: IFormItemAttributes = {
     label,

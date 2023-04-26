@@ -43,39 +43,39 @@ export default defineComponent({
     let comp: VNode | DefineComponent | Function
     let slots: Slots | null = null
     let attr: any = {}
-    const { componentType, options, attributes } = this.element!
+    const { componentType, options, properties } = this.element!
     const { modelValue } = this
     switch (componentType) {
       case 'input':
         comp = ElInput
-        objMapToSet(attr, attributes, defaultInputAttributes)
+        objMapToSet(attr, properties, defaultInputAttributes)
         break
       case 'select':
         comp = ElSelect
-        objMapToSet(attr, attributes, defaultSelectAttributes)
+        objMapToSet(attr, properties, defaultSelectAttributes)
         break
       case 'radio':
         comp = ElRadioGroup
-        objMapToSet(attr, attributes, defaultRadioGroupAttributes)
+        objMapToSet(attr, properties, defaultRadioGroupAttributes)
         break
       case 'checkbox':
         comp = ElCheckboxGroup
-        objMapToSet(attr, attributes, defaultCheckboxGroupAttributes)
+        objMapToSet(attr, properties, defaultCheckboxGroupAttributes)
         break
       case 'datePicker':
         comp = ElDatePicker
-        objMapToSet(attr, attributes, defaultDatePickerAttributes)
+        objMapToSet(attr, properties, defaultDatePickerAttributes)
         break
       case 'timePicker':
         comp = ElTimePicker
-        objMapToSet(attr, attributes, defaultTimePickerAttributes)
+        objMapToSet(attr, properties, defaultTimePickerAttributes)
         break
       default:
         comp = ElAlert
     }
 
+    let defaultSlot: VNode[] | null = null
     if (['select', 'checkbox', 'radio'].findIndex((item) => item === componentType) > -1) {
-      let defaultSlot: VNode[] | null
       let optionNode: VNode | DefineComponent | Function
       switch (componentType) {
         case 'select':
@@ -91,16 +91,31 @@ export default defineComponent({
           break
       }
 
-      defaultSlot =
-        options?.map((item: { key?: string; label?: string; value?: string }) =>
-          h(optionNode as VNode, { ...item })
-        ) || null
-
-      if (defaultSlot) {
-        slots = {
-          default: () => defaultSlot
+      const optionNodeFactory = (
+        optionAttr: { key?: string; label?: string; value?: string },
+        componentType: string
+      ) => {
+        if (componentType == 'select') {
+          return h(optionNode as VNode, { ...optionAttr })
+        } else {
+          return h(
+            optionNode as VNode,
+            { label: optionAttr.value },
+            { default: () => optionAttr.label }
+          )
         }
       }
+
+      defaultSlot =
+        options?.map((item: { key?: string; label?: string; value?: string }) => {
+          return optionNodeFactory(item, componentType)
+        }) || null
+
+      // if (defaultSlot) {
+      //   slots = {
+      //     default: () => defaultSlot
+      //   }
+      // }
     }
 
     return h(
@@ -114,7 +129,7 @@ export default defineComponent({
         ...attr
       },
       {
-        ...slots
+        default: defaultSlot ? () => defaultSlot : null
       }
     )
   }

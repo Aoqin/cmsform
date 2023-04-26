@@ -19,6 +19,8 @@
   <div class="source_code">
     {{ model }}
   </div>
+  <!-- <ActionConfig /> -->
+  <!-- <LinkConfig /> -->
 </template>
 
 <script setup lang="ts">
@@ -27,6 +29,8 @@ import Draggable from 'vuedraggable'
 import { reactive, computed, defineProps } from 'vue'
 import type { INode, INodeOptions } from '@/model/treeNode'
 import { ElForm } from 'element-plus'
+// import  ActionConfig from '../dialog/actionConfig.vue'
+// import LinkConfig from '../dialog/linkConfig.vue'
 
 const dragGroupOptions = reactive({
   name: 'components',
