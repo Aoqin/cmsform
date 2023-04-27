@@ -39,7 +39,7 @@ export interface INode {
   getChildren(): INode[]
   insertBefore(): void
   insertAfter(): void
-  clone(): INode
+  clone(deep: boolean, parent?: INode): INode
   setValue(params: any): void
   setStyle(params: any): void
   setAction(params: any): void
@@ -115,15 +115,15 @@ class Node implements INode {
         }
       }
     }
+    if (!this.key) {
+      this.key = generate()
+    }
   }
 
   initialize() {
     const store = this.store
     if (!store) {
       throw new Error('Node must be initialized with a store')
-    }
-    if (!this.key) {
-      this.key = generate()
     }
     store.registerNode(this)
   }
@@ -151,12 +151,17 @@ class Node implements INode {
     }
   }
 
-  clone(): INode {
+  clone(deep: boolean, parent?: INode): INode {
     const node = new Node({
-      ...this.getReadOnlyNode(),
-      parent: this.parent,
+      ...this.getReadOnlyNode({ key: '' }),
+      parent: parent ? parent : this.parent,
       store: this.store
     })
+    if (deep) {
+      node.children = this.children?.map((item) => {
+        return item.clone(deep, node)
+      })
+    }
     return node
   }
 
@@ -199,7 +204,7 @@ class Node implements INode {
     } else {
       this.children?.splice(index, 0, child)
     }
-    this.resetChildrenIndex()
+    // this.resetChildrenIndex()
   }
 
   moveChild(child: INode, index: number, oldIndex?: number) {

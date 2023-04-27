@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, h, type DefineComponent, type VNode } from 'vue'
-import { ElRow, ElCol, ElTabs } from 'element-plus'
+import { ElRow, ElCol, ElTabs, ElForm, ElFormItem } from 'element-plus'
 import Draggable from 'vuedraggable'
 import type { INode } from '@/model/treeNode'
 import DesignerFormItem from './designerFromItem.vue'
@@ -13,6 +13,7 @@ import {
   defaultTabsAttributes,
   defaultTabPaneAttributes
 } from '@/config/fields'
+import DynamicFormField from './dynamicFormField.vue'
 
 const dragGroupOptions = {
   name: 'components',
@@ -58,6 +59,11 @@ const dragableBuilder = (el: INode) =>
     }
   )
 
+const fieldBuilder = (el: INode) =>
+  h(DesignerFormItem, {
+    element: el
+  })
+
 export default defineComponent({
   props: {
     /* ... */
@@ -65,11 +71,29 @@ export default defineComponent({
   },
   setup(props) {},
   render() {
+    debugger
     const { element } = this.$props
     const { componentType, properties, children } = element!
-    let comp: VNode | DefineComponent | Function | string
-    let childCompBuilder: VNode | DefineComponent | Function
+    let comp: VNode | DefineComponent | Function | string = h('div')
+    let childCompBuilder: VNode | DefineComponent | Function = () => null
     let attr: any = {}
+    const groupAddItem = () => {
+      console.log('add')
+      const first = children[0]
+      const cloneTmp = first.clone(true)
+      element!.insertChild(cloneTmp)
+      console.log('element!.children')
+      console.log(element)
+    }
+
+    const groupItemDel = () => {
+      console.log('del')
+    }
+
+    const groupItemEdit = () => {
+      console.log('edit')
+    }
+
     switch (componentType) {
       case 'row':
         comp = ElRow
@@ -109,10 +133,49 @@ export default defineComponent({
         break
       case 'flexContainer':
         comp = Group
+        console.log('-====================')
+        console.log(children)
+        console.log('-====================')
         childCompBuilder = () =>
-          children.map((el: INode) => {
-            return h(GroupItem, { label: el.name }, () => dragableBuilder(el))
+          children.map((el: INode, index: Number) => {
+            if (index === 0) {
+              return h(
+                GroupItem,
+                {
+                  label: el.name,
+                  onEdit: groupItemEdit,
+                  onDel: groupItemDel
+                },
+                () => dragableBuilder(el)
+              )
+            } else {
+              return h(
+                GroupItem,
+                {
+                  label: el.name,
+                  operatiable: true,
+                  noDrag: true,
+                  onAdd() {
+                    console.log('add')
+                  },
+                  onDel() {
+                    console.log('delete')
+                  }
+                },
+                el.children!.map((el: INode) => {
+                  return h(
+                    ElFormItem,
+                    {
+                      label: el.name || undefined,
+                      prop: el.key || undefined
+                    },
+                    () => h(DynamicFormField, { element: el })
+                  )
+                })
+              )
+            }
           })
+        attr.onAdd = groupAddItem
         break
     }
     if (!comp) {

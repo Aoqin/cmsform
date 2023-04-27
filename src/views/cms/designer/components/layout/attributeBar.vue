@@ -146,7 +146,7 @@
               <div>远端方法</div>
             </template>
           </el-input>
-          <el-label>action</el-label>
+          <span>action</span>
           <el-switch
             :modelValue="extendAttributes.isRemoteFun"
             @update:modelValue="setExtendAttribute('isRemoteFun', $event)"

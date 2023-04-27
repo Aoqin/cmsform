@@ -1,137 +1,61 @@
+<template>
+  <el-form-item v-bind="properties">
+    <slot></slot>
+  </el-form-item>
+</template>
+
 <script lang="ts">
-import {
-  defaultCheckboxGroupAttributes,
-  defaultDatePickerAttributes,
-  defaultInputAttributes,
-  defaultRadioGroupAttributes,
-  defaultSelectAttributes,
-  defaultTimePickerAttributes
-} from '@/config/fields'
-import { objMapToSet } from '@/utils'
-import {
-  ElAlert,
-  ElInput,
-  ElOption,
-  ElRadio,
-  ElCheckbox,
-  ElCheckboxGroup,
-  ElRadioGroup,
-  ElSelect,
-  ElDatePicker,
-  ElTimePicker
-} from 'element-plus'
-import { defineComponent, h, type VNode, type Slots, type DefineComponent } from 'vue'
+import { defineComponent } from 'vue'
+import type { INode } from '@/model/treeNode'
+import type { IFormItemAttributes } from '@/config/fields'
+import type { IRule } from '@/config/rules'
+import { deepCopy } from '@/utils'
 
 export default defineComponent({
   props: {
-    element: Object,
-    modelValue: [Object, String, Number, Array, Boolean]
-  },
-  emits: ['update:modelValue'],
-  data: () => {
-    return {
-      value: null
+    element: {
+      type: Object as () => INode,
+      required: true
     }
   },
-  setup(props) {},
-  // watch: {
-  //   modelValue(val) {
-  //     console.log('modelValue:: ', val)
-  //   }
-  // },
-  render() {
-    let comp: VNode | DefineComponent | Function
-    let slots: Slots | null = null
-    let attr: any = {}
-    const { componentType, options, properties } = this.element!
-    const { modelValue } = this
-    switch (componentType) {
-      case 'input':
-        comp = ElInput
-        objMapToSet(attr, properties, defaultInputAttributes)
-        break
-      case 'select':
-        comp = ElSelect
-        objMapToSet(attr, properties, defaultSelectAttributes)
-        break
-      case 'radio':
-        comp = ElRadioGroup
-        objMapToSet(attr, properties, defaultRadioGroupAttributes)
-        break
-      case 'checkbox':
-        comp = ElCheckboxGroup
-        objMapToSet(attr, properties, defaultCheckboxGroupAttributes)
-        break
-      case 'datePicker':
-        comp = ElDatePicker
-        objMapToSet(attr, properties, defaultDatePickerAttributes)
-        break
-      case 'timePicker':
-        comp = ElTimePicker
-        objMapToSet(attr, properties, defaultTimePickerAttributes)
-        break
-      default:
-        comp = ElAlert
-    }
-
-    let defaultSlot: VNode[] | null = null
-    if (['select', 'checkbox', 'radio'].findIndex((item) => item === componentType) > -1) {
-      let optionNode: VNode | DefineComponent | Function
-      switch (componentType) {
-        case 'select':
-          optionNode = ElOption
-          break
-        case 'checkbox':
-          optionNode = ElCheckbox
-          break
-        case 'radio':
-          optionNode = ElRadio
-          break
-        default:
-          break
+  computed: {
+    properties() {
+      const { componentType } = this.element!
+      const { label, required, rules = [], validate } = this.element.properties
+      const store = this.element.store!
+      const attr: IFormItemAttributes = {
+        label,
+        prop: this.element.getModelKey()!
       }
-
-      const optionNodeFactory = (
-        optionAttr: { key?: string; label?: string; value?: string },
-        componentType: string
-      ) => {
-        if (componentType == 'select') {
-          return h(optionNode as VNode, { ...optionAttr })
-        } else {
-          return h(
-            optionNode as VNode,
-            { label: optionAttr.value },
-            { default: () => optionAttr.label }
-          )
+      // input 框默认 blur 触发，其他组件默认 change 触发
+      let triggerName = 'blur'
+      if (componentType !== 'input') {
+        triggerName = 'change'
+      }
+      // required
+      if (required) {
+        if (rules.findIndex((rule: IRule) => rule.required) === -1) {
+          rules.push({ required: true, message: `${label}必填项`, trigger: triggerName })
+        }
+      } else {
+        const index = rules.findIndex((rule: IRule) => rule.required)
+        if (index !== -1) {
+          rules.splice(index, 1)
         }
       }
 
-      defaultSlot =
-        options?.map((item: { key?: string; label?: string; value?: string }) => {
-          return optionNodeFactory(item, componentType)
-        }) || null
-
-      // if (defaultSlot) {
-      //   slots = {
-      //     default: () => defaultSlot
-      //   }
-      // }
-    }
-
-    return h(
-      comp,
-      {
-        modelValue,
-        'onUpdate:modelValue': (val: any) => {
-          console.log(`update:modelValue:: ${val}`)
-          this.$emit('update:modelValue', val)
-        },
-        ...attr
-      },
-      {
-        default: defaultSlot ? () => defaultSlot : null
+      // validation name
+      if (validate && store.rules![validate]) {
+        if (componentType === '')
+          rules.push({ ...store.rules![validate].rule, trigger: triggerName })
       }
-    )
+
+      if (rules && rules.length > 0) {
+        attr.rules = deepCopy(rules)
+      }
+
+      return attr
+    }
   }
 })
 </script>

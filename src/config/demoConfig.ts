@@ -238,7 +238,7 @@ export const config: INodeOptions = {
       componentName: '弹性容器',
       children: [
         {
-          name: 'flexContainer1',
+          name: 'flexContainerItem1',
           id: null,
           componentType: 'flexContainerItem',
           componentName: '分组',
