@@ -20,6 +20,7 @@ export interface INode {
   actions: {
     [key: string]: Promise<any>
   }
+  extendAttributes: any
   options?: Array<any>
   componentType: IComponentType
   componentName: string
@@ -151,18 +152,52 @@ class Node implements INode {
     }
   }
 
-  clone(deep: boolean, parent?: INode): INode {
+  /**
+   *
+   * @param deep 是否深度clone
+   * @param parent 当前clone的节点的父节点
+   * @param recordMap 当前clone的节点和新节点的映射关系
+   * @returns
+   */
+  cloneTmpNode(
+    deep: boolean,
+    parent?: INode,
+    recordMap?: Map<string, { val: INode; old: INode }>
+  ): INode {
     const node = new Node({
       ...this.getReadOnlyNode({ key: '' }),
       parent: parent ? parent : this.parent,
       store: this.store
     })
+    recordMap?.set(this.key, { val: node, old: this })
+    // 关联关系
     if (deep) {
       node.children = this.children?.map((item) => {
-        return item.clone(deep, node)
+        return item.cloneTmpNode(deep, node, recordMap)
       })
     }
     return node
+  }
+
+  clone(deep: boolean, parent?: INode): INode {
+    const recordMap = new Map<string, { val: INode; old: INode }>()
+    const clonedNode = this.cloneTmpNode(deep, parent, recordMap)
+    recordMap.forEach((item) => {
+      const { val } = item
+      if (val.extendAttributes?.linked) {
+        // 此节点存在关联关系
+        const linkedNode = recordMap.get(val.extendAttributes.linkSource)
+        //
+        if (linkedNode) {
+          item.val.extendAttributes.linkSource = linkedNode.val.key
+          linkedNode.val.extendAttributes.linkTarget = item.val.key
+        } else {
+          // clone 时的节点中没有找到关联的节点
+          throw new Error('clone error: linked node not found')
+        }
+      }
+    })
+    return clonedNode
   }
 
   getChildren(): INode[] {
@@ -304,12 +339,13 @@ class Node implements INode {
     console.log('================================')
     const {
       remote,
-      linkage,
-      linked,
       remoteFunOrUrl,
       isRemoteFun,
-      target,
-      targetAction,
+      linkage,
+      linked,
+      linkAction,
+      linkTarget,
+      linkTargetAction,
       remoteParams
     } = this.extendAttributes
     if (actionName === 'reset') {
@@ -364,17 +400,17 @@ class Node implements INode {
         }
       }
     } else if (actionName === 'change') {
-      if (linkage && target) {
-        const node = this.store?.getNode(target)
-        if (node) {
-          if (targetAction && targetAction.length > 0) {
-            // 如果配置联动目标的action，直接触发，将当前值传入
-            const val = this.getModel()
-            targetAction.forEach((actNam: string) => {
-              node.action(actNam, { $value: val, args: params })
-            })
-          }
-        }
+      console.log('change')
+    }
+    if (linkage && linkTarget && actionName === linkAction) {
+      // 如果配置了联动目标，需要触发联动目标的action
+      const node = this.store?.getNode(linkTarget)
+      if (node && linkTargetAction && linkTargetAction.length > 0) {
+        // 如果配置联动目标的action，直接触发，将当前值传入
+        const val = this.getModel()
+        linkTargetAction.forEach((actNam: string) => {
+          node.action(actNam, { $value: val, args: params })
+        })
       }
     }
     // todo init 事件
@@ -405,7 +441,6 @@ class Node implements INode {
       value: this.value,
       children: this.children?.map((item) => item.getReadOnlyNode(exceptOptions))
     }
-
     if (exceptOptions) {
       for (const key in exceptOptions) {
         if (Object.prototype.hasOwnProperty.call(tmp, key)) {

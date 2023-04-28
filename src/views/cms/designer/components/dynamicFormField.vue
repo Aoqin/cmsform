@@ -45,18 +45,11 @@ export default defineComponent({
       value: null
     }
   },
-  setup(props) {},
-  // watch: {
-  //   modelValue(val) {
-  //     console.log('modelValue:: ', val)
-  //   }
-  // },
   render() {
     let comp: VNode | DefineComponent | Function
     let slots: Slots | null = null
     let attr: any = {}
     const { componentType, options, properties } = this.element!
-    const { modelValue } = this
     switch (componentType) {
       case 'input':
         comp = ElInput

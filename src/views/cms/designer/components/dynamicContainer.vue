@@ -71,7 +71,6 @@ export default defineComponent({
   },
   setup(props) {},
   render() {
-    debugger
     const { element } = this.$props
     const { componentType, properties, children } = element!
     let comp: VNode | DefineComponent | Function | string = h('div')

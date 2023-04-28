@@ -95,13 +95,13 @@
           <el-option value="change" label="change" />
         </el-select>
       </el-form-item>
-      <el-form-item label="target">
-        <el-input :modelValue="extendAttributes.target" @update:modelValue="setTarget" />
+      <el-form-item label="linkTarget">
+        <el-input :modelValue="extendAttributes.linkTarget" @update:modelValue="setTarget" />
       </el-form-item>
-      <el-form-item label="targetAction">
+      <el-form-item label="linkTargetAction">
         <el-select
-          :modelValue="extendAttributes.targetAction"
-          @update:modelValue="setExtendAttribute('targetAction', $event)"
+          :modelValue="extendAttributes.linkTargetAction"
+          @update:modelValue="setExtendAttribute('linkTargetAction', $event)"
           :multiple="true"
         >
           <el-option label="change" value="change" />
@@ -204,7 +204,7 @@
       <el-form-item label="validate">
         <el-checkbox
           label="required"
-          :modelValue="properties.validate"
+          :modelValue="properties.required"
           @update:modelValue="setProperties('required', $event)"
         />
         <el-select
@@ -219,7 +219,7 @@
           />
         </el-select>
         <el-input
-          :modelValue="properties.validate"
+          :modelValue="properties.validateReg"
           @update:modelValue="setProperties('validate', $event)"
           placeholder="填写正则表达式"
         >
@@ -280,7 +280,12 @@ const actions = computed(() => {
   return result
 })
 
-const setProperties = (key: String, value: String | null | number) => {
+const setProperties = (key: string, value: any) => {
+  console.log('.....................')
+  console.log(props.node)
+  console.log(key)
+  console.log(value)
+  console.log('.....................')
   if (!props.node) return
   const attr: {
     [key: string]: String | null | number
@@ -396,7 +401,7 @@ const changeSpan = (node: Node, index: string) => {
 }
 
 const setTarget = (key: string) => {
-  const oldTargetKey = props.node?.properties?.target
+  const oldTargetKey = props.node?.properties?.linkTarget
   const oldTargetNode = props.node?.store?.getNode(oldTargetKey)
   const newTargetNode = props.node?.store?.getNode(key)
   if (oldTargetNode && oldTargetNode.extendAttributes?.linked) {
@@ -410,11 +415,11 @@ const setTarget = (key: string) => {
     if (newTargetNode.extendAttributes?.linked) {
       throw new Error('已经关联了其他节点')
     }
-    newTargetNode.setExtendAttribute({ linked: true })
-    props.node?.setExtendAttribute({ target: key })
+    newTargetNode.setExtendAttribute({ linked: true, linkSource: props.node?.key })
+    props.node?.setExtendAttribute({ linkTarget: key })
   }
   if (!key) {
-    props.node?.setExtendAttribute({ target: '' })
+    props.node?.setExtendAttribute({ linkTarget: '' })
   }
 }
 

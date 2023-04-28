@@ -23,6 +23,8 @@ export default defineComponent({
       const { componentType } = this.element!
       const { label, required, rules = [], validate } = this.element.properties
       const store = this.element.store!
+      console.log('properties:::::::::::::::::::::::::::: ');
+      console.log('properties:: ', this.element.properties);
       const attr: IFormItemAttributes = {
         label,
         prop: this.element.getModelKey()!
@@ -46,14 +48,15 @@ export default defineComponent({
 
       // validation name
       if (validate && store.rules![validate]) {
-        if (componentType === '')
+        if (componentType !== '')
           rules.push({ ...store.rules![validate].rule, trigger: triggerName })
       }
 
       if (rules && rules.length > 0) {
         attr.rules = deepCopy(rules)
       }
-
+      // 重置验证状态
+      // attr.validateStatus = ''
       return attr
     }
   }
