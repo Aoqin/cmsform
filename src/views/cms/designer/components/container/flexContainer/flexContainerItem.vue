@@ -32,9 +32,6 @@ const props = defineProps<{
   noDrag: boolean
 }>()
 
-const add = () => {
-  emits('add')
-}
 const edit = () => {
   emits('edit')
 }

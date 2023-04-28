@@ -67,7 +67,10 @@ const fieldBuilder = (el: INode) =>
 export default defineComponent({
   props: {
     /* ... */
-    element: Object
+    element: {
+      type: Object,
+      required: true
+    }
   },
   setup(props) {},
   render() {
@@ -132,9 +135,6 @@ export default defineComponent({
         break
       case 'flexContainer':
         comp = Group
-        console.log('-====================')
-        console.log(children)
-        console.log('-====================')
         childCompBuilder = () =>
           children.map((el: INode, index: Number) => {
             if (index === 0) {
@@ -154,10 +154,11 @@ export default defineComponent({
                   label: el.name,
                   operatiable: true,
                   noDrag: true,
-                  onAdd() {
-                    console.log('add')
+                  onEdit() {
+                    console.log('edit')
                   },
                   onDel() {
+                    el!.remove()
                     console.log('delete')
                   }
                 },
