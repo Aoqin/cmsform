@@ -21,6 +21,7 @@ export interface INode {
     [key: string]: Promise<any>
   }
   extendAttributes: any
+  backendConfig: any
   options?: Array<any>
   componentType: IComponentType
   componentName: string
@@ -67,13 +68,14 @@ export interface INodeOptions {
   actions?: {
     [key: string]: Promise<any>
   }
+  backendConfig?: any
+  extendAttributes?: any
   options?: Array<any>
   componentType?: IComponentType
   componentName?: string
   value?: string | Array<any> | Number | null
   store?: ITreeStore
   children?: INodeOptions[] | null
-  extendAttributes?: any
   [key: string]: any
 }
 
@@ -96,6 +98,7 @@ class Node implements INode {
   actions: any = {}
   style: any = {}
   data: any = {}
+  backendConfig: any = {}
   // children 不能在构造函数中直接赋值
   children?: Array<INode> | null = []
   // timer

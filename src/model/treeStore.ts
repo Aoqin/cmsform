@@ -15,6 +15,15 @@ export interface IFunctions {
   [key: string]: IFunOption
 }
 
+// todo: 公共字典
+type DictionaryOption = {
+  label: string
+  value: string | number
+  options: Array<any>
+  remote: boolean
+  url: string
+}
+
 export interface ITreeStore {
   currentNode: INode | null
   currentNodeKey: string | null
@@ -22,6 +31,7 @@ export interface ITreeStore {
   root?: INode | null
   model: IObjectKeys<any> | null
   functions: IObjectKeys<IFunOption>
+  dictionnary: IObjectKeys<DictionaryOption>
   rules: IObjectKeys<IRuleOption>
   initialize(mergeParams?: any): void
   getCurrentNode(): INode | null
