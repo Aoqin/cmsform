@@ -130,6 +130,7 @@ class Node implements INode {
       throw new Error('Node must be initialized with a store')
     }
     store.registerNode(this)
+    this.action('init', null)
   }
 
   remove() {
@@ -288,6 +289,18 @@ class Node implements INode {
         // 多选属性对应的初始值需要手动重置
         this.setValue(params[key] ? [] : '')
       }
+      // 日期选择器的类型变化时，需要手动重置值
+      if (this.componentType === 'datePicker' && key === 'type') {
+        if (
+          params[key] === 'datetimerange' ||
+          params[key] === 'daterange' ||
+          params[key] === 'monthrange'
+        ) {
+          this.setValue([])
+        } else {
+          this.setValue('')
+        }
+      }
     }
   }
 
@@ -404,7 +417,11 @@ class Node implements INode {
       }
     } else if (actionName === 'change') {
       console.log('change')
+    } else if (actionName === 'init') {
+      // 初始化
+      this.action('loadData', {})
     }
+    // 联动
     if (linkage && linkTarget && actionName === linkAction) {
       // 如果配置了联动目标，需要触发联动目标的action
       const node = this.store?.getNode(linkTarget)
@@ -416,7 +433,6 @@ class Node implements INode {
         })
       }
     }
-    // todo init 事件
     // todo click 事件
     // todo show hide
   }

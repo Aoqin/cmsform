@@ -95,6 +95,33 @@
           <el-option value="change" label="change" />
         </el-select>
       </el-form-item>
+      <!-- datetimer type -->
+      <el-form-item label="dateType">
+        <el-select
+          :modelValue="properties.type"
+          @update:modelValue="setProperties('type', $event)"
+          placeholder=""
+        >
+          <el-option
+            v-for="item in datePickerTypes"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="datePickerFormart">
+        <el-input
+          :modelValue="properties.format"
+          @update:modelValue="setProperties('format', $event)"
+        />
+      </el-form-item>
+      <el-form-item label="datePickerValueFormart">
+        <el-input
+          :modelValue="properties.valueFormat"
+          @update:modelValue="setProperties('valueFormat', $event)"
+        />
+      </el-form-item>
       <el-form-item label="linkTarget">
         <el-input :modelValue="extendAttributes.linkTarget" @update:modelValue="setTarget" />
       </el-form-item>
@@ -281,11 +308,6 @@ const actions = computed(() => {
 })
 
 const setProperties = (key: string, value: any) => {
-  console.log('.....................')
-  console.log(props.node)
-  console.log(key)
-  console.log(value)
-  console.log('.....................')
   if (!props.node) return
   const attr: {
     [key: string]: String | null | number
@@ -459,7 +481,40 @@ const actionOptions = [
     value: 'change'
   }
 ]
-
+const datePickerTypes = [
+  {
+    label: 'year',
+    value: 'year'
+  },
+  {
+    label: 'month',
+    value: 'month'
+  },
+  {
+    label: 'date',
+    value: 'date'
+  },
+  {
+    label: 'dates',
+    value: 'dates'
+  },
+  {
+    label: 'week',
+    value: 'week'
+  },
+  {
+    label: 'datetime',
+    value: 'datetime'
+  },
+  {
+    label: 'datetimerange',
+    value: 'datetimerange'
+  },
+  {
+    label: 'daterange',
+    value: 'daterange'
+  }
+]
 const handleLoadData = () => {
   props.node?.action('loadData', {})
 }
