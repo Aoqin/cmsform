@@ -1,4 +1,4 @@
-export type IFormComponentType =
+export type FormComponentType =
   | 'form'
   | 'formItem'
   | 'input'
@@ -24,7 +24,7 @@ export type IFormComponentType =
   | 'monthPicker'
   | 'yearPicker'
 
-export type IContainerComponentType =
+export type ContainerComponentType =
   | 'container'
   | 'row'
   | 'col'
@@ -33,9 +33,18 @@ export type IContainerComponentType =
   | 'flexContainer'
   | 'flexContainerItem'
 
-export type IComponentType = IFormComponentType | IContainerComponentType | '' 
+export type ViewComponentType =
+  | 'table'
+  | 'tableColumn'
+  | 'button'
+  | 'icon'
+  | 'text'
+  | 'image'
+  | 'divider'
 
-export const formFields = [
+export type ComponentType = FormComponentType | ContainerComponentType | ViewComponentType | ''
+
+export const formFields: Array<FormComponentType> = [
   'input',
   'select',
   'radio',
@@ -58,6 +67,24 @@ export const formFields = [
   'weekPicker',
   'monthPicker',
   'yearPicker'
+]
+
+export const containerFields: Array<ContainerComponentType> = [
+  'row',
+  'col',
+  'tabs',
+  'tabPane',
+  'flexContainer',
+  'flexContainerItem'
+]
+export const viewFields: Array<ViewComponentType> = [
+  'table',
+  'tableColumn',
+  'button',
+  'icon',
+  'text',
+  'image',
+  'divider'
 ]
 
 /**

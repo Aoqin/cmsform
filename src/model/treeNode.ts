@@ -2,7 +2,7 @@ import { reactive } from 'vue'
 import type { ITreeStore } from './treeStore'
 import { generate } from 'shortid'
 import { deepCopy } from '@/utils'
-import { formFields, type IComponentType } from '@/config/fields'
+import { formFields, type ComponentType } from '@/config/fields'
 
 import type { NodeActionName, NodeActionParams } from '@/config/action'
 import type { IObjectKeys } from '@/config/common'
@@ -23,7 +23,7 @@ export interface INode {
   extendAttributes: any
   backendConfig: any
   options?: Array<any>
-  componentType: IComponentType
+  componentType: ComponentType
   componentName: string
   value?: string | number | Array<any> | object | null
   children?: Array<INode> | null
@@ -71,7 +71,7 @@ export interface INodeOptions {
   backendConfig?: any
   extendAttributes?: any
   options?: Array<any>
-  componentType?: IComponentType
+  componentType?: ComponentType
   componentName?: string
   value?: string | Array<any> | Number | null
   store?: ITreeStore
@@ -87,7 +87,7 @@ class Node implements INode {
   visible: boolean = true
   name: string = ''
   index: number = 0
-  componentType: IComponentType = ''
+  componentType: ComponentType = ''
   componentName: string = ''
   value: string | Array<any> | Number | null = null
   store?: ITreeStore | undefined

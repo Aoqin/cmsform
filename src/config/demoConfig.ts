@@ -252,6 +252,59 @@ export const config: INodeOptions = {
       properties: {},
       style: {},
       action: {}
+    },
+    {
+      name: 'table',
+      id: null,
+      componentType: 'table',
+      componentName: '表格',
+      children: [
+        {
+          name: '姓名',
+          id: null,
+          componentType: 'tableColumn',
+          componentName: 'column',
+          children: [],
+          properties: {
+            prop: 'name',
+            label: '姓名'
+          },
+          style: {},
+          actions: {},
+          value: ''
+        },
+        {
+          name: '时间',
+          id: null,
+          componentType: 'tableColumn',
+          componentName: 'column',
+          children: [],
+          properties: {
+            prop: 'date',
+            label: '时间'
+          },
+          style: {},
+          actions: {},
+          value: ''
+        },
+        {
+          name: '地址',
+          id: null,
+          componentType: 'tableColumn',
+          componentName: 'column',
+          children: [],
+          properties: {
+            prop: 'address',
+            label: '地址'
+          },
+          style: {},
+          actions: {},
+          value: ''
+        }
+      ],
+      properties: {},
+      style: {},
+      action: {}
     }
   ]
 }

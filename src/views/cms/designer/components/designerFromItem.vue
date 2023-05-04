@@ -8,6 +8,7 @@
     <!-- component -->
     <div class="content" :class="{ container: IsContainerComponent }">
       <DynamicContainer v-if="IsContainerComponent" :element="element" />
+      <DynamicView v-else-if="IsViewComponet" :element="element" />
       <DynamicFormItem v-else :element="element">
         <DynamicFormField :element="element" />
       </DynamicFormItem>
@@ -30,8 +31,11 @@ import { onMounted, computed, defineProps } from 'vue'
 import DynamicFormField from './dynamicFormField.vue'
 import DynamicContainer from './dynamicContainer.vue'
 import { ElLink } from 'element-plus'
-import { formFields } from '@/config/fields'
+import { containerFields, viewFields } from '@/config/fields'
 import DynamicFormItem from './dynamicFormItem.vue'
+import DynamicView from './dynamicView.vue'
+import type { ContainerComponentType } from '@/config/fields'
+import type { ViewComponentType } from '@/config/fields'
 
 const props = defineProps<{
   element: INode
@@ -47,7 +51,11 @@ const handleDelete = () => {
 }
 
 const IsContainerComponent = computed(() => {
-  return !formFields.includes(props.element.componentType as string)
+  return containerFields.includes(props.element.componentType as ContainerComponentType)
+})
+
+const IsViewComponet = computed(() => {
+  return viewFields.includes(props.element.componentType as ViewComponentType)
 })
 
 const selectNode = () => {
