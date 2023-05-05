@@ -10,17 +10,17 @@
     </div>
     <div class="flex_container_footer">
       <el-link type="primary" @click="add"> 添加 </el-link>
+      <el-link type="primary" @click="transform">转换</el-link>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { Plus } from '@element-plus/icons-vue'
 
 export default defineComponent({
   name: 'FlexContainer',
-  emits: ['add'],
+  emits: ['add', 'transform'],
   components: {},
   props: {
     name: String
@@ -28,6 +28,9 @@ export default defineComponent({
   methods: {
     add() {
       this.$emit('add')
+    },
+    transform() {
+      this.$emit('transform')
     }
   },
   setup() {

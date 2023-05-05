@@ -1,7 +1,7 @@
 <script lang="ts">
-import { ElTable, ElTableColumn } from 'element-plus'
+import { ElButton, ElLink, ElTable, ElTableColumn } from 'element-plus'
 import { defineComponent, h } from 'vue'
-import TreeNode from '@/model/treeNode'
+import TreeNode, { type INode } from '@/model/treeNode'
 
 const tableData = [
   {
@@ -26,6 +26,10 @@ const tableData = [
   }
 ]
 
+function formFieldConvert(node?: INode): Array<any> {
+  return tableData
+}
+
 export default defineComponent({
   props: {
     element: {
@@ -35,19 +39,31 @@ export default defineComponent({
   },
   render() {
     const { element } = this.$props
-    return h(
-      ElTable,
-      {
-        data: tableData
-      },
-      element.children!.map((item: any) => {
-        console.log('item: ', item)
-        return h(ElTableColumn, {
-          prop: item.properties.prop,
-          label: item.properties.label
+    return h('div', {}, [
+      h('div', {}, [
+        h('span', element.name),
+        h(
+          ElLink,
+          {
+            type: 'primary'
+          },
+          '添加'
+        )
+      ]),
+      h(
+        ElTable,
+        {
+          data: formFieldConvert()
+        },
+        element.options!.map((item: any) => {
+          console.log('item: ', item)
+          return h(ElTableColumn, {
+            prop: item.prop,
+            label: item.label
+          })
         })
-      })
-    )
+      )
+    ])
   }
 })
 </script>

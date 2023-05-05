@@ -58,6 +58,7 @@ export class Treestore implements ITreeStore {
   model: IObjectKeys<any> | null = null
   functions: IObjectKeys<IFunOption> = {}
   rules: IObjectKeys<IRuleOption> = {}
+  dictionnary: IObjectKeys<DictionaryOption> = {}
   constructor(options?: any) {
     if (options && options.functions) {
       this.registerFunctions(options.functions)
@@ -152,10 +153,10 @@ export class Treestore implements ITreeStore {
   setModel(node: INode, value?: any): void {
     const key = node.getModelKey()!
     if (value === undefined || value === null) {
-      if (this.model![key] instanceof Object) {
-        this.model![key].value = {}
-      } else if (this.model![key] instanceof Array) {
-        this.model![key].value = []
+      if (this.model![key] instanceof Array) {
+        this.model![key] = []
+      } else if (this.model![key] instanceof Object) {
+        this.model![key] = {}
       } else {
         this.model![key] = ''
       }

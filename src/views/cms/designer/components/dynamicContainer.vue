@@ -6,6 +6,7 @@ import type { INode } from '@/model/treeNode'
 import DesignerFormItem from './designerFromItem.vue'
 import Group from './container/flexContainer/flexContainer.vue'
 import GroupItem from './container/flexContainer/flexContainerItem.vue'
+import flexTable from './container/flexContainer/flexContainerTable.vue'
 import { objMapToSet } from '@/utils'
 import {
   defaultColAttributes,
@@ -135,47 +136,54 @@ export default defineComponent({
         break
       case 'flexContainer':
         comp = Group
-        childCompBuilder = () =>
-          children.map((el: INode, index: Number) => {
-            if (index === 0) {
-              return h(
-                GroupItem,
-                {
-                  label: el.name,
-                  onEdit: groupItemEdit,
-                  onDel: groupItemDel
-                },
-                () => dragableBuilder(el)
-              )
-            } else {
-              return h(
-                GroupItem,
-                {
-                  label: el.name,
-                  operatiable: true,
-                  noDrag: true,
-                  onEdit() {
-                    console.log('edit')
+        if (!element.extendAttributes.table) {
+          childCompBuilder = () =>
+            children.map((el: INode, index: Number) => {
+              if (index === 0) {
+                return h(
+                  GroupItem,
+                  {
+                    label: el.name,
+                    onEdit: groupItemEdit,
+                    onDel: groupItemDel
                   },
-                  onDel() {
-                    el!.remove()
-                    console.log('delete')
-                  }
-                },
-                el.children!.map((el: INode) => {
-                  return h(
-                    ElFormItem,
-                    {
-                      label: el.name || undefined,
-                      prop: el.key || undefined
+                  () => dragableBuilder(el)
+                )
+              } else {
+                return h(
+                  GroupItem,
+                  {
+                    label: el.name,
+                    operatiable: true,
+                    noDrag: true,
+                    onEdit() {
+                      console.log('edit')
                     },
-                    () => h(DynamicFormField, { element: el })
-                  )
-                })
-              )
-            }
-          })
-        attr.onAdd = groupAddItem
+                    onDel() {
+                      el!.remove()
+                      console.log('delete')
+                    }
+                  },
+                  el.children!.map((el: INode) => {
+                    return h(
+                      ElFormItem,
+                      {
+                        label: el.name || undefined,
+                        prop: el.key || undefined
+                      },
+                      () => h(DynamicFormField, { element: el })
+                    )
+                  })
+                )
+              }
+            })
+          attr.onAdd = groupAddItem
+        } else {
+          childCompBuilder = () => h(flexTable, { element })
+        }
+        attr.onTransform = () => {
+          element.setExtendAttribute({ table: !element.extendAttributes.table })
+        }
         break
     }
     if (!comp) {
