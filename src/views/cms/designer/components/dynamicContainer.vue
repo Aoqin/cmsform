@@ -9,10 +9,10 @@ import GroupItem from './container/flexContainer/flexContainerItem.vue'
 import flexTable from './container/flexContainer/flexContainerTable.vue'
 import { objMapToSet } from '@/utils'
 import {
-  defaultColAttributes,
-  defaultRowAttributes,
-  defaultTabsAttributes,
-  defaultTabPaneAttributes
+  defaultColProperties,
+  defaultRowProperties,
+  defaultTabsProperties,
+  defaultTabPaneProperties
 } from '@/config/fields'
 import DynamicFormField from './dynamicFormField.vue'
 
@@ -100,11 +100,11 @@ export default defineComponent({
     switch (componentType) {
       case 'row':
         comp = ElRow
-        objMapToSet(attr, properties, defaultRowAttributes)
+        objMapToSet(attr, properties, defaultRowProperties)
         childCompBuilder = () =>
           children.map((el: INode) => {
             const subAttr = {}
-            objMapToSet(subAttr, el.properties, defaultColAttributes)
+            objMapToSet(subAttr, el.properties, defaultColProperties)
             return h(
               ElCol,
               {
@@ -116,11 +116,11 @@ export default defineComponent({
         break
       case 'tabs':
         comp = ElTabs
-        objMapToSet(attr, properties, defaultTabsAttributes)
+        objMapToSet(attr, properties, defaultTabsProperties)
         childCompBuilder = () =>
           children.map((el: INode) => {
             const subAttr = {}
-            objMapToSet(subAttr, el.properties, defaultTabPaneAttributes)
+            objMapToSet(subAttr, el.properties, defaultTabPaneProperties)
             return h(
               ElTabs.TabPane,
               {

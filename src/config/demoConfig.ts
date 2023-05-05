@@ -1,13 +1,13 @@
 import type { INodeOptions } from '@/model/treeNode'
 import {
-  colAttributes,
-  formCheckboxGroupAttributes,
-  formDatePickerAttributes,
-  formInputAttributes,
-  formRadioGroupAttributes,
-  formSelectAttributes,
-  formTimePickerAttributes,
-  rowAttributes
+  colProperties,
+  formCheckboxGroupProperties,
+  formDatePickerProperties,
+  formInputProperties,
+  formRadioGroupProperties,
+  formSelectProperties,
+  formTimePickerProperties,
+  rowProperties
 } from './fields'
 
 export const config: INodeOptions = {
@@ -27,7 +27,7 @@ export const config: INodeOptions = {
       componentName: '单行文本',
       children: null,
       properties: {
-        ...formInputAttributes
+        ...formInputProperties
       },
       extendAttributes: {},
       style: {},
@@ -41,7 +41,7 @@ export const config: INodeOptions = {
       componentName: '下拉选择框',
       children: null,
       properties: {
-        ...formSelectAttributes
+        ...formSelectProperties
       },
       style: {},
       actions: {},
@@ -70,7 +70,7 @@ export const config: INodeOptions = {
       componentName: '单选',
       children: null,
       properties: {
-        ...formRadioGroupAttributes
+        ...formRadioGroupProperties
       },
       extendAttributes: {
         remote: false,
@@ -99,7 +99,7 @@ export const config: INodeOptions = {
       componentName: '多选',
       children: null,
       properties: {
-        ...formCheckboxGroupAttributes
+        ...formCheckboxGroupProperties
       },
       extendAttributes: {
         remote: false,
@@ -128,7 +128,7 @@ export const config: INodeOptions = {
       componentName: '日期选择器',
       children: null,
       properties: {
-        ...formDatePickerAttributes
+        ...formDatePickerProperties
       },
       extendAttributes: {},
       style: {},
@@ -143,7 +143,22 @@ export const config: INodeOptions = {
       componentName: '时间选择器',
       children: null,
       properties: {
-        ...formTimePickerAttributes
+        ...formTimePickerProperties
+      },
+      extendAttributes: {},
+      style: {},
+      actions: {},
+      value: '',
+      options: []
+    },
+    {
+      name: 'upload',
+      id: null,
+      componentType: 'upload',
+      componentName: '文件上传',
+      children: null,
+      properties: {
+        ...formTimePickerProperties
       },
       extendAttributes: {},
       style: {},
@@ -164,7 +179,7 @@ export const config: INodeOptions = {
           componentName: 'col',
           children: [],
           properties: {
-            ...colAttributes
+            ...colProperties
           },
           extendAttributes: {},
           style: {},
@@ -178,7 +193,7 @@ export const config: INodeOptions = {
           componentName: 'col',
           children: [],
           properties: {
-            ...colAttributes
+            ...colProperties
           },
           extendAttributes: {},
           style: {},
@@ -187,7 +202,7 @@ export const config: INodeOptions = {
         }
       ],
       properties: {
-        ...rowAttributes
+        ...rowProperties
       },
       style: {},
       action: {}

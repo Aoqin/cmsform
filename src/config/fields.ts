@@ -95,7 +95,7 @@ type optionProps = {
   value: string
 }
 
-export type IFormItemAttributes = {
+export type IFormItemProperties = {
   prop?: string | string[]
   label: string
   labelWidth?: string
@@ -106,7 +106,7 @@ export type IFormItemAttributes = {
   validateStatus?: '' | 'error' | 'validating' | 'success'
 }
 
-export type IInputAttributes = {
+export type IInputProperties = {
   placeholder?: string
   type?: 'text' | 'textarea' | 'password' | 'email' | 'url' | 'tel' | 'number'
   maxlength?: string | number
@@ -121,7 +121,7 @@ export type IInputAttributes = {
   showPassword?: boolean
 }
 
-export type ISelectAttributes = {
+export type ISelectProperties = {
   placeholder?: string
   disabled?: boolean
   clearable?: boolean
@@ -142,35 +142,35 @@ export type ISelectAttributes = {
   popperAppendToBody?: boolean
 }
 
-export type IRadioAttributes = {
+export type IRadioProperties = {
   label?: string | number
   disabled?: boolean
   size?: 'large' | 'medium' | 'small' | 'mini'
   border?: boolean
 }
 
-export type ICheckboxAttributes = {
+export type ICheckboxProperties = {
   label?: string | number
   disabled?: boolean
   size?: 'large' | 'medium' | 'small' | 'mini'
   border?: boolean
 }
 
-export type IRadioGroupAttributes = {
+export type IRadioGroupProperties = {
   size?: 'large' | 'medium' | 'small' | 'mini'
   disabled?: boolean
   remote?: boolean
   remoteOptionProps?: optionProps
 }
 
-export type ICheckboxGroupAttributes = {
+export type ICheckboxGroupProperties = {
   size?: 'large' | 'medium' | 'small' | 'mini'
   disabled?: boolean
   remote?: boolean
   remoteOptionProps?: optionProps
 }
 
-export type IDatePickerAttributes = {
+export type IDatePickerProperties = {
   type?:
     | 'year'
     | 'month'
@@ -192,7 +192,7 @@ export type IDatePickerAttributes = {
   endPlaceholder?: string
 }
 
-export type ITimePickerAttributes = {
+export type ITimePickerProperties = {
   placeholder?: string
   format?: string
   valueFormat?: string
@@ -205,17 +205,20 @@ export type ITimePickerAttributes = {
   endPlaceholder?: string
 }
 
-export const formItemAttributes: IFormItemAttributes = {
+export type UploadPoperties = {
+}
+
+export const formItemProperties: IFormItemProperties = {
   label: '',
   prop: ''
 }
 
-export const inputAttributes: IInputAttributes = {
+export const inputProperties: IInputProperties = {
   placeholder: '请输入',
   type: 'text'
 }
 
-export const selectAttributes: ISelectAttributes = {
+export const selectProperties: ISelectProperties = {
   placeholder: '请选择',
   clearable: true,
   remote: false,
@@ -225,7 +228,7 @@ export const selectAttributes: ISelectAttributes = {
   }
 }
 
-export const radiogroupAttributes: IRadioGroupAttributes = {
+export const radiogroupProperties: IRadioGroupProperties = {
   remote: false,
   remoteOptionProps: {
     label: 'label',
@@ -233,7 +236,7 @@ export const radiogroupAttributes: IRadioGroupAttributes = {
   }
 }
 
-export const checkboxgroupAttributes: ICheckboxGroupAttributes = {
+export const checkboxgroupProperties: ICheckboxGroupProperties = {
   remote: false,
   remoteOptionProps: {
     label: 'label',
@@ -241,57 +244,57 @@ export const checkboxgroupAttributes: ICheckboxGroupAttributes = {
   }
 }
 
-export const datePickerAttributes: IDatePickerAttributes = {
+export const datePickerProperties: IDatePickerProperties = {
   type: 'date',
   placeholder: '请选择日期',
   format: 'YYYY-MM-DD',
   valueFormat: 'YYYY-MM-DD'
 }
 
-export const timePickerAttributes: ITimePickerAttributes = {
+export const timePickerProperties: ITimePickerProperties = {
   placeholder: '请选择时间',
   format: 'HH:mm:ss',
   valueFormat: 'HH:mm:ss'
 }
 
-export const formInputAttributes: IInputAttributes & IFormItemAttributes = {
-  ...formItemAttributes,
-  ...inputAttributes,
+export const formInputProperties: IInputProperties & IFormItemProperties = {
+  ...formItemProperties,
+  ...inputProperties,
   label: '单行文本'
 }
 
-export const formSelectAttributes: ISelectAttributes & IFormItemAttributes = {
-  ...formItemAttributes,
-  ...selectAttributes,
+export const formSelectProperties: ISelectProperties & IFormItemProperties = {
+  ...formItemProperties,
+  ...selectProperties,
   label: '下拉选择'
 }
 
-export const formRadioGroupAttributes: IRadioGroupAttributes & IFormItemAttributes = {
-  ...formItemAttributes,
-  ...radiogroupAttributes,
+export const formRadioGroupProperties: IRadioGroupProperties & IFormItemProperties = {
+  ...formItemProperties,
+  ...radiogroupProperties,
   label: '单选框组'
 }
 
-export const formCheckboxGroupAttributes: ICheckboxGroupAttributes & IFormItemAttributes = {
-  ...formItemAttributes,
-  ...checkboxgroupAttributes,
+export const formCheckboxGroupProperties: ICheckboxGroupProperties & IFormItemProperties = {
+  ...formItemProperties,
+  ...checkboxgroupProperties,
   label: '多选框组'
 }
 
-export const formDatePickerAttributes: IDatePickerAttributes & IFormItemAttributes = {
-  ...formItemAttributes,
-  ...datePickerAttributes,
+export const formDatePickerProperties: IDatePickerProperties & IFormItemProperties = {
+  ...formItemProperties,
+  ...datePickerProperties,
   label: '日期选择'
 }
 
-export const formTimePickerAttributes: ITimePickerAttributes & IFormItemAttributes = {
-  ...formItemAttributes,
-  ...timePickerAttributes,
+export const formTimePickerProperties: ITimePickerProperties & IFormItemProperties = {
+  ...formItemProperties,
+  ...timePickerProperties,
   label: '时间选择'
 }
 
-export const defaultInputAttributes: IInputAttributes = {
-  ...inputAttributes,
+export const defaultInputProperties: IInputProperties = {
+  ...inputProperties,
   maxlength: '',
   minlength: 0,
   showWordLimit: false,
@@ -304,8 +307,8 @@ export const defaultInputAttributes: IInputAttributes = {
   showPassword: false
 }
 
-export const defaultSelectAttributes: ISelectAttributes = {
-  ...selectAttributes,
+export const defaultSelectProperties: ISelectProperties = {
+  ...selectProperties,
   disabled: false,
   clearable: false,
   multiple: false,
@@ -324,20 +327,20 @@ export const defaultSelectAttributes: ISelectAttributes = {
   popperAppendToBody: true
 }
 
-export const defaultRadioGroupAttributes: IRadioGroupAttributes = {
-  ...radiogroupAttributes,
+export const defaultRadioGroupProperties: IRadioGroupProperties = {
+  ...radiogroupProperties,
   size: 'medium',
   disabled: false
 }
 
-export const defaultCheckboxGroupAttributes: ICheckboxGroupAttributes = {
-  ...checkboxgroupAttributes,
+export const defaultCheckboxGroupProperties: ICheckboxGroupProperties = {
+  ...checkboxgroupProperties,
   size: 'medium',
   disabled: false
 }
 
-export const defaultDatePickerAttributes: IDatePickerAttributes = {
-  ...datePickerAttributes,
+export const defaultDatePickerProperties: IDatePickerProperties = {
+  ...datePickerProperties,
   readonly: false,
   disabled: false,
   clearable: false,
@@ -346,8 +349,8 @@ export const defaultDatePickerAttributes: IDatePickerAttributes = {
   endPlaceholder: '结束日期'
 }
 
-export const defaultTimePickerAttributes: ITimePickerAttributes = {
-  ...timePickerAttributes,
+export const defaultTimePickerProperties: ITimePickerProperties = {
+  ...timePickerProperties,
   readonly: false,
   disabled: false,
   clearable: false,
@@ -361,14 +364,14 @@ export const defaultTimePickerAttributes: ITimePickerAttributes = {
  * 容器型组件属性及默认值
  */
 
-type IRowAttributes = {
+type IRowProperties = {
   gutter?: number
   type?: 'flex'
   justify?: 'start' | 'end' | 'center' | 'space-around' | 'space-between'
   align?: 'top' | 'middle' | 'bottom'
 }
 
-type IColAttributes = {
+type IColProperties = {
   span?: number
   offset?: number
   pull?: number
@@ -379,27 +382,27 @@ type IColAttributes = {
   lg?: number | { span: number; offset: number }
 }
 
-export const rowAttributes: IRowAttributes = {
+export const rowProperties: IRowProperties = {
   gutter: 10
 }
 
-export const colAttributes: IColAttributes = {
+export const colProperties: IColProperties = {
   span: 24
 }
 
-export const defaultRowAttributes: IRowAttributes = {
-  ...rowAttributes,
+export const defaultRowProperties: IRowProperties = {
+  ...rowProperties,
   type: 'flex',
   justify: 'start',
   align: 'top'
 }
 
-export const defaultColAttributes: IColAttributes = {
-  ...colAttributes,
+export const defaultColProperties: IColProperties = {
+  ...colProperties,
   offset: 0
 }
 
-type tabsAttributes = {
+type tabsProperties = {
   type?: 'card' | 'border-card'
   closable?: boolean
   addable?: boolean
@@ -408,7 +411,7 @@ type tabsAttributes = {
   stretch?: boolean
 }
 
-type tabPaneAttributes = {
+type tabPaneProperties = {
   label?: string
   name?: string
   disabled?: boolean
@@ -416,21 +419,21 @@ type tabPaneAttributes = {
   lazy?: boolean
 }
 
-export const tabsAttributes: tabsAttributes = {
+export const tabsProperties: tabsProperties = {
   type: 'card'
 }
 
-export const tabPaneAttributes: tabPaneAttributes = {
+export const tabPaneProperties: tabPaneProperties = {
   lazy: false
 }
 
-export const defaultTabsAttributes: tabsAttributes = {
+export const defaultTabsProperties: tabsProperties = {
   type: 'card',
   tabPosition: 'top',
   stretch: false
 }
 
-export const defaultTabPaneAttributes: tabPaneAttributes = {
+export const defaultTabPaneProperties: tabPaneProperties = {
   lazy: false,
   disabled: false,
   name: '',

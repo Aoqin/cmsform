@@ -1,11 +1,11 @@
 <script lang="ts">
 import {
-  defaultCheckboxGroupAttributes,
-  defaultDatePickerAttributes,
-  defaultInputAttributes,
-  defaultRadioGroupAttributes,
-  defaultSelectAttributes,
-  defaultTimePickerAttributes
+  defaultCheckboxGroupProperties,
+  defaultDatePickerProperties,
+  defaultInputProperties,
+  defaultRadioGroupProperties,
+  defaultSelectProperties,
+  defaultTimePickerProperties
 } from '@/config/fields'
 import { objMapToSet } from '@/utils'
 import {
@@ -53,27 +53,27 @@ export default defineComponent({
     switch (componentType) {
       case 'input':
         comp = ElInput
-        objMapToSet(attr, properties, defaultInputAttributes)
+        objMapToSet(attr, properties, defaultInputProperties)
         break
       case 'select':
         comp = ElSelect
-        objMapToSet(attr, properties, defaultSelectAttributes)
+        objMapToSet(attr, properties, defaultSelectProperties)
         break
       case 'radio':
         comp = ElRadioGroup
-        objMapToSet(attr, properties, defaultRadioGroupAttributes)
+        objMapToSet(attr, properties, defaultRadioGroupProperties)
         break
       case 'checkbox':
         comp = ElCheckboxGroup
-        objMapToSet(attr, properties, defaultCheckboxGroupAttributes)
+        objMapToSet(attr, properties, defaultCheckboxGroupProperties)
         break
       case 'datePicker':
         comp = ElDatePicker
-        objMapToSet(attr, properties, defaultDatePickerAttributes)
+        objMapToSet(attr, properties, defaultDatePickerProperties)
         break
       case 'timePicker':
         comp = ElTimePicker
-        objMapToSet(attr, properties, defaultTimePickerAttributes)
+        objMapToSet(attr, properties, defaultTimePickerProperties)
         break
       default:
         comp = ElAlert

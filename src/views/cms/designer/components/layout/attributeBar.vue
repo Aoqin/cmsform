@@ -269,7 +269,7 @@
 </template>
 
 <script setup lang="ts">
-import { colAttributes, tabPaneAttributes } from '@/config/fields'
+import { colProperties, tabPaneProperties } from '@/config/fields'
 import Node from '@/model/treeNode'
 import { reactive, ref, defineProps, computed, type PropType } from 'vue'
 
@@ -396,7 +396,7 @@ const addChild = () => {
   }
   const componentName = `${type}${index}`
   const attr =
-    type === 'col' ? colAttributes : { ...tabPaneAttributes, label: `tabpane${index + 1}` }
+    type === 'col' ? colProperties : { ...tabPaneProperties, label: `tabpane${index + 1}` }
   const node = new Node({
     name: componentName,
     id: null,

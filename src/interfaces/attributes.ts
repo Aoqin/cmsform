@@ -49,12 +49,12 @@ export type SelectAttributes = {
 
 export type SelectOptionAttributes = {}
 
-export type RadioGroupAttributes = {}
+export type RadioGroupProperties = {}
 export type RadioAttributes = {
   label: string
 }
 
-export type CheckGroupAttributes = {}
+export type CheckGroupProperties = {}
 export type CheckAttributes = {
   label: string
 }
@@ -63,4 +63,4 @@ export type SwitchAttributes = {}
 
 export type TimePickerAttributes = {}
 
-export type DatePickerAttributes = {}
+export type DatePickerProperties = {}
