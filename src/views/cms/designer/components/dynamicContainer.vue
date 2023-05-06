@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, h, type DefineComponent, type VNode } from 'vue'
-import { ElRow, ElCol, ElTabs, ElForm, ElFormItem } from 'element-plus'
+import { ElRow, ElCol, ElTabs, ElFormItem } from 'element-plus'
 import Draggable from 'vuedraggable'
 import type { INode } from '@/model/treeNode'
 import DesignerFormItem from './designerFromItem.vue'
