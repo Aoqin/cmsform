@@ -183,7 +183,12 @@ export default defineComponent({
         }
         break
       case 'container':
-        comp = h('div', 'container')
+        comp = defineComponent({
+          name: 'containerComponent',
+          setup(props, { slots }) {
+            return () => h('div', { class: 'containerComponent' }, slots.default?.())
+          }
+        })
         childCompBuilder = () => dragableBuilder(element as INode)
         break
     }
