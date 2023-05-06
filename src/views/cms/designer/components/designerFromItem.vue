@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import { Delete, Rank } from '@element-plus/icons-vue'
 import type { INode } from '@/model/treeNode'
-import { onMounted, computed, defineProps } from 'vue'
+import { onMounted, computed } from 'vue'
 import DynamicFormField from './dynamicFormField.vue'
 import DynamicContainer from './dynamicContainer.vue'
 import { ElLink } from 'element-plus'

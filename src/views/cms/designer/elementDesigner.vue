@@ -1,8 +1,13 @@
 <template>
   <el-container :direction="vertical">
     <el-header height="60px">
-      <!-- Header content -->
-      header
+      <ElContainer :direction="horizontal">
+        <!-- Header content -->
+        <ElAside width="200px"> 万能表单 </ElAside>
+        <ElContainer>
+          <HeaderBar />
+        </ElContainer>
+      </ElContainer>
     </el-header>
     <el-container :direction="horizontal">
       <el-aside width="200px">
@@ -34,6 +39,8 @@ import { ref, reactive, watch } from 'vue'
 import { rules } from '@/config/rules'
 // import type { INode } from '@/utils/tree'
 import functions from '@/config/functions'
+import HeaderBar from './components/layout/headerBar.vue'
+import { ElAside, ElContainer } from 'element-plus'
 
 const store = reactive<ITreeStore>(new Treestore({ rules, functions }))
 store.initialize()

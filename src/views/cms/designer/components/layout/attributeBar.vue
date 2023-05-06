@@ -271,7 +271,7 @@
 <script setup lang="ts">
 import { colProperties, tabPaneProperties } from '@/config/fields'
 import Node from '@/model/treeNode'
-import { reactive, ref, defineProps, computed, type PropType } from 'vue'
+import { reactive, ref, computed, type PropType } from 'vue'
 
 const props = defineProps({
   node: [Node, null] as PropType<Node | null>

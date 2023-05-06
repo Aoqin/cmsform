@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import DesignerFormItem from '../designerFromItem.vue'
 import Draggable from 'vuedraggable'
-import { reactive, computed, defineProps } from 'vue'
+import { reactive, computed } from 'vue'
 import type { INode, INodeOptions } from '@/model/treeNode'
 import { ElForm } from 'element-plus'
 // import  ActionConfig from '../dialog/actionConfig.vue'

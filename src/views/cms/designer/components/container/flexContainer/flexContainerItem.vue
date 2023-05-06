@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { Delete, Edit } from '@element-plus/icons-vue'
-import { defineProps, defineEmits, computed, ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const emits = defineEmits<{
   (e: 'add'): void
