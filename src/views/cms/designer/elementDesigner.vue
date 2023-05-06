@@ -5,7 +5,7 @@
         <!-- Header content -->
         <ElAside width="200px"> 万能表单 </ElAside>
         <ElContainer>
-          <HeaderBar />
+          <HeaderBar :store="store" />
         </ElContainer>
       </ElContainer>
     </el-header>

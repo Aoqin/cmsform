@@ -13,12 +13,12 @@
       </template>
     </Draggable>
   </ElForm>
-  <div class="source_code">
+  <!-- <div class="source_code">
     {{ dataSource }}
   </div>
   <div class="source_code">
     {{ model }}
-  </div>
+  </div> -->
   <!-- <ActionConfig /> -->
   <!-- <LinkConfig /> -->
 </template>
@@ -59,13 +59,9 @@ const props = defineProps<{
 const list = computed<INode[]>(() => props.config.children!)
 const model = computed<any>(() => props.config.store?.model)
 
-const dataSource = computed<INodeOptions>(() => props.config.getReadOnlyNode())
+// const dataSource = computed<INodeOptions>(() => props.config.getReadOnlyNode())
 
 const changeEvent = (evt: any) => {
-  console.log('==========================')
-  console.log(evt)
-  console.log(props.config)
-  console.log('==========================')
   if (evt.added) {
     props.config.insertChild(evt.added.element, evt.added.newIndex)
   }
@@ -78,7 +74,6 @@ const changeEvent = (evt: any) => {
 }
 
 const deleteItem = (index: number) => {
-  console.log('delete')
   props.config.remove()
 }
 </script>

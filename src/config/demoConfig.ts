@@ -33,7 +33,10 @@ export const config: INodeOptions = {
       extendAttributes: {},
       style: {},
       actions: {},
-      value: ''
+      value: '',
+      backendConfig: {
+        build: true
+      }
     },
     {
       name: 'answer',

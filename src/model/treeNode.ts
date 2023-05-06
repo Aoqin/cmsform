@@ -357,10 +357,6 @@ class Node implements INode {
    * @returns
    */
   action(actionName: NodeActionName, params: NodeActionParams) {
-    console.log('================================')
-    console.log('actionName', actionName)
-    console.log('params', params)
-    console.log('================================')
     const {
       remote,
       remoteFunOrUrl,
@@ -451,21 +447,40 @@ class Node implements INode {
    * @returns
    */
   getReadOnlyNode(exceptOptions?: INodeOptions): INodeOptions {
+    const {
+      index,
+      name,
+      key,
+      id,
+      data,
+      visible,
+      style,
+      properties,
+      extendAttributes,
+      actions,
+      options,
+      componentType,
+      componentName,
+      value,
+      backendConfig
+    } = this
+
     const tmp: INodeOptions = {
-      index: this.index,
-      name: this.name,
-      key: this.key,
-      id: this.id,
-      data: this.data,
-      visible: this.visible,
-      style: this.style,
-      properties: this.properties,
-      extendAttributes: this.extendAttributes,
-      actions: this.actions,
-      options: this.options,
-      componentType: this.componentType,
-      componentName: this.componentName,
-      value: this.value,
+      index,
+      name,
+      key,
+      id,
+      data,
+      visible,
+      style,
+      properties,
+      extendAttributes,
+      actions,
+      options,
+      componentType,
+      componentName,
+      backendConfig,
+      value,
       children: this.children?.map((item) => item.getReadOnlyNode(exceptOptions))
     }
     if (exceptOptions) {

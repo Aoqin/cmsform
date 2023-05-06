@@ -30,18 +30,18 @@
           @update:modelValue="setProperties('placeholder', $event)"
         />
       </el-form-item>
-      <el-form-item label="searchable">
+      <!-- <el-form-item label="searchable">
         <el-switch
           :modelValue="extendAttributes.searchable"
           @update:modelValue="setExtendAttribute('searchable', $event)"
         />
-      </el-form-item>
-      <el-form-item label="IsBuildIn">
+      </el-form-item> -->
+      <!-- <el-form-item label="IsBuildIn">
         <el-switch
           :modelValue="extendAttributes.IsBuildIn"
           @update:modelValue="setExtendAttribute('IsBuildIn', $event)"
         />
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="disabled">
         <el-switch
           :modelValue="properties.disabled"
@@ -258,12 +258,10 @@
           </template>
         </el-input>
       </el-form-item>
-      <!-- <el-form-item label="readonly">
-        <el-switch
-          :modelValue="properties.readonly"
-          @update:modelValue="setProperties('readonly', $event)"
-        />
-      </el-form-item> -->
+      <el-form-item label="config">
+        <ElButton type="primary" @click="configVisible = true">配置信息</ElButton>
+      </el-form-item>
+      <BackConfigDialog v-model="configVisible" v-model:config="backConfigData" />
     </el-form>
   </div>
 </template>
@@ -271,13 +269,18 @@
 <script setup lang="ts">
 import { colProperties, tabPaneProperties } from '@/config/fields'
 import Node from '@/model/treeNode'
+import type { ElButton } from 'element-plus'
 import { reactive, ref, computed, type PropType } from 'vue'
+import BackConfigDialog from '../dialog/backConfig.vue'
+import type { IObjectKeys } from '@/config/common'
 
 const props = defineProps({
   node: [Node, null] as PropType<Node | null>
 })
 
 const attributeFormEl = ref()
+
+const configVisible = ref<boolean>(false)
 
 const attributeForm = computed(() => {
   return props.node ? props.node : {}
@@ -376,6 +379,7 @@ const removeChild = (item: Node) => {
   }
   item.remove()
 }
+
 /**
  * 类似row的组件，添加col
  * 添加子节点
@@ -412,6 +416,7 @@ const addChild = () => {
   })
   props.node?.insertChild(node)
 }
+
 /**
  * 修改 col 组件 span
  */
@@ -481,6 +486,7 @@ const actionOptions = [
     value: 'change'
   }
 ]
+
 const datePickerTypes = [
   {
     label: 'year',
@@ -515,9 +521,19 @@ const datePickerTypes = [
     value: 'daterange'
   }
 ]
+
 const handleLoadData = () => {
   props.node?.action('loadData', {})
 }
+
+const backConfigData = computed({
+  get() {
+    return props.node?.backendConfig || {}
+  },
+  set(val: IObjectKeys<any>) {
+    props.node.backendConfig = val
+  }
+})
 </script>
 
 <style scoped>
