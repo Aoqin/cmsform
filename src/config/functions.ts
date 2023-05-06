@@ -41,6 +41,18 @@ const restInner = (parms: any) => {
   })
 }
 
+const upload = (file: File) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({
+        name: file.name,
+        url: 'https://www.baidu.com/img/flexible/logo/pc/result.png',
+        uid: file.uid
+      })
+    }, 3000)
+  })
+}
+
 const functions: IFunctions = {
   request: {
     label: '请求',
@@ -51,6 +63,11 @@ const functions: IFunctions = {
     label: '内部请求',
     key: 'restInner',
     fun: restInner
+  },
+  upload: {
+    label: '上传',
+    key: 'upload',
+    fun: upload
   }
 }
 

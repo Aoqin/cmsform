@@ -81,12 +81,9 @@ export default defineComponent({
     let childCompBuilder: VNode | DefineComponent | Function = () => null
     let attr: any = {}
     const groupAddItem = () => {
-      console.log('add')
       const first = children[0]
       const cloneTmp = first.clone(true)
       element!.insertChild(cloneTmp)
-      console.log('element!.children')
-      console.log(element)
     }
 
     const groupItemDel = () => {
@@ -184,6 +181,10 @@ export default defineComponent({
         attr.onTransform = () => {
           element.setExtendAttribute({ table: !element.extendAttributes.table })
         }
+        break
+      case 'container':
+        comp = h('div', 'container')
+        childCompBuilder = () => dragableBuilder(element as INode)
         break
     }
     if (!comp) {

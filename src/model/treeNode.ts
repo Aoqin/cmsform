@@ -168,11 +168,19 @@ class Node implements INode {
     parent?: INode,
     recordMap?: Map<string, { val: INode; old: INode }>
   ): INode {
-    const node = new Node({
-      ...this.getReadOnlyNode({ key: '' }),
+    const excludeAttrs: IObjectKeys<any> = {
+      key: ''
+    }
+    const initParams = {
+      ...this.getReadOnlyNode(excludeAttrs),
       parent: parent ? parent : this.parent,
       store: this.store
-    })
+    }
+    if (this.componentType === 'upload') {
+      // 上传组件清空data
+      initParams.data = []
+    }
+    const node = new Node(initParams)
     recordMap?.set(this.key, { val: node, old: this })
     // 关联关系
     if (deep) {

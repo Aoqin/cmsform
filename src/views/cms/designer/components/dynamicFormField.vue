@@ -5,7 +5,8 @@ import {
   defaultInputProperties,
   defaultRadioGroupProperties,
   defaultSelectProperties,
-  defaultTimePickerProperties
+  defaultTimePickerProperties,
+  defaultUploadProperties
 } from '@/config/fields'
 import { objMapToSet } from '@/utils'
 import {
@@ -18,7 +19,11 @@ import {
   ElRadioGroup,
   ElSelect,
   ElDatePicker,
-  ElTimePicker
+  ElTimePicker,
+  ElUpload,
+  ElButton,
+  type UploadRequestOptions,
+  ElLink
 } from 'element-plus'
 import { defineComponent, h, type VNode, type Slots, type DefineComponent } from 'vue'
 
@@ -40,16 +45,11 @@ export default defineComponent({
       }
     }
   },
-  data: () => {
-    return {
-      value: null
-    }
-  },
   render() {
     let comp: VNode | DefineComponent | Function
     let slots: Slots | null = null
     let attr: any = {}
-    const { componentType, options, properties } = this.element!
+    const { componentType, options, properties, data, extendAttributes } = this.element!
     switch (componentType) {
       case 'input':
         comp = ElInput
@@ -75,12 +75,18 @@ export default defineComponent({
         comp = ElTimePicker
         objMapToSet(attr, properties, defaultTimePickerProperties)
         break
+      case 'upload':
+        comp = ElUpload
+        objMapToSet(attr, properties, defaultUploadProperties)
+        break
       default:
         comp = ElAlert
     }
 
-    let defaultSlot: VNode[] | null = null
+    let defaultSlot: VNode[] | VNode | null = null
+
     if (['select', 'checkbox', 'radio'].findIndex((item) => item === componentType) > -1) {
+      // 生成默认options插槽
       let optionNode: VNode | DefineComponent | Function
       switch (componentType) {
         case 'select':
@@ -115,7 +121,55 @@ export default defineComponent({
         options?.map((item: { key?: string; label?: string; value?: string }) => {
           return optionNodeFactory(item, componentType)
         }) || null
+    } else if (componentType === 'upload') {
+      // 上传组件
+      defaultSlot =
+        properties.buttonType === 'link'
+          ? h(ElLink, { type: 'primary' }, properties.buttonText)
+          : h(ElButton, { type: properties.buttonType }, { default: () => properties.buttonText })
+
+      attr.fileList = data
+      attr['onUpdate:fileList'] = (val: { name: string; uid: string }[]) => {
+        console.log('onUpdate: fileList')
+        val.forEach((item) => {
+          data.push({
+            name: item.name,
+            uid: item.uid
+          })
+        })
+      }
+      // 上传函数
+      if (extendAttributes.uploadFunName) {
+        attr.httpRequest = this.element.store.functions[extendAttributes.uploadFunName]
+          ? (options: UploadRequestOptions) => {
+              console.log(options)
+              return this.element.store.functions[extendAttributes.uploadFunName].fun(options.file)
+            }
+          : () => {
+              throw new Error('请配置上传函数')
+            }
+      }
+      attr.onChange = (val: any) => {
+        console.log('upload change')
+        console.log(val)
+      }
+      attr.onSuccess = (response, uploadFile, uploadFiles) => {
+        this.element.getModel().push({
+          name: response.name,
+          uid: response.uid
+        })
+      }
+      attr.onRemove = (uploadFile, uploadFiles) => {
+        console.log('upload remove')
+        console.log(uploadFile)
+        console.log(uploadFiles)
+        const index = this.element.getModel().findIndex((item) => item.uid === uploadFile.uid)
+        if (index > -1) {
+          this.element.getModel().splice(index, 1)
+        }
+      }
     }
+    // 生成默认插槽
 
     return h(
       comp,

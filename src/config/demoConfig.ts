@@ -7,6 +7,7 @@ import {
   formRadioGroupProperties,
   formSelectProperties,
   formTimePickerProperties,
+  formUploadProperties,
   rowProperties
 } from './fields'
 
@@ -158,13 +159,16 @@ export const config: INodeOptions = {
       componentName: '文件上传',
       children: null,
       properties: {
-        ...formTimePickerProperties
+        ...formUploadProperties
       },
-      extendAttributes: {},
+      extendAttributes: {
+        uploadFunName: 'upload'
+      },
       style: {},
       actions: {},
-      value: '',
-      options: []
+      value: [],
+      options: [],
+      data: []
     },
     {
       name: 'row',
@@ -264,6 +268,16 @@ export const config: INodeOptions = {
           value: ''
         }
       ],
+      properties: {},
+      style: {},
+      action: {}
+    },
+    {
+      name: 'container',
+      id: null,
+      componentType: 'container',
+      componentName: '普通容器',
+      children: [],
       properties: {},
       style: {},
       action: {}

@@ -75,7 +75,8 @@ export const containerFields: Array<ContainerComponentType> = [
   'tabs',
   'tabPane',
   'flexContainer',
-  'flexContainerItem'
+  'flexContainerItem',
+  'container'
 ]
 export const viewFields: Array<ViewComponentType> = [
   'table',
@@ -206,6 +207,20 @@ export type ITimePickerProperties = {
 }
 
 export type UploadPoperties = {
+  action?: string
+  headers?: any
+  multiple?: boolean
+  limit?: number
+  disabled?: boolean
+  listType?: 'text' | 'picture' | 'picture-card'
+  accept?: string
+  name?: string
+  data?: any
+  showFileList?: boolean
+  buttonText?: string
+  drag?: boolean
+  buttonType?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'text' | 'link'
+  httpRequest?: any
 }
 
 export const formItemProperties: IFormItemProperties = {
@@ -257,6 +272,14 @@ export const timePickerProperties: ITimePickerProperties = {
   valueFormat: 'HH:mm:ss'
 }
 
+export const uploadProperties: UploadPoperties = {
+  buttonText: 'click to upload',
+  buttonType: 'link',
+  multiple: true,
+  limit: 5,
+  action: ''
+}
+
 export const formInputProperties: IInputProperties & IFormItemProperties = {
   ...formItemProperties,
   ...inputProperties,
@@ -291,6 +314,12 @@ export const formTimePickerProperties: ITimePickerProperties & IFormItemProperti
   ...formItemProperties,
   ...timePickerProperties,
   label: '时间选择'
+}
+
+export const formUploadProperties: UploadPoperties & IFormItemProperties = {
+  ...formItemProperties,
+  ...uploadProperties,
+  label: '文件上传'
 }
 
 export const defaultInputProperties: IInputProperties = {
@@ -358,6 +387,10 @@ export const defaultTimePickerProperties: ITimePickerProperties = {
   arrowControl: false,
   startPlaceholder: '开始时间',
   endPlaceholder: '结束时间'
+}
+
+export const defaultUploadProperties: UploadPoperties = {
+  ...uploadProperties
 }
 
 /**
