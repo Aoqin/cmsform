@@ -7,7 +7,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import type { INode } from '@/model/treeNode'
-import type { IFormItemAttributes } from '@/config/fields'
+import type { IFormItemProperties } from '@/config/fields'
 import type { IRule } from '@/config/rules'
 import { deepCopy } from '@/utils'
 
@@ -23,9 +23,7 @@ export default defineComponent({
       const { componentType } = this.element!
       const { label, required, rules = [], validate } = this.element.properties
       const store = this.element.store!
-      console.log('properties:::::::::::::::::::::::::::: ');
-      console.log('properties:: ', this.element.properties);
-      const attr: IFormItemAttributes = {
+      const attr: IFormItemProperties = {
         label,
         prop: this.element.getModelKey()!
       }
