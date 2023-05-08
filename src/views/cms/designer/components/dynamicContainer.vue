@@ -15,6 +15,7 @@ import {
   defaultTabPaneProperties
 } from '@/config/fields'
 import DynamicFormField from './dynamicFormField.vue'
+import OrdinaryContainer from './container/container/ordinaryContainer.vue'
 
 const dragGroupOptions = {
   name: 'components',
@@ -183,13 +184,9 @@ export default defineComponent({
         }
         break
       case 'container':
-        comp = defineComponent({
-          name: 'containerComponent',
-          setup(props, { slots }) {
-            return () => h('div', { class: 'containerComponent' }, slots.default?.())
-          }
-        })
+        comp = OrdinaryContainer
         childCompBuilder = () => dragableBuilder(element as INode)
+        attr.element = element
         break
     }
     if (!comp) {

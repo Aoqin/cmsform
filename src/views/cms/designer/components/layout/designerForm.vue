@@ -1,5 +1,5 @@
 <template>
-  <ElForm :model="model" label-position="top">
+  <ElForm :model="model" label-position="top" class="ghostForm">
     <Draggable
       :model-value="list"
       :group="dragGroupOptions"
@@ -13,14 +13,6 @@
       </template>
     </Draggable>
   </ElForm>
-  <!-- <div class="source_code">
-    {{ dataSource }}
-  </div>
-  <div class="source_code">
-    {{ model }}
-  </div> -->
-  <!-- <ActionConfig /> -->
-  <!-- <LinkConfig /> -->
 </template>
 
 <script setup lang="ts">
@@ -35,7 +27,7 @@ import { ElForm } from 'element-plus'
 const dragGroupOptions = reactive({
   name: 'components',
   animation: 150,
-  ghostClass: 'ghost',
+  ghostClass: 'ghostDragForm',
   chosenClass: 'chosen',
   dragClass: 'drag',
   forceFallback: true,
@@ -86,5 +78,15 @@ const deleteItem = (index: number) => {
   padding: 20px;
   background: #494949;
   margin-bottom: 5px;
+}
+.ghostForm {
+  border: 1px solid #ccc;
+  padding: 10px;
+  min-height: 600px;
+}
+</style>
+<style>
+.ghostDragForm {
+  min-height: 600px;
 }
 </style>

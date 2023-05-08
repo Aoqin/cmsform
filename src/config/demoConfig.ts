@@ -281,7 +281,10 @@ export const config: INodeOptions = {
       componentType: 'container',
       componentName: '普通容器',
       children: [],
-      properties: {},
+      properties: {
+        showLabel: true,
+        label: '普通容器'
+      },
       style: {},
       action: {}
     },

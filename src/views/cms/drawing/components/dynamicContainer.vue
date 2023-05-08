@@ -15,6 +15,7 @@ import DynamicFormField from '../../designer/components/dynamicFormField.vue'
 import FlexTable from '../../designer/components/container/flexContainer/flexContainerTable.vue'
 import Group from './container/flexContainer/flexContainer.vue'
 import GroupItem from './container/flexContainer/flexContainerItem.vue'
+import OrdinaryContainer from '../../designer/components/container/container/ordinaryContainer.vue'
 
 export default defineComponent({
   name: 'DynamicContainer',
@@ -31,8 +32,6 @@ export default defineComponent({
     let comp: VNode | DefineComponent | Function | string = h('div')
     let childCompBuilder: VNode | DefineComponent | Function = () => null
     let attr: IObjectKeys<string> = {}
-    console.log('drawing container::::::')
-    console.log(element)
     switch (componentType) {
       case 'row':
         comp = ElRow
@@ -115,17 +114,13 @@ export default defineComponent({
         }
         break
       case 'container':
-        comp = defineComponent({
-          name: 'containerComponent',
-          setup(props, { slots }) {
-            return () => h('div', { class: 'containerComponent' }, slots.default?.())
-          }
-        })
+        comp = OrdinaryContainer
         childCompBuilder = element!.children?.map((el: INode) => {
           return h(DrawingItem, {
             element: el
           })
         })
+        attr.element = element
         break
     }
     if (!comp) {

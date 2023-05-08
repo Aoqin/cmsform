@@ -15,10 +15,10 @@
         <ElementList />
       </el-aside>
       <el-container :direction="vertical">
-        <el-main height="">
+        <el-mainc class="desingner" height="">
           <!-- Main content -->
           <DesignerForm :config="store.root!" />
-        </el-main>
+        </el-mainc>
       </el-container>
       <el-aside>
         <AttributeBar :node="store.currentNode" />
@@ -56,4 +56,5 @@ const vertical = ref('vertical')
 const horizontal = ref('horizontal')
 </script>
 
-<style scoped></style>
+<style scoped>
+</style>
