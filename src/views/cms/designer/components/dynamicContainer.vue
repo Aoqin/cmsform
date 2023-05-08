@@ -3,7 +3,7 @@ import { defineComponent, h, type DefineComponent, type VNode } from 'vue'
 import { ElRow, ElCol, ElTabs, ElFormItem } from 'element-plus'
 import Draggable from 'vuedraggable'
 import type { INode } from '@/model/treeNode'
-import DesignerFormItem from './designerFromItem.vue'
+import DesignerItem from './designerItem.vue'
 import Group from './container/flexContainer/flexContainer.vue'
 import GroupItem from './container/flexContainer/flexContainerItem.vue'
 import flexTable from './container/flexContainer/flexContainerTable.vue'
@@ -53,7 +53,7 @@ const dragableBuilder = (el: INode) =>
     },
     {
       item: ({ element }: { element: INode }) => {
-        return h(DesignerFormItem, {
+        return h(DesignerItem, {
           element
         })
       }
@@ -61,7 +61,7 @@ const dragableBuilder = (el: INode) =>
   )
 
 const fieldBuilder = (el: INode) =>
-  h(DesignerFormItem, {
+  h(DesignerItem, {
     element: el
   })
 

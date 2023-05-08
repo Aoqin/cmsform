@@ -2,6 +2,7 @@
   <div>
     <el-link type="primary" @click="jsonVisible = true"> 查看表单配置 </el-link>
     <el-link type="primary" @click="formVisible = true"> 查看表单值 </el-link>
+    <el-link type="primary" @click="previewVisiable = true"> 预览 </el-link>
     <ElDialog v-model="jsonVisible" title="配置信息">
       <AceBuild :data="jsonData" />
       <template #footer>
@@ -12,6 +13,12 @@
     <ElDialog v-model="formVisible" title="表单值">
       <AceBuild :data="formData" />
     </ElDialog>
+    <ElDialog v-model="previewVisiable" destroy-on-close title="预览">
+      <DrawingBoard :config="jsonData" />
+      <template #footer>
+        <ElButton @click="previewVisiable = false">确定</ElButton>
+      </template>
+    </ElDialog>
   </div>
 </template>
 
@@ -20,9 +27,11 @@ import { ref, computed, onMounted } from 'vue'
 import { ElButton, ElDialog, ElMessage } from 'element-plus'
 import AceBuild from '@/components/ace/aceBuild.vue'
 import type { ITreeStore } from '@/model/treeStore'
+import DrawingBoard from '@/views/cms/drawing/drawingBoard.vue'
 
 const jsonVisible = ref<boolean>(false)
 const formVisible = ref<boolean>(false)
+const previewVisiable = ref<boolean>(false)
 const copyBtn = ref<HTMLElement | null>(null)
 
 const props = defineProps<{
@@ -50,37 +59,7 @@ const copyJson = async () => {
   }
 }
 
-// const viewJson = () => {
-//   jsonVisible.value = true
-//   if (!clipboard && copyBtn.value) {
-//     clipboard = new Clipboard(copyBtn.value as HTMLElement)
-//     clipboard.on('success', () => {
-//       ElMessage.success('复制成功')
-//     })
-//     clipboard.on('error', () => {
-//       console.log('error')
-//       ElMessage.error('复制失败')
-//     })
-//   }
-// }
-
-onMounted(() => {
-  console.log('copyBtn.value')
-  console.log(copyBtn)
-  console.log(copyBtn.value)
-  // const clipboard = new Clipboard(copyBtn.value as HTMLElement)
-  // clipboard.on('success', () => {
-  //   ElMessage.success('复制成功')
-  // })
-  // clipboard.on('error', () => {
-  //   console.log('error')
-  //   ElMessage.error('复制失败')
-  // })
-})
-
-// const viewJson = () => {
-//   console.log('viewJson')
-// }
+onMounted(() => {})
 </script>
 
 <style scoped></style>

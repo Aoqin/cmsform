@@ -1,11 +1,14 @@
 import { reactive } from 'vue'
 import type { ITreeStore } from './treeStore'
-import { generate } from 'shortid'
+import { characters, generate } from 'shortid'
 import { deepCopy } from '@/utils'
 import { formFields, type ComponentType } from '@/config/fields'
 
 import type { NodeActionName, NodeActionParams } from '@/config/action'
 import type { IObjectKeys } from '@/config/common'
+
+// 默认shoriId生成器字符集,规避特殊字符 -
+characters('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_')
 
 export interface INode {
   parent: INode | null
@@ -105,10 +108,18 @@ class Node implements INode {
   // timer: any = null
   constructor(options: INodeOptions) {
     for (const key in options) {
+      // todo: 优化
       if (Object.prototype.hasOwnProperty.call(this, key)) {
         if (
-          ['options', 'properties', 'extendAttributes', 'actions', 'style', 'data'].indexOf(key) !=
-          -1
+          [
+            'options',
+            'properties',
+            'extendAttributes',
+            'actions',
+            'style',
+            'data',
+            'backendConfig'
+          ].includes(key)
         ) {
           // 隔离每个node的数据
           ;(this as INode)[key] = deepCopy(options[key])
@@ -229,7 +240,8 @@ class Node implements INode {
     const tmpGrandChildren = child?.children?.map((item) => item)
     let constructorOptions: INodeOptions
     if (child instanceof Node) {
-      constructorOptions = child.getReadOnlyNode()
+      // 不做深拷贝，直接使用原对象
+      constructorOptions = child.getReadOnlyNode({ children: [] })
     } else {
       constructorOptions = child as INodeOptions
     }
@@ -498,10 +510,7 @@ class Node implements INode {
    * @returns {string | null} 返回当前节点的modelKey，如果不是表单组件，返回null
    */
   getModelKey(): string | null {
-    if (formFields.includes(this.componentType)) {
-      return `${this.componentType}.${this.key}`
-    }
-    return null
+    return `${this.componentType}.${this.key}`
   }
 
   getModel() {

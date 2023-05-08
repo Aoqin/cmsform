@@ -67,10 +67,9 @@ export class Treestore implements ITreeStore {
       this.registerRules(options.rules)
     }
   }
-  initialize(mergeParams?: INodeOptions) {
+  initialize() {
     this.root = new node({
-      store: this,
-      ...mergeParams
+      store: this
     })
     this.createModel()
     this.root!.initialize()

@@ -9,7 +9,7 @@
     >
       <!-- Item slot must have only one child -->
       <template #item="{ element, index }">
-        <DesignerFormItem :element="element" @delete="deleteItem(index)" />
+        <DesignerItem :element="element" @delete="deleteItem(index)" />
       </template>
     </Draggable>
   </ElForm>
@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import DesignerFormItem from '../designerFromItem.vue'
+import DesignerItem from '../designerItem.vue'
 import Draggable from 'vuedraggable'
 import { reactive, computed } from 'vue'
 import type { INode, INodeOptions } from '@/model/treeNode'

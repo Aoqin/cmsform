@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent, h } from 'vue'
 import Draggable from 'vuedraggable'
-import DesignerFormItem from './dynamicFormItem.vue'
+import DesignerItem from './dynamicFormItem.vue'
 
 export default defineComponent({
   setup() {},
