@@ -52,6 +52,7 @@ export default defineComponent({
               })
             )
           })
+        attr.label = properties.label
         break
       case 'tabs':
         comp = ElTabs
@@ -86,7 +87,7 @@ export default defineComponent({
               return h(
                 GroupItem,
                 {
-                  label: el.name,
+                  label: el.properties.label,
                   operatiable: true,
                   noDrag: true,
                   onEdit() {
@@ -112,6 +113,7 @@ export default defineComponent({
         } else {
           childCompBuilder = () => h(FlexTable, { element })
         }
+        attr.label = properties.label
         break
       case 'container':
         comp = OrdinaryContainer
@@ -120,7 +122,7 @@ export default defineComponent({
             element: el
           })
         })
-        attr.element = element
+        attr.label = properties.label
         break
     }
     if (!comp) {

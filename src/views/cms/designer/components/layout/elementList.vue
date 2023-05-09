@@ -42,7 +42,7 @@ const log = (evt: any) => {
 
 <style scoped>
 .field_list {
-  padding: 20px 15px;
+  padding: 10px 10px;
 }
 .field {
   padding: 5px 10px;

@@ -111,6 +111,7 @@ export default defineComponent({
               () => dragableBuilder(el)
             )
           })
+        attr.label = properties.label
         break
       case 'tabs':
         comp = ElTabs
@@ -186,7 +187,7 @@ export default defineComponent({
       case 'container':
         comp = OrdinaryContainer
         childCompBuilder = () => dragableBuilder(element as INode)
-        attr.element = element
+        attr.label = properties.label
         break
     }
     if (!comp) {

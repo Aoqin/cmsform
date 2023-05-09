@@ -314,6 +314,40 @@ export const config: INodeOptions = {
       extendAttributes: {
         remote: false
       }
+    },
+    {
+      name: 'link',
+      id: null,
+      componentType: 'link',
+      componentName: '超链接',
+      children: [],
+      properties: {
+        label: '超链接'
+      },
+      style: {},
+      action: {},
+      options: [],
+      extendAttributes: {
+        httpParams: {},
+        url: ''
+      }
+    },
+    {
+      name: 'divider',
+      id: null,
+      componentType: 'divider',
+      componentName: '分割线',
+      children: [],
+      properties: {
+        label: '分割线'
+      },
+      style: {},
+      action: {},
+      options: [],
+      extendAttributes: {
+        httpParams: {},
+        url: ''
+      }
     }
   ]
 }

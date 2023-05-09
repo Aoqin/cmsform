@@ -82,7 +82,7 @@ const deleteItem = (index: number) => {
 .ghostForm {
   border: 1px solid #ccc;
   padding: 10px;
-  min-height: 600px;
+  height: calc(100vh - 60px);
 }
 </style>
 <style>

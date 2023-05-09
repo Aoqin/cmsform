@@ -41,7 +41,7 @@ const restInner = (parms: any) => {
   })
 }
 
-const upload = (file: File) => {
+const upload = (file: any) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve({
@@ -50,6 +50,21 @@ const upload = (file: File) => {
         uid: file.uid
       })
     }, 3000)
+  })
+}
+
+const download = (url: string) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      console.log('下载成功')
+      resolve(true)
+    }, 3000)
+  })
+}
+const openWindow = (params: any) => {
+  return new Promise((resolve, reject) => {
+    window.open(params.url||'http://baidu.com', '_blank')
+    resolve(true)
   })
 }
 
@@ -68,6 +83,16 @@ const functions: IFunctions = {
     label: '上传',
     key: 'upload',
     fun: upload
+  },
+  download: {
+    label: '下载',
+    key: 'download',
+    fun: download
+  },
+  openWindow: {
+    label: '打开新窗口',
+    key: 'openWindow',
+    fun: openWindow
   }
 }
 

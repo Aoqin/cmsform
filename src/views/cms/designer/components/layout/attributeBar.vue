@@ -18,264 +18,317 @@
       <el-form-item label="name">
         <el-input v-model="attributeForm.name" />
       </el-form-item>
+      <!-- 表单项通用配置 -->
       <el-form-item label="label">
         <el-input
           :modelValue="properties.label"
           @update:modelValue="setProperties('label', $event)"
         />
       </el-form-item>
-      <el-form-item label="placeholder">
-        <el-input
-          :modelValue="properties.placeholder"
-          @update:modelValue="setProperties('placeholder', $event)"
-        />
-      </el-form-item>
-      <!-- <el-form-item label="searchable">
-        <el-switch
-          :modelValue="extendAttributes.searchable"
-          @update:modelValue="setExtendAttribute('searchable', $event)"
-        />
-      </el-form-item> -->
-      <!-- <el-form-item label="IsBuildIn">
-        <el-switch
-          :modelValue="extendAttributes.IsBuildIn"
-          @update:modelValue="setExtendAttribute('IsBuildIn', $event)"
-        />
-      </el-form-item> -->
-      <el-form-item label="disabled">
-        <el-switch
-          :modelValue="properties.disabled"
-          @update:modelValue="setProperties('disabled', $event)"
-        />
-      </el-form-item>
-      <el-form-item label="multiple">
-        <el-switch
-          :modelValue="properties.multiple"
-          @update:modelValue="setProperties('multiple', $event)"
-        />
-      </el-form-item>
-      <el-form-item label="action">
-        <el-switch
-          :modelValue="extendAttributes.action"
-          @update:modelValue="setExtendAttribute('action', $event)"
-        />
-      </el-form-item>
-      <el-form-item label="actions">
-        <el-select placeholder="">
-          <el-option
-            v-for="item in actionOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-            @click="addAction(item)"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="actionconfig">
-        <div class="" v-for="(item, index) in actions" :key="`action_${index}`">
+      <template v-if="IsFormFiled">
+        <el-form-item label="placeholder">
           <el-input
-            :modelValue="item.actionFunName"
-            @update:modelValue="setExtendAttribute('actionText', $event)"
+            :modelValue="properties.placeholder"
+            @update:modelValue="setProperties('placeholder', $event)"
           />
-          <el-input v-model="item.params" placeholder="" />
-        </div>
-      </el-form-item>
-      <el-form-item label="linkage">
-        <el-switch
-          :modelValue="extendAttributes.linkage"
-          @update:modelValue="setExtendAttribute('linkage', $event)"
-        />
-      </el-form-item>
-      <el-form-item label="linkAction">
-        <el-select
-          :modelValue="extendAttributes.linkAction"
-          @update:modelValue="setExtendAttribute('linkAction', $event)"
-          clearable
-        >
-          <el-option value="change" label="change" />
-        </el-select>
-      </el-form-item>
-      <!-- datetimer type -->
-      <el-form-item label="dateType">
-        <el-select
-          :modelValue="properties.type"
-          @update:modelValue="setProperties('type', $event)"
-          placeholder=""
-        >
-          <el-option
-            v-for="item in datePickerTypes"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="datePickerFormart">
-        <el-input
-          :modelValue="properties.format"
-          @update:modelValue="setProperties('format', $event)"
-        />
-      </el-form-item>
-      <el-form-item label="datePickerValueFormart">
-        <el-input
-          :modelValue="properties.valueFormat"
-          @update:modelValue="setProperties('valueFormat', $event)"
-        />
-      </el-form-item>
-      <el-form-item label="linkTarget">
-        <el-input :modelValue="extendAttributes.linkTarget" @update:modelValue="setTarget" />
-      </el-form-item>
-      <el-form-item label="linkTargetAction">
-        <el-select
-          :modelValue="extendAttributes.linkTargetAction"
-          @update:modelValue="setExtendAttribute('linkTargetAction', $event)"
-          :multiple="true"
-        >
-          <el-option label="change" value="change" />
-          <el-option label="reset" value="reset" />
-          <el-option label="loadData" value="loadData" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="options">
-        <el-radio-group
-          :modelValue="extendAttributes.remote"
-          @update:modelValue="setExtendAttribute('remote', $event)"
-        >
-          <el-radio-button :label="false">静态数据</el-radio-button>
-          <el-radio-button :label="true">远程数据</el-radio-button>
-        </el-radio-group>
-        <template v-if="!extendAttributes.remote">
-          <el-row :gutter="5" v-for="(option, index) in options" :key="`option_config_${index}`">
-            <el-col :span="8">
-              <el-input v-model="option.label" placeholder="请输入" />
-            </el-col>
-            <el-col :span="8">
-              <el-input v-model="option.value" placeholder="请输入" />
-            </el-col>
-            <el-link
-              v-if="options.length > 1"
-              type="primary"
-              :underline="false"
-              @click="removeOption(index)"
-            >
-              删除
-            </el-link>
-          </el-row>
-          <div><el-link :underline="false" type="primary" @click="addOption">添加</el-link></div>
-        </template>
-        <template v-else>
-          <el-input
-            :modelValue="extendAttributes.remoteFunOrUrl"
-            @update:modelValue="setExtendAttribute('remoteFunOrUrl', $event)"
-            placeholder="请输入方法名或URL地址"
-          >
-            <template #prepend>
-              <div>远端方法</div>
-            </template>
-          </el-input>
-          <span>action</span>
+        </el-form-item>
+        <el-form-item label="disabled">
           <el-switch
-            :modelValue="extendAttributes.isRemoteFun"
-            @update:modelValue="setExtendAttribute('isRemoteFun', $event)"
+            :modelValue="properties.disabled"
+            @update:modelValue="setProperties('disabled', $event)"
           />
-          <el-input
-            placeholder="{ 'key': value , '$value': 'key'}"
-            :modelValue="extendAttributes.remoteParams"
-            @update:modelValue="setExtendAttribute('remoteParams', $event)"
-          >
-            <template #prepend>
-              <div>参数</div>
-            </template>
-          </el-input>
-          <el-input v-model="extendAttributes.remoteOptionProps.value">
-            <template #prepend>
-              <div>值</div>
-            </template>
-          </el-input>
-          <el-input v-model="extendAttributes.remoteOptionProps.label">
-            <template #prepend>
-              <div>标签</div>
-            </template>
-          </el-input>
-          <el-button @click="handleLoadData">加载数据</el-button>
+        </el-form-item>
+        <!-- 表单项通用配置信息 end -->
+        <!-- action 配置 -->
+        <!-- 
+        <el-form-item label="action">
+          <el-switch
+            :modelValue="extendAttributes.action"
+            @update:modelValue="setExtendAttribute('action', $event)"
+          />
+        </el-form-item>
+        <el-form-item label="actions">
+          <el-select placeholder="">
+            <el-option
+              v-for="item in actionOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+              @click="addAction(item)"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="actionconfig">
+          <div class="" v-for="(item, index) in actions" :key="`action_${index}`">
+            <el-input
+              :modelValue="item.actionFunName"
+              @update:modelValue="setExtendAttribute('actionText', $event)"
+            />
+            <el-input v-model="item.params" placeholder="" />
+          </div>
+        </el-form-item>
+         -->
+        <!-- action 配置end -->
+      </template>
+      <!-- 联动信息配置 目前支持select-->
+      <template v-if="componentType === 'select'">
+        <el-form-item label="linkage">
+          <el-switch
+            :modelValue="extendAttributes.linkage"
+            @update:modelValue="setExtendAttribute('linkage', $event)"
+          />
+        </el-form-item>
+        <template v-if="extendAttributes.linkage">
+          <el-form-item label="linkAction">
+            <el-select
+              :modelValue="extendAttributes.linkAction"
+              @update:modelValue="setExtendAttribute('linkAction', $event)"
+              clearable
+            >
+              <el-option value="change" label="change" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="linkTarget">
+            <el-input :modelValue="extendAttributes.linkTarget" @update:modelValue="setTarget" />
+          </el-form-item>
+          <el-form-item label="linkTargetAction">
+            <el-select
+              :modelValue="extendAttributes.linkTargetAction"
+              @update:modelValue="setExtendAttribute('linkTargetAction', $event)"
+              :multiple="true"
+            >
+              <el-option label="change" value="change" />
+              <el-option label="reset" value="reset" />
+              <el-option label="loadData" value="loadData" />
+            </el-select>
+          </el-form-item>
         </template>
-      </el-form-item>
-      <el-form-item label="row">
-        <div v-for="(item, index) in children" :key="`col_${index}`">
+      </template>
+      <!-- 联动信息配置 end -->
+      <!-- link 配置信息 -->
+      <template v-if="componentType === 'link'">
+        <el-form-item label="href">
           <el-input
-            :modelValue="item.properties.span"
-            @update:modelValue="changeSpan(item, $event)"
-            placeholder=""
-          >
-            <template #append>
-              <el-link type="primary" @click="removeChild(item)">删除</el-link>
-            </template>
-          </el-input>
-        </div>
-        <el-link type="primary" @click="addChild">添加</el-link>
-      </el-form-item>
-      <el-form-item label="tabpane">
-        <div v-for="(item, index) in children" :key="`tabpane_${index}`">
-          <el-input
-            :modelValue="item.properties.label"
-            @update:modelValue="changeLabel(item, $event)"
-            placeholder=""
-          >
-            <template #append>
-              <el-link type="primary" @click="removeChild(item)">删除</el-link>
-            </template>
-          </el-input>
-        </div>
-        <el-link type="primary" @click="addChild">添加</el-link>
-      </el-form-item>
-      <el-form-item label="validate">
-        <el-checkbox
-          label="required"
-          :modelValue="properties.required"
-          @update:modelValue="setProperties('required', $event)"
-        />
-        <el-select
-          :modelValue="properties.validate"
-          @update:modelValue="setProperties('validate', $event)"
-        >
-          <el-option
-            v-for="item in validateOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+            :modelValue="extendAttributes.href"
+            @update:modelValue="setExtendAttribute('link', $event)"
           />
-        </el-select>
-        <el-input
-          :modelValue="properties.validateReg"
-          @update:modelValue="setProperties('validate', $event)"
-          placeholder="填写正则表达式"
-        >
-          <template #prepend>
-            <div>/</div>
+        </el-form-item>
+        <el-form-item label="query">
+          <el-input
+            placeholder=""
+            :modelValue="extendAttributes.search"
+            @update:modelValue="setExtendAttribute('search', $event)"
+          />
+        </el-form-item>
+      </template>
+      <!-- link 配置信息 end -->
+      <template v-if="componentType === 'date'">
+        <!-- 时间框配置信息 -->
+        <el-form-item label="dateType">
+          <el-select
+            :modelValue="properties.type"
+            @update:modelValue="setProperties('type', $event)"
+            placeholder=""
+          >
+            <el-option
+              v-for="item in datePickerTypes"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="datePickerFormart">
+          <el-input
+            :modelValue="properties.format"
+            @update:modelValue="setProperties('format', $event)"
+          />
+        </el-form-item>
+        <el-form-item label="datePickerValueFormart">
+          <el-input
+            :modelValue="properties.valueFormat"
+            @update:modelValue="setProperties('valueFormat', $event)"
+          />
+        </el-form-item>
+      </template>
+      <!-- 时间框配置信息 end -->
+      <!-- 选择项配置 -->
+      <template v-if="hasOptions">
+        <el-form-item v-if="componentType !== 'radio'" label="multiple">
+          <el-switch
+            :modelValue="properties.multiple"
+            @update:modelValue="setProperties('multiple', $event)"
+          />
+        </el-form-item>
+        <el-form-item label="options">
+          <el-radio-group
+            :modelValue="extendAttributes.remote"
+            @update:modelValue="setExtendAttribute('remote', $event)"
+          >
+            <el-radio-button :label="false">静态数据</el-radio-button>
+            <el-radio-button :label="true">远程数据</el-radio-button>
+          </el-radio-group>
+          <template v-if="!extendAttributes.remote">
+            <el-row :gutter="5" v-for="(option, index) in options" :key="`option_config_${index}`">
+              <el-col :span="8">
+                <el-input v-model="option.label" placeholder="请输入" />
+              </el-col>
+              <el-col :span="8">
+                <el-input v-model="option.value" placeholder="请输入" />
+              </el-col>
+              <el-link
+                v-if="options.length > 1"
+                type="primary"
+                :underline="false"
+                @click="removeOption(index)"
+              >
+                删除
+              </el-link>
+            </el-row>
+            <div><el-link :underline="false" type="primary" @click="addOption">添加</el-link></div>
           </template>
-          <template #append>
-            <div>/</div>
+          <template v-else>
+            <el-input
+              :modelValue="extendAttributes.remoteFunOrUrl"
+              @update:modelValue="setExtendAttribute('remoteFunOrUrl', $event)"
+              placeholder="请输入方法名或URL地址"
+            >
+              <template #prepend>
+                <div>远端方法</div>
+              </template>
+            </el-input>
+            <span>action</span>
+            <el-switch
+              :modelValue="extendAttributes.isRemoteFun"
+              @update:modelValue="setExtendAttribute('isRemoteFun', $event)"
+            />
+            <el-input
+              placeholder="{ 'key': value , '$value': 'key'}"
+              :modelValue="extendAttributes.remoteParams"
+              @update:modelValue="setExtendAttribute('remoteParams', $event)"
+            >
+              <template #prepend>
+                <div>参数</div>
+              </template>
+            </el-input>
+            <el-input v-model="extendAttributes.remoteOptionProps.value">
+              <template #prepend>
+                <div>值</div>
+              </template>
+            </el-input>
+            <el-input v-model="extendAttributes.remoteOptionProps.label">
+              <template #prepend>
+                <div>标签</div>
+              </template>
+            </el-input>
+            <el-button @click="handleLoadData">加载数据</el-button>
           </template>
-        </el-input>
-      </el-form-item>
+        </el-form-item>
+      </template>
+      <!-- 选择项配置 end -->
+      <!-- 容器添加子项 -->
+      <template v-if="componentType === 'row'">
+        <el-form-item label="row">
+          <div v-for="(item, index) in children" :key="`col_${index}`">
+            <el-input
+              :modelValue="item.properties.span"
+              @update:modelValue="changeSpan(item, $event)"
+              placeholder=""
+            >
+              <template #append>
+                <el-link type="primary" @click="removeChild(item)">删除</el-link>
+              </template>
+            </el-input>
+          </div>
+          <el-link type="primary" @click="addChild">添加</el-link>
+        </el-form-item>
+        <el-form-item label="gutter">
+          <ElInput
+            :modelValue="properties.gutter"
+            @update:modelValue="setProperties('gutter', $event)"
+          />
+        </el-form-item>
+      </template>
+      <template v-if="componentType === 'tabs'">
+        <el-form-item label="tabpane">
+          <div v-for="(item, index) in children" :key="`tabpane_${index}`">
+            <el-input
+              :modelValue="item.properties.label"
+              @update:modelValue="changeLabel(item, $event)"
+              placeholder=""
+            >
+              <template #append>
+                <el-link type="primary" @click="removeChild(item)">删除</el-link>
+              </template>
+            </el-input>
+          </div>
+          <el-link type="primary" @click="addChild">添加</el-link>
+        </el-form-item>
+      </template>
+      <!-- 容器添加子项 end -->
+      <!-- 验证规则 -->
+      <template v-if="IsFormFiled">
+        <el-form-item label="validate">
+          <el-checkbox
+            label="required"
+            :modelValue="properties.required"
+            @update:modelValue="setProperties('required', $event)"
+          />
+          <el-select
+            :modelValue="properties.validate"
+            @update:modelValue="setProperties('validate', $event)"
+          >
+            <el-option
+              v-for="item in validateOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+          <el-input
+            :modelValue="properties.validateReg"
+            @update:modelValue="setProperties('validate', $event)"
+            placeholder="填写正则表达式"
+          >
+            <template #prepend>
+              <div>/</div>
+            </template>
+            <template #append>
+              <div>/</div>
+            </template>
+          </el-input>
+        </el-form-item>
+      </template>
+      <!-- 后端配置信息 -->
       <el-form-item label="config">
         <ElButton type="primary" @click="configVisible = true">配置信息</ElButton>
       </el-form-item>
       <BackConfigDialog v-model="configVisible" v-model:config="backConfigData" />
+      <!-- 后端配置信息 end -->
     </el-form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { colProperties, tabPaneProperties } from '@/config/fields'
+import { colProperties, formFields, tabPaneProperties } from '@/config/fields'
 import Node from '@/model/treeNode'
-import type { ElButton } from 'element-plus'
+import type { ElButton, ElInput } from 'element-plus'
 import { reactive, ref, computed, type PropType } from 'vue'
 import BackConfigDialog from '../dialog/backConfig.vue'
 import type { IObjectKeys } from '@/config/common'
 
 const props = defineProps({
   node: [Node, null] as PropType<Node | null>
+})
+
+const componentType = computed(() => (props.node ? props.node.componentType : ''))
+
+const IsFormFiled = computed(() => {
+  return formFields.includes(componentType.value)
+})
+
+const hasOptions = computed(() => {
+  return ['select', 'radio', 'checkbox', 'cascader'].includes(componentType.value)
 })
 
 const attributeFormEl = ref()

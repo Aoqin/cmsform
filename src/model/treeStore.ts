@@ -8,7 +8,7 @@ import type { IObjectKeys } from '@/config/common'
 export interface IFunOption {
   label: string
   key: string
-  fun: (params: { url: string; params: any; method?: 'GET' | 'POST' } | Object) => Promise<any>
+  fun: (params: { url: string; params?: any; method?: 'GET' | 'POST' } | Object) => Promise<any>
 }
 
 export interface IFunctions {

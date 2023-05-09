@@ -1,8 +1,8 @@
 <template>
   <div class="flex_container">
-    <div class="flex_container_header">
+    <div v-if="label" class="flex_container_header">
       <div class="flex_container_name">
-        {{ name || '弹性容器' }}
+        {{ label }}
       </div>
     </div>
     <div class="flex_container_item">
@@ -23,7 +23,7 @@ export default defineComponent({
   emits: ['add', 'transform'],
   components: {},
   props: {
-    name: String
+    label: String
   },
   methods: {
     add() {
@@ -41,7 +41,7 @@ export default defineComponent({
 
 <style scoped>
 .flex_container {
-  margin-bottom: 10px;
+  padding: 10px 0;
 }
 .flex_container_name {
   padding: 10px 15px;
@@ -51,13 +51,13 @@ export default defineComponent({
   font-size: 12px;
 }
 .flex_container_item {
-  padding: 0 20px 10px;
+  padding: 0 10px;
 }
 .flex_container_footer {
-  padding: 0 20px 15px;
+  padding: 0 15px 15px;
 }
 .flex_container_operation {
-  padding: 10px 15px;
+  padding: 10px 0px;
 }
 .flex_container_header {
   font-size: 14px;

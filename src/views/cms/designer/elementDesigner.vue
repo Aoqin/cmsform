@@ -10,7 +10,7 @@
       </ElContainer>
     </el-header>
     <el-container :direction="horizontal">
-      <el-aside width="200px">
+      <el-aside class="fields_bar" width="200px">
         <!-- Aside content -->
         <ElementList />
       </el-aside>
@@ -20,7 +20,7 @@
           <DesignerForm :config="store.root!" />
         </el-mainc>
       </el-container>
-      <el-aside>
+      <el-aside class="attrs_bar">
         <AttributeBar :node="store.currentNode" />
       </el-aside>
     </el-container>
@@ -57,4 +57,12 @@ const horizontal = ref('horizontal')
 </script>
 
 <style scoped>
+.fields_bar {
+  border: 1px solid #ebeef5;
+  height: calc(100vh - 60px);
+}
+.attrs_bar {
+  border: 1px solid #ebeef5;
+  height: calc(100vh - 60px);
+}
 </style>

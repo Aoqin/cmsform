@@ -41,6 +41,7 @@ export type ViewComponentType =
   | 'text'
   | 'image'
   | 'divider'
+  | 'link'
 
 export type ComponentType = FormComponentType | ContainerComponentType | ViewComponentType | ''
 
@@ -85,7 +86,8 @@ export const viewFields: Array<ViewComponentType> = [
   'icon',
   'text',
   'image',
-  'divider'
+  'divider',
+  'link'
 ]
 
 /**
@@ -416,11 +418,11 @@ type IColProperties = {
 }
 
 export const rowProperties: IRowProperties = {
-  gutter: 10
+  gutter: 15
 }
 
 export const colProperties: IColProperties = {
-  span: 24
+  span: 12
 }
 
 export const defaultRowProperties: IRowProperties = {
