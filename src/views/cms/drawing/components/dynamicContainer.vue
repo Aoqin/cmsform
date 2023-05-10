@@ -102,7 +102,7 @@ export default defineComponent({
                   return h(
                     ElFormItem,
                     {
-                      label: el.name || undefined,
+                      label: el.properties.label || undefined,
                       prop: el.key || undefined
                     },
                     () => h(DynamicFormField, { element: el })

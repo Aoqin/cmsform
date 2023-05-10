@@ -271,7 +271,9 @@ export const config: INodeOptions = {
           value: ''
         }
       ],
-      properties: {},
+      properties: {
+        label: '弹性容器'
+      },
       style: {},
       action: {}
     },
@@ -294,7 +296,9 @@ export const config: INodeOptions = {
       componentType: 'table',
       componentName: '表格',
       children: [],
-      properties: {},
+      properties: {
+        lable: '表格'
+      },
       style: {},
       action: {},
       options: [
