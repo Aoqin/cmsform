@@ -142,7 +142,7 @@ export default defineComponent({
                 return h(
                   GroupItem,
                   {
-                    label: el.name,
+                    label: el.properties.label,
                     onEdit: groupItemEdit,
                     onDel: groupItemDel
                   },
@@ -167,7 +167,7 @@ export default defineComponent({
                     return h(
                       ElFormItem,
                       {
-                        label: el.name || undefined,
+                        label: el.properties.label || undefined,
                         prop: el.key || undefined
                       },
                       () => h(DynamicFormField, { element: el })
@@ -180,6 +180,7 @@ export default defineComponent({
         } else {
           childCompBuilder = () => h(flexTable, { element })
         }
+        attr.label = properties.label
         attr.onTransform = () => {
           element.setExtendAttribute({ table: !element.extendAttributes.table })
         }

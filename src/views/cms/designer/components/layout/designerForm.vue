@@ -1,18 +1,20 @@
 <template>
-  <ElForm :model="model" label-position="top" class="ghostForm">
-    <Draggable
-      :model-value="list"
-      :group="dragGroupOptions"
-      item-key="key"
-      @change="changeEvent"
-      @update:model-value="updateModel"
-    >
-      <!-- Item slot must have only one child -->
-      <template #item="{ element, index }">
-        <DesignerItem :element="element" @delete="deleteItem(index)" />
-      </template>
-    </Draggable>
-  </ElForm>
+  <div class="ghostForm">
+    <ElForm :model="model" label-position="top">
+      <Draggable
+        :model-value="list"
+        :group="dragGroupOptions"
+        item-key="key"
+        @change="changeEvent"
+        @update:model-value="updateModel"
+      >
+        <!-- Item slot must have only one child -->
+        <template #item="{ element, index }">
+          <DesignerItem :element="element" @delete="deleteItem(index)" />
+        </template>
+      </Draggable>
+    </ElForm>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -83,7 +85,7 @@ const deleteItem = (index: number) => {
   border: 1px solid #ccc;
   padding: 10px;
   height: calc(100vh - 60px);
-  overflow: scroll-y;
+  overflow: auto;
 }
 </style>
 <style>
