@@ -16,6 +16,7 @@
     "@element-plus/icons-vue": "^2.1.0",
     "@types/shortid": "^0.0.29",
     "ace-builds": "^1.19.0",
+    "axios": "^1.4.0",
     "element-plus": "^2.2.34",
     "pinia": "^2.0.32",
     "shortid": "^2.2.16",
