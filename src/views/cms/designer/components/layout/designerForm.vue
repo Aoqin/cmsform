@@ -83,6 +83,7 @@ const deleteItem = (index: number) => {
   border: 1px solid #ccc;
   padding: 10px;
   height: calc(100vh - 60px);
+  overflow: scroll-y;
 }
 </style>
 <style>

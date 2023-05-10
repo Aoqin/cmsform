@@ -32,6 +32,7 @@ export type ContainerComponentType =
   | 'tabPane'
   | 'flexContainer'
   | 'flexContainerItem'
+  | 'root'
 
 export type ViewComponentType =
   | 'table'

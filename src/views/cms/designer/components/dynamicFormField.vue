@@ -25,7 +25,7 @@ import {
   type UploadRequestOptions,
   ElLink
 } from 'element-plus'
-import { defineComponent, h, type VNode, type Slots, type DefineComponent } from 'vue'
+import { defineComponent, h, type VNode, type DefineComponent } from 'vue'
 
 export default defineComponent({
   props: {
@@ -47,7 +47,7 @@ export default defineComponent({
   },
   render() {
     let comp: VNode | DefineComponent | Function
-    let slots: Slots | null = null
+    let slots: { default?: Function | null; tip?: Function | null } = {}
     let attr: any = {}
     const { componentType, options, properties, data, extendAttributes } = this.element!
     switch (componentType) {
@@ -129,6 +129,10 @@ export default defineComponent({
           : h(ElButton, { type: properties.buttonType }, { default: () => properties.buttonText })
 
       attr.fileList = data
+      properties.limit ? (attr.limit = properties.limit) : null
+      properties.accept && properties.accept.length > 0
+        ? (attr.accept = properties.accept.join(','))
+        : null
       attr['onUpdate:fileList'] = (val: { name: string; uid: string }[]) => {
         console.log('onUpdate: fileList')
         val.forEach((item) => {
@@ -168,7 +172,20 @@ export default defineComponent({
           this.element.getModel().splice(index, 1)
         }
       }
+      let tipString = ''
+      if (properties.limit) {
+        tipString += `最多上传${properties.limit}个文件`
+      }
+      if (properties.accept && properties.accept.length > 0) {
+        tipString += `， 限定${properties.accept.join(',')}`
+      }
+      if (properties.limitSize) {
+        tipString += `，文件大小不能超过${properties.limitSize}kb`
+      }
+      slots.tip = () => h('div', {}, tipString)
     }
+    slots.default = defaultSlot ? () => defaultSlot : null
+
     // 生成默认插槽
 
     return h(
@@ -180,9 +197,7 @@ export default defineComponent({
         },
         ...attr
       },
-      {
-        default: defaultSlot ? () => defaultSlot : null
-      }
+      slots
     )
   }
 })

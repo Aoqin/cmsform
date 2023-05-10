@@ -14,8 +14,8 @@ import {
 export const config: INodeOptions = {
   name: 'name',
   id: undefined,
-  componentType: 'input',
-  componentName: 'input',
+  componentType: 'form',
+  componentName: 'form',
   properties: {},
   style: {},
   actions: {},

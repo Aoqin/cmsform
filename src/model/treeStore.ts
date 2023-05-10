@@ -69,7 +69,9 @@ export class Treestore implements ITreeStore {
   }
   initialize() {
     this.root = new node({
-      store: this
+      store: this,
+      componentType: 'root',
+      componentName: 'root'
     })
     this.createModel()
     this.root!.initialize()

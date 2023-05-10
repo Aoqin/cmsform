@@ -28,6 +28,8 @@ export interface INode {
   options?: Array<any>
   componentType: ComponentType
   componentName: string
+  componentKey: string
+  componentKeyId: string
   value?: string | number | Array<any> | object | null
   children?: Array<INode> | null
   store?: ITreeStore
@@ -92,6 +94,8 @@ class Node implements INode {
   index: number = 0
   componentType: ComponentType = ''
   componentName: string = ''
+  componentKey: string
+  componentKeyId: string = ''
   value: string | Array<any> | Number | null = null
   store?: ITreeStore | undefined
   // 引用类型的属性，需要在构造函数中初始化隔离数据
@@ -132,6 +136,9 @@ class Node implements INode {
     }
     if (!this.key) {
       this.key = generate()
+    }
+    if (!this.componentKey) {
+      this.componentKey = generate()
     }
   }
 
@@ -473,6 +480,7 @@ class Node implements INode {
       options,
       componentType,
       componentName,
+      componentKey,
       value,
       backendConfig
     } = this
@@ -491,6 +499,7 @@ class Node implements INode {
       options,
       componentType,
       componentName,
+      componentKey,
       backendConfig,
       value,
       children: this.children?.map((item) => item.getReadOnlyNode(exceptOptions))

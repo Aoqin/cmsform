@@ -1,6 +1,7 @@
 <template>
   <div class="attribute">
     <el-form
+      v-if="node"
       :model="attributeForm"
       ref="attributeFormEl"
       :rules="rules"
@@ -9,15 +10,18 @@
       label-position="top"
     >
       <el-form-item label="key">
-        <el-input :modelValue="attributeForm.key">
+        <el-input :modelValue="node.key">
           <template #append>
             <el-link @click="copy"> 点击复制 </el-link>
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item label="name">
-        <el-input v-model="attributeForm.name" />
+      <el-form-item label="componentKey">
+        <el-input v-model="node!.componentKey" placeholder="" />
       </el-form-item>
+      <!-- <el-form-item label="name">
+        <el-input v-model="node!.name" />
+      </el-form-item> -->
       <!-- 表单项通用配置 -->
       <el-form-item label="label">
         <el-input
@@ -151,6 +155,34 @@
           />
         </el-form-item>
       </template>
+      <!-- uploade 配置信息 -->
+      <template v-if="componentType === 'upload'">
+        <el-form-item label="limit">
+          <ElInputNumber
+            :modelValue="properties.limit"
+            @update:modelValue="setProperties('limit', $event)"
+          />
+        </el-form-item>
+        <el-form-item label="limitSize">
+          <ElInputNumber
+            :modelValue="properties.limitSize"
+            @update:modelValue="setProperties('limitSize', $event)"
+          />
+        </el-form-item>
+        <el-form-item label="fileType">
+          <el-checkbox-group
+            :modelValue="properties.accept"
+            @update:modelValue="setProperties('accept', $event)"
+          >
+            <el-checkbox
+              v-for="(item, index) in FileTypes"
+              :key="`filetype_${index}`"
+              :label="item"
+            />
+          </el-checkbox-group>
+        </el-form-item>
+      </template>
+      <!-- uploade 配置信息 end -->
       <!-- 时间框配置信息 end -->
       <!-- 选择项配置 -->
       <template v-if="hasOptions">
@@ -286,8 +318,8 @@
             />
           </el-select>
           <el-input
-            :modelValue="properties.validateReg"
-            @update:modelValue="setProperties('validate', $event)"
+            :modelValue="properties.pattern"
+            @update:modelValue="setProperties('pattern', $event)"
             placeholder="填写正则表达式"
           >
             <template #prepend>
@@ -312,10 +344,11 @@
 <script setup lang="ts">
 import { colProperties, formFields, tabPaneProperties } from '@/config/fields'
 import Node from '@/model/treeNode'
-import type { ElButton, ElInput } from 'element-plus'
+import type { ElButton, ElInput, ElInputNumber } from 'element-plus'
 import { reactive, ref, computed, type PropType } from 'vue'
 import BackConfigDialog from '../dialog/backConfig.vue'
 import type { IObjectKeys } from '@/config/common'
+import FileTypes from '@/config/fileType'
 
 const props = defineProps({
   node: [Node, null] as PropType<Node | null>

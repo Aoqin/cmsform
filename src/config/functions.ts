@@ -61,9 +61,10 @@ const download = (url: string) => {
     }, 3000)
   })
 }
+
 const openWindow = (params: any) => {
   return new Promise((resolve, reject) => {
-    window.open(params.url||'http://baidu.com', '_blank')
+    window.open(params.url || 'http://baidu.com', '_blank')
     resolve(true)
   })
 }

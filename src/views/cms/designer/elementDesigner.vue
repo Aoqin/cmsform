@@ -42,15 +42,8 @@ import functions from '@/config/functions'
 import HeaderBar from './components/layout/headerBar.vue'
 import { ElAside, ElContainer } from 'element-plus'
 
-const store = reactive<ITreeStore>(new Treestore({ rules, functions }))
+const store = reactive<ITreeStore>(new Treestore({ rules, functions, componentType: 'form' }))
 store.initialize()
-
-watch(
-  () => store.currentNode,
-  (val) => {
-    console.log('val:: ', val)
-  }
-)
 
 const vertical = ref('vertical')
 const horizontal = ref('horizontal')

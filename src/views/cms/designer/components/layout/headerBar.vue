@@ -3,6 +3,7 @@
     <el-link type="primary" @click="jsonVisible = true"> 查看表单配置 </el-link>
     <el-link type="primary" @click="formVisible = true"> 查看表单值 </el-link>
     <el-link type="primary" @click="previewVisiable = true"> 预览 </el-link>
+    <ElLink type="primary" @click="generate">生成后端配置</ElLink>
     <ElDialog v-model="jsonVisible" title="配置信息">
       <AceBuild :data="jsonData" />
       <template #footer>
@@ -28,6 +29,7 @@ import { ElButton, ElDialog, ElMessage } from 'element-plus'
 import AceBuild from '@/components/ace/aceBuild.vue'
 import type { ITreeStore } from '@/model/treeStore'
 import DrawingBoard from '@/views/cms/drawing/drawingBoard.vue'
+import { getComponentConfig } from '@/utils/convert'
 
 const jsonVisible = ref<boolean>(false)
 const formVisible = ref<boolean>(false)
@@ -60,6 +62,11 @@ const copyJson = async () => {
 }
 
 onMounted(() => {})
+
+const generate = () => {
+  console.log('generate')
+  console.log(getComponentConfig(props.store.root!))
+}
 </script>
 
 <style scoped></style>
