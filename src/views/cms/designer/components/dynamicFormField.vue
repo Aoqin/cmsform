@@ -49,7 +49,7 @@ export default defineComponent({
     let comp: VNode | DefineComponent | Function
     let slots: { default?: Function | null; tip?: Function | null } = {}
     let attr: any = {}
-    const { componentType, options, properties, data, extendAttributes } = this.element!
+    const { componentType, options, properties, data = [], extendAttributes } = this.element!
     switch (componentType) {
       case 'input':
         comp = ElInput
@@ -116,11 +116,17 @@ export default defineComponent({
           )
         }
       }
-
-      defaultSlot =
-        options?.map((item: { key?: string; label?: string; value?: string }) => {
+      let optionsArr = null
+      if (extendAttributes.remote) {
+        optionsArr = data.map((item: { key?: string; label?: string; value?: string }) => {
           return optionNodeFactory(item, componentType)
-        }) || null
+        })
+      } else {
+        optionsArr = options?.map((item: { key?: string; label?: string; value?: string }) => {
+          return optionNodeFactory(item, componentType)
+        })
+      }
+      defaultSlot = optionsArr && optionsArr.length > 0 ? optionsArr : null
     } else if (componentType === 'upload') {
       // 上传组件
       defaultSlot =

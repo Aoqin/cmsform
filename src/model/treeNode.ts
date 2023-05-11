@@ -2,7 +2,7 @@ import { reactive } from 'vue'
 import type { ITreeStore } from './treeStore'
 import { characters, generate } from 'shortid'
 import { deepCopy } from '@/utils'
-import { formFields, type ComponentType } from '@/config/fields'
+import type { ComponentType } from '@/config/fields'
 
 import type { NodeActionName, NodeActionParams } from '@/config/action'
 import type { IObjectKeys } from '@/config/common'
@@ -78,11 +78,17 @@ export interface INodeOptions {
   options?: Array<any>
   componentType?: ComponentType
   componentName?: string
+  componentKey?: string // 后端需要定制key
+  componentKeyId?: string // 后端配置的id
   value?: string | Array<any> | Number | null
   store?: ITreeStore
   children?: INodeOptions[] | null
   [key: string]: any
 }
+
+// type INodeProps = {
+
+// }
 
 class Node implements INode {
   // parent 不在构造函数中初始化
@@ -94,7 +100,7 @@ class Node implements INode {
   index: number = 0
   componentType: ComponentType = ''
   componentName: string = ''
-  componentKey: string
+  componentKey: string = ''
   componentKeyId: string = ''
   value: string | Array<any> | Number | null = null
   store?: ITreeStore | undefined
@@ -104,7 +110,7 @@ class Node implements INode {
   options: any = {}
   actions: any = {}
   style: any = {}
-  data: any = {}
+  data: any = []
   backendConfig: any = {}
   // children 不能在构造函数中直接赋值
   children?: Array<INode> | null = []
@@ -148,7 +154,7 @@ class Node implements INode {
       throw new Error('Node must be initialized with a store')
     }
     store.registerNode(this)
-    this.action('init', null)
+    this.action('init', {})
   }
 
   remove() {
@@ -331,6 +337,12 @@ class Node implements INode {
     }
   }
 
+  setAttrs(params: INodeOptions) {
+    for (const key in params) {
+      Object.hasOwnProperty.call(this, key) && (this[key] = params[key])
+    }
+  }
+
   setIndex(index: number, oldIndex?: number) {
     if (oldIndex === undefined) {
       oldIndex = this.parent?.children?.indexOf(this)
@@ -359,10 +371,11 @@ class Node implements INode {
    */
   setData(data: Array<any>): void {
     this.data = data
-    const remoteOptionProps: { label: string; value: string } =
-      this.extendAttributes.remoteOptionProps
-    this.options = data.map((item) => {
+    const remoteOptionProps: { label: string; value: string } = this.extendAttributes
+      .remoteOptionProps || { label: 'label', value: 'value' }
+    this.data = data.map((item) => {
       return {
+        ...item,
         label: item[remoteOptionProps.label],
         value: item[remoteOptionProps.value]
       }
@@ -481,6 +494,7 @@ class Node implements INode {
       componentType,
       componentName,
       componentKey,
+      componentKeyId,
       value,
       backendConfig
     } = this
@@ -500,10 +514,12 @@ class Node implements INode {
       componentType,
       componentName,
       componentKey,
+      componentKeyId,
       backendConfig,
       value,
       children: this.children?.map((item) => item.getReadOnlyNode(exceptOptions))
     }
+
     if (exceptOptions) {
       for (const key in exceptOptions) {
         if (Object.prototype.hasOwnProperty.call(tmp, key)) {
@@ -511,6 +527,7 @@ class Node implements INode {
         }
       }
     }
+
     return tmp
   }
 
