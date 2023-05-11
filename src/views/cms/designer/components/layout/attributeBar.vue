@@ -24,10 +24,7 @@
       </el-form-item> -->
       <!-- 表单项通用配置 -->
       <el-form-item label="label">
-        <el-input
-          :modelValue="properties.label"
-          @update:modelValue="setProperties('label', $event)"
-        />
+        <el-input :modelValue="properties.label" @update:modelValue="setLabel($event)" />
       </el-form-item>
       <template v-if="IsFormFiled">
         <el-form-item label="placeholder">
@@ -620,6 +617,11 @@ const backConfigData = computed({
     props.node.backendConfig = val
   }
 })
+
+const setLabel = (val: string) => {
+  props.node?.setAttrs({ componentName: val })
+  setProperties('label', val)
+}
 </script>
 
 <style scoped>

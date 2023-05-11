@@ -103,13 +103,11 @@ const formartVal = (obj: Object, propName: string, index: number) => {
   const group = props.element.children ? props.element.children[index] : undefined
   if (group) {
     const el = group.children?.find((item: any) => item.name === propName)
-    if (
-      el &&
-      ['select', 'radio', 'checkbox'].includes(el.componentType) &&
-      el.options &&
-      el.options.length > 0
-    ) {
-      const options = el.options
+    if (el && ['select', 'radio', 'checkbox'].includes(el.componentType)) {
+      let options = el.options || []
+      if (el.extendAttributes.remote) {
+        options = el.data
+      }
       const val = obj[propName]
       if (val instanceof Array) {
         const option = options.filter((item: any) => val.includes(item.value))
