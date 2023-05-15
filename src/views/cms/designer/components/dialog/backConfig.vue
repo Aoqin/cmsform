@@ -1,6 +1,6 @@
 <template>
   <!-- 配置信息 -->
-  <ElDialog ref="confiDialog" v-model="visibleAsync" title="后端配置信息">
+  <ElDialog ref="confiDialog" v-model="visibleAsync" destroy-on-close title="后端配置信息">
     <AceBuild ref="aceBuildRef" :data="backConfigData" />
     <template #footer>
       <ElButton @click="visibleAsync = false"> 取消 </ElButton>
@@ -58,46 +58,7 @@ export default defineComponent({
   }
 })
 
-// const props = defineProps<{
-//   modelValue: boolean
-//   config: IObjectKeys<any>
-// }>()
 
-// const emits = defineEmits<{
-//   (e: 'update:modelValue', value: boolean): void
-//   (e: 'update:config', value: any): void
-// }>()
-
-// const aceBuildRef = ref(null)
-// const confiDialog = ref(null)
-
-// const visibleAsync = computed<boolean>({
-//   get() {
-//     return props.modelValue
-//   },
-//   set(value: boolean) {
-//     emits('update:modelValue', value)
-//   }
-// })
-
-// const backConfigData = computed(() => {
-//   return props.config
-// })
-
-// const updateConfig = () => {
-//   emits('update:config', backConfigData.value)
-//   visibleAsync.value = false
-// }
-// const ConfigDialogOpened = () => {
-//   console.log('aceBuildRef')
-//   console.log(aceBuildRef.value)
-//   console.log(confiDialog.value)
-// }
-
-// onMounted(() => {
-//   console.log('confiDialog')
-//   console.log(confiDialog)
-// })
 </script>
 
 <style scoped></style>

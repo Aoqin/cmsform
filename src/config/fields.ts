@@ -216,7 +216,8 @@ export type UploadPoperties = {
   limit?: number
   disabled?: boolean
   listType?: 'text' | 'picture' | 'picture-card'
-  accept?: string
+  limitSize: number
+  accept?: string[]
   name?: string
   data?: any
   showFileList?: boolean
@@ -280,7 +281,9 @@ export const uploadProperties: UploadPoperties = {
   buttonType: 'link',
   multiple: true,
   limit: 5,
-  action: ''
+  limitSize: 500,
+  action: '',
+  accept: ['jpg', 'jpeg', 'png', 'gif', 'bmp']
 }
 
 export const formInputProperties: IInputProperties & IFormItemProperties = {

@@ -1,4 +1,7 @@
+import type { IObjectKeys } from '@/config/common'
 import type { INode } from '@/model/treeNode'
+import Node from '@/model/treeNode'
+import type { INodeOptions } from '@/model/viewNode'
 
 type BaseComponent = {
   id: string // 组件id
@@ -11,7 +14,7 @@ type BaseComponent = {
   errorMsg: string // 组件错误信息
   optTip: string // 操作提示
   parentContainerId: string // 父容器id
-  isAllowSelect: boolean // 是否允许选择
+  isAllowSelect: number // 是否允许选择
 }
 
 type FileComponent = {
@@ -57,7 +60,7 @@ type ContainerConfig = {
   isDynamic: 0 | 1 // 是否动态
   maxLimit: number // 最大允许添加长度
   minLimit: number // 最小允许添加长度
-}
+} & BaseComponent
 
 type FormComponent = {
   containerConfigs: ContainerConfig[]
@@ -69,29 +72,36 @@ type FormComponent = {
   formConfigRemark: string // 表单配置备注
   formConfigId: string // 表单配置id
   formCssConfig: string // 表单css配置
+  formConfigCode: string // 表单配置code
 }
 
-/**
- *
- * @param node
- * @returns
- */
+type ResponseNode = {
+  inputConfigs?: InputComponent[]
+  selectionConfigs?: SelectionComponent[]
+  fileConfigs?: FileComponent[]
+  containerConfigs?: ContainerConfig[]
+  innerConfigs?: InnerComponent[]
+}
 
-export function getComponentConfig(node: INode): FormComponent {
-  const comp = nodeMapToComponent(node) as ContainerConfig
+type Components =
+  | FileComponent
+  | InputComponent
+  | SelectionComponent
+  | InnerComponent
+  | ContainerConfig
 
-  //
-  return {
-    containerConfigs: comp.containerConfigs,
-    fileConfigs: comp.fileConfigs,
-    innerConfigs: comp.innerConfigs,
-    inputConfigs: comp.inputConfigs,
-    selectionConfigs: comp.selectionConfigs,
-    formConfigName: '',
-    formConfigId: '',
-    formConfigRemark: '',
-    formCssConfig: ''
+export type ViewResponse = {
+  formConfigVo: {
+    formConfigId: string
+    formConfigName: string
+    formConfigCode: string
+    formConfigRemark: string
+    formCssConfig: string
+    formVersion: 1 | 2
+    formType: 1 | 2
+    configStatus: 1 | 2
   }
+  formComponentDetailVo: ResponseNode
 }
 
 const isContainer = (componentType: string): boolean => {
@@ -121,21 +131,84 @@ const isFile = (componentType: string): boolean => {
   return ['upload', 'image'].includes(componentType)
 }
 
-export function getContainerConfig(node: INode): FormComponent {
-  const container: ContainerConfig = nodeMapToComponent(node) as ContainerConfig
-
+/**
+ * 将node树转换后端需要的数据结构
+ * @param node
+ * @returns
+ */
+export function getComponentConfig(node: INode): FormComponent {
+  const comp = nodeMapToComponent(node) as ContainerConfig
+  const formCssConfig: IObjectKeys<any> = {}
+  const nodesMap = node.store!.nodesMap
+  nodesMap.forEach((_node: INode, _key: string) => {
+    formCssConfig[_key] = getNodeCssConfig(_node)
+  })
+  //
   return {
-    innerConfigs: container.innerConfigs,
-    containerConfigs: container.containerConfigs,
-    fileConfigs: container.fileConfigs,
-    inputConfigs: container.inputConfigs,
-    selectionConfigs: container.selectionConfigs,
-    formConfigName: '',
-    formCssConfig: '',
-    formConfigId: ''
+    containerConfigs: comp.containerConfigs,
+    fileConfigs: comp.fileConfigs,
+    innerConfigs: comp.innerConfigs,
+    inputConfigs: comp.inputConfigs,
+    selectionConfigs: comp.selectionConfigs,
+    formConfigName: node.componentName,
+    formConfigId: '',
+    formConfigCode: node.componentKey,
+    formConfigRemark: node.extendAttributes?.remark || '',
+    formCssConfig: JSON.stringify(formCssConfig)
   }
 }
 
+/**
+ * 根据后端返回的数据结构，转换为node树
+ * @param response
+ */
+export function getContainerConfig(response: ViewResponse): INodeOptions {
+  const {
+    formConfigVo: {
+      formConfigName,
+      formConfigId,
+      formConfigCode,
+      formConfigRemark,
+      formVersion,
+      formCssConfig
+    },
+    formComponentDetailVo: {
+      inputConfigs = [],
+      selectionConfigs = [],
+      fileConfigs = [],
+      containerConfigs = [],
+      innerConfigs = []
+    }
+  } = response
+  const nodeMap = new Map(Object.entries(JSON.parse(formCssConfig)))
+  const children = [
+    ...inputConfigs,
+    ...selectionConfigs,
+    ...fileConfigs,
+    ...containerConfigs,
+    ...innerConfigs
+  ].sort((a, b) => a.customSort - b.customSort)
+  const root: INodeOptions = {
+    componentType: 'root',
+    componentKey: formConfigCode,
+    componentName: formConfigName,
+    extendAttributes: {
+      remark: formConfigRemark
+    },
+    children: []
+  }
+  children.forEach((comp: Components) => {
+    root.children!.push(componentMapToNode(comp, nodeMap as Map<string, INodeOptions>))
+  })
+
+  return root
+}
+
+/**
+ * node 转换为后端对应的model
+ * @param node
+ * @returns
+ */
 function nodeMapToComponent(
   node: INode
 ):
@@ -149,6 +222,7 @@ function nodeMapToComponent(
     componentKey,
     componentKeyId,
     componentType,
+    componentName,
     key: displayKey,
     index: customSort,
     parent,
@@ -158,8 +232,16 @@ function nodeMapToComponent(
     extendAttributes,
     backendConfig
   } = node
-  const { label: componentName, multiple, maxlength, minlength } = properties
-  const { searchable, isbuildIn, innerComponentCode, innerComponentType } = backendConfig
+  const { multiple, maxlength, minlength } = properties
+  const {
+    isAllowSelect = 0,
+    isbuildIn,
+    innerComponentCode,
+    innerComponentType,
+    inputType,
+    selectionType,
+    componentContainerType = 'COMMON'
+  } = backendConfig
 
   const { remote } = extendAttributes
 
@@ -173,7 +255,7 @@ function nodeMapToComponent(
     parentContainerId: parent ? parent.componentKeyId : '',
     errorMsg: '', // todo
     optTip: '', // todo
-    isAllowSelect: searchable ? true : false
+    isAllowSelect
   }
   const othersProps: { [key: string]: any } = {}
 
@@ -185,19 +267,16 @@ function nodeMapToComponent(
       // 内置容器组件
       othersProps.innerComponentCode = innerComponentCode
       othersProps.innerComponentType = innerComponentType
-    } else {
-      // 容器组件 包括 flexContainer, container, row, col,tabs,tabPane
-      if (componentType === 'flexContainer') {
-        othersProps.isDynamic = true
-      }
     }
+    // 容器组件 包括 flexContainer, container, row, col,tabs,tabPane
+
     const containerConfigs: ContainerConfig[] = []
     const fileConfigs: FileComponent[] = []
     const innerConfigs: InnerComponent[] = []
     const inputConfigs: InputComponent[] = []
     const selectionConfigs: SelectionComponent[] = []
     if (node.children && node.children.length > 0) {
-      node.children.forEach((child: INode) => {
+      node.children.forEach((child: INode, index: number) => {
         const childComp = nodeMapToComponent(child)
         if (isContainer(child.componentType)) {
           if (child.backendConfig.isbuildIn) {
@@ -212,22 +291,52 @@ function nodeMapToComponent(
         } else if (isSelection(child.componentType)) {
           selectionConfigs.push(childComp as SelectionComponent)
         }
+        childComp.customSort = index
       })
     }
     othersProps.containerConfigs = containerConfigs
+    othersProps.componentContainerType = componentContainerType
     othersProps.fileConfigs = fileConfigs
     othersProps.innerConfigs = innerConfigs
     othersProps.inputConfigs = inputConfigs
     othersProps.selectionConfigs = selectionConfigs
+    othersProps.isDynamic = 0
+    if (componentType === 'flexContainer') {
+      othersProps.isDynamic = 1
+    }
   } else if (isInput(componentType)) {
     // 输入框组件 包括 input,datePicker
     othersProps.maxLimit = properties.maxlength
     othersProps.minLimit = properties.minlength
     othersProps.verifyRegex = properties.pattern
-    othersProps.inputType = backendConfig.inputType ? 'text' : backendConfig.inputType
+    if (inputType) {
+      othersProps.inputType = inputType
+    } else {
+      switch (componentType) {
+        case 'datePicker':
+          othersProps.inputType = 'DATE'
+          break
+        default:
+          othersProps.inputType = 'INPUT'
+      }
+    }
   } else if (isSelection(componentType)) {
     // 选择组件 包括 radio，checkbox，select，cascader
-    othersProps.selectionType = multiple ? 'multi_select' : 'select'
+    if (selectionType) {
+      othersProps.selectionType = selectionType
+    } else {
+      switch (componentType) {
+        case 'checkbox':
+          othersProps.selectionType = 'multi_select'
+          break
+        case 'select':
+        case 'cascader':
+          othersProps.selectionType = multiple ? 'multi_select' : 'select'
+          break
+        default:
+          othersProps.selectionType = 'select'
+      }
+    }
     if (!remote && options) {
       othersProps.selectionValueList = options.map((option) => ({
         label: option.label,
@@ -236,7 +345,7 @@ function nodeMapToComponent(
     }
   } else if (isFile(componentType)) {
     // 文件组件 包括image，upload
-    othersProps.fileTypes = properties.accept
+    othersProps.fileTypes = properties.accept ? properties.accept.join(',') : ''
     othersProps.maxUploadNum = properties.limit
     othersProps.maxSingleFileSize = properties.limitSize
     othersProps.maxFileName = backendConfig.maxFileName
@@ -251,4 +360,67 @@ function nodeMapToComponent(
   }
 }
 
-function componentMapToNode(component): INode {}
+/**
+ * component 生成 node
+ * @param component
+ * @param nodeMap
+ * @returns
+ */
+function componentMapToNode(
+  component: Components,
+  nodeMap: Map<string, INodeOptions>
+): INodeOptions {
+  const { componentKeyId, displayKey, customSort: index, id } = component
+  let {
+    innerConfigs = [],
+    containerConfigs = [],
+    fileConfigs = [],
+    inputConfigs = [],
+    selectionConfigs = []
+  } = component
+  // 后端可能返回null 值
+  innerConfigs = innerConfigs || []
+  containerConfigs = containerConfigs || []
+  fileConfigs = fileConfigs || []
+  inputConfigs = inputConfigs || []
+  selectionConfigs = selectionConfigs || []
+
+  const options: INodeOptions = {
+    ...nodeMap.get(displayKey),
+    componentKeyId,
+    id,
+    index
+  }
+
+  options.children = [
+    ...innerConfigs,
+    ...containerConfigs,
+    ...fileConfigs,
+    ...inputConfigs,
+    ...selectionConfigs
+  ]
+    .sort((a, b) => a.customSort - b.customSort)
+    .map((child) => componentMapToNode(child, nodeMap))
+  return options
+}
+
+/**
+ * node 对应的 readonlyNode
+ * 可根据readonlyNode生成node
+ * @param node
+ * @returns
+ */
+function getNodeCssConfig(node: INode): any {
+  const { remote } = node.extendAttributes
+  const exceptOptions: IObjectKeys<any> = {
+    children: []
+  }
+  if (remote) {
+    exceptOptions.options = []
+  }
+  const result = node.getReadOnlyNode(exceptOptions)
+  result.parentKey = node.parent ? node.parent.key : ''
+  delete result.parent
+
+  return result
+}

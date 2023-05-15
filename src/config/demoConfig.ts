@@ -10,13 +10,16 @@ import {
   formUploadProperties,
   rowProperties
 } from './fields'
+import { FormDefaultPoperties } from './form/form'
 
 export const config: INodeOptions = {
   name: 'name',
   id: undefined,
   componentType: 'form',
   componentName: 'form',
-  properties: {},
+  properties: {
+    ...FormDefaultPoperties
+  },
   style: {},
   actions: {},
   value: '',
@@ -35,20 +38,22 @@ export const config: INodeOptions = {
       actions: {},
       value: '',
       backendConfig: {
-        build: true
+        build: true,
+        searchable: true
       }
     },
     {
       name: 'answer',
       id: null,
       componentType: 'select',
-      componentName: '下拉选择框',
+      componentName: '下拉选择',
       children: null,
       properties: {
         ...formSelectProperties
       },
       style: {},
       actions: {},
+      data: [],
       extendAttributes: {
         remote: false,
         remoteOptionProps: { label: 'label', value: 'value' }
@@ -71,7 +76,7 @@ export const config: INodeOptions = {
       name: 'sex',
       id: null,
       componentType: 'radio',
-      componentName: '单选',
+      componentName: '单选框组',
       children: null,
       properties: {
         ...formRadioGroupProperties
@@ -100,7 +105,7 @@ export const config: INodeOptions = {
       name: 'sex',
       id: null,
       componentType: 'checkbox',
-      componentName: '多选',
+      componentName: '多选框组',
       children: null,
       properties: {
         ...formCheckboxGroupProperties
@@ -129,7 +134,7 @@ export const config: INodeOptions = {
       name: 'date',
       id: null,
       componentType: 'datePicker',
-      componentName: '日期选择器',
+      componentName: '日期选择',
       children: null,
       properties: {
         ...formDatePickerProperties
@@ -144,7 +149,7 @@ export const config: INodeOptions = {
       name: 'date',
       id: null,
       componentType: 'timePicker',
-      componentName: '时间选择器',
+      componentName: '时间选择',
       children: null,
       properties: {
         ...formTimePickerProperties
@@ -177,7 +182,7 @@ export const config: INodeOptions = {
       name: 'row',
       id: null,
       componentType: 'row',
-      componentName: '栅格布局',
+      componentName: 'row',
       children: [
         {
           name: 'col',
@@ -186,7 +191,8 @@ export const config: INodeOptions = {
           componentName: 'col',
           children: [],
           properties: {
-            ...colProperties
+            ...colProperties,
+            label: 'col1'
           },
           extendAttributes: {},
           style: {},
@@ -200,7 +206,8 @@ export const config: INodeOptions = {
           componentName: 'col',
           children: [],
           properties: {
-            ...colProperties
+            ...colProperties,
+            label: 'col2'
           },
           extendAttributes: {},
           style: {},
@@ -209,7 +216,8 @@ export const config: INodeOptions = {
         }
       ],
       properties: {
-        ...rowProperties
+        ...rowProperties,
+        label: 'row'
       },
       style: {},
       action: {}
@@ -218,13 +226,13 @@ export const config: INodeOptions = {
       name: 'tab',
       id: null,
       componentType: 'tabs',
-      componentName: '标签页',
+      componentName: 'tabs',
       children: [
         {
           name: 'tabPane1',
           id: null,
           componentType: 'tabPane',
-          componentName: 'tabPane',
+          componentName: 'tabpane1',
           children: [],
           properties: {
             label: 'tabpane1',
@@ -238,7 +246,7 @@ export const config: INodeOptions = {
           name: 'tabPane2',
           id: null,
           componentType: 'tabPane',
-          componentName: 'tabPane',
+          componentName: 'tabpane2',
           children: [],
           properties: {
             label: 'tabpane2',
@@ -353,5 +361,6 @@ export const config: INodeOptions = {
         url: ''
       }
     }
-  ]
+  ],
+  backendConfig: {}
 }

@@ -41,7 +41,7 @@ export default defineComponent({
     }
   },
   mounted() {
-    this.aceEdit = ace.edit(this.$refs.editor, {
+    this.aceEdit = ace.edit(this.$refs.editor as Element, {
       useWorker: false
     })
     this.aceEdit.setTheme('ace/theme/monokai')
