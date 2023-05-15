@@ -39,7 +39,7 @@ export interface INode {
     value: string
   }
   [key: string]: any
-  initialize(): void
+  initialize(initChildren?: boolean): void
   remove(): void
   removeChild(child: INode): void
   insertChild(child: INode, index: number): void
@@ -62,6 +62,7 @@ export interface INode {
 
 export interface INodeOptions {
   parent?: INode | null
+  parentId?: string | null
   index?: Number
   name?: string
   key?: string
@@ -116,7 +117,7 @@ class Node implements INode {
   children?: Array<INode> | null = []
   // timer
   // timer: any = null
-  constructor(options: INodeOptions) {
+  constructor(options: INodeOptions, constructChildren?: boolean) {
     for (const key in options) {
       // todo: 优化
       if (Object.prototype.hasOwnProperty.call(this, key)) {
@@ -134,7 +135,11 @@ class Node implements INode {
           // 隔离每个node的数据
           ;(this as INode)[key] = deepCopy(options[key])
         } else if (key === 'children') {
-          console.log(options)
+          if (constructChildren) {
+            options.children?.forEach((child: INodeOptions) => {
+              this.children?.push(reactive<INode>(new Node({ ...child, parent: this }, true)))
+            })
+          }
         } else {
           ;(this as INode)[key] = options[key]
         }
@@ -148,10 +153,16 @@ class Node implements INode {
     }
   }
 
-  initialize() {
+  initialize(initChildren?: boolean) {
     const store = this.store
     if (!store) {
       throw new Error('Node must be initialized with a store')
+    }
+    if (initChildren && this.children?.length) {
+      this.children.forEach((child: INode) => {
+        child.store = this.store
+        child.initialize(initChildren)
+      })
     }
     store.registerNode(this)
     this.action('init', {})

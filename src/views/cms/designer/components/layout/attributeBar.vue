@@ -1,5 +1,5 @@
 <template>
-  <div class="attribute">
+  <div class="padding">
     <el-form
       v-if="node"
       :model="attributeForm"
@@ -625,7 +625,7 @@ const setLabel = (val: string) => {
 </script>
 
 <style scoped>
-.attribute {
-  padding: 20px 15px;
+.padding {
+  padding: 15px;
 }
 </style>

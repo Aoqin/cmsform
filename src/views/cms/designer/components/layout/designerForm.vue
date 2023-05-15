@@ -1,6 +1,6 @@
 <template>
-  <div class="ghostForm">
-    <ElForm :model="model" label-position="top">
+  <div class="ghostForm" v-loading="loading">
+    <ElForm :model="model" v-bind="properties">
       <Draggable
         :model-value="list"
         :group="dragGroupOptions"
@@ -21,10 +21,8 @@
 import DesignerItem from '../designerItem.vue'
 import Draggable from 'vuedraggable'
 import { reactive, computed } from 'vue'
-import type { INode, INodeOptions } from '@/model/treeNode'
+import type { INode } from '@/model/treeNode'
 import { ElForm } from 'element-plus'
-// import  ActionConfig from '../dialog/actionConfig.vue'
-// import LinkConfig from '../dialog/linkConfig.vue'
 
 const dragGroupOptions = reactive({
   name: 'components',
@@ -48,12 +46,12 @@ const updateModel = (arr: INode[]) => {
 
 const props = defineProps<{
   config: INode
+  loading: boolean
 }>()
 
 const list = computed<INode[]>(() => props.config.children!)
 const model = computed<any>(() => props.config.store?.model)
-
-// const dataSource = computed<INodeOptions>(() => props.config.getReadOnlyNode())
+const properties = computed<any>(() => props.config.properties)
 
 const changeEvent = (evt: any) => {
   if (evt.added) {

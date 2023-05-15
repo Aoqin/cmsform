@@ -35,14 +35,10 @@ export type FormItemProperties = {
   validateStatus?: '' | 'error' | 'validating' | 'success'
 }
 
+// export const FormItemPropertiesKeys = []
+
 export const defaultFormItemProperties: FormItemProperties = {
-  label: '',
-  prop: '',
-  labelWidth: '',
-  rules: [],
-  required: false,
-  showMessage: true,
-  inlineMessage: false
+  label: 'formItem'
 }
 
 export const initFormItemProperties: FormItemProperties = {}
