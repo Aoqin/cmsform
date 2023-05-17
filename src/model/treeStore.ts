@@ -4,7 +4,7 @@ import Node from './treeNode'
 import { deepCopy } from '@/utils'
 import type { IRuleOption } from '@/config/rules'
 import type { IObjectKeys } from '@/config/common'
-import { formFields } from '@/config/fields'
+import { formFields, type FormComponentType } from '@/config/fields'
 
 export interface IFunOption {
   label: string
@@ -91,7 +91,7 @@ export class Treestore implements ITreeStore {
     if (!this.nodesMap.get(node.key)) {
       this.nodesMap.set(node.key, node)
       // 只有表单项才需要注册model
-      if (formFields.includes(node.componentType)) {
+      if (formFields.includes(node.componentType as FormComponentType)) {
         this.registerModel(node)
       }
     }

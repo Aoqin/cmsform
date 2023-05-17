@@ -2,7 +2,6 @@
   <div class="padding">
     <el-form
       v-if="node"
-      :model="attributeForm"
       ref="attributeFormEl"
       :rules="rules"
       :inline="false"
@@ -123,7 +122,7 @@
         </el-form-item>
       </template>
       <!-- link 配置信息 end -->
-      <template v-if="componentType === 'date'">
+      <template v-if="componentType === 'datePicker'">
         <!-- 时间框配置信息 -->
         <el-form-item label="dateType">
           <el-select
@@ -282,17 +281,82 @@
         <el-form-item label="tabpane">
           <div v-for="(item, index) in children" :key="`tabpane_${index}`">
             <el-input
+              :class="{ mgt_1: index !== 0 }"
               :modelValue="item.properties.label"
               @update:modelValue="changeLabel(item, $event)"
               placeholder=""
             >
               <template #append>
                 <el-link type="primary" @click="removeChild(item)">删除</el-link>
+                <el-link type="primary" @click="editAttr(item)">
+                  {{ childrenActive(item) ? '隐藏' : '编辑' }}
+                </el-link>
               </template>
             </el-input>
+            <!-- 子项属性面板 -->
+            <template v-if="childrenActive(item)">
+              <el-form-item label="componentKey" prop="">
+                <el-input
+                  :modelValue="item.componentKey"
+                  @update:modelValue="editNodeExtendAttr(item, 'componentKey', $event)"
+                  placeholder=""
+                />
+              </el-form-item>
+              <el-form-item label="grid" prop="">
+                <el-switch
+                  :modelValue="item.extendAttributes.grid"
+                  @update:modelValue="editNodeExtendAttr(item, 'grid', $event)"
+                />
+              </el-form-item>
+              <template v-if="item.extendAttributes.grid">
+                <el-form-item label="gridColumns">
+                  <el-input-number
+                    :modelValue="item.extendAttributes.gridColumns"
+                    @update:modelValue="editNodeExtendAttr(item, 'gridColumns', $event)"
+                    :min="1"
+                    :max="5"
+                  />
+                </el-form-item>
+                <el-form-item label="gridRows">
+                  <el-input-number
+                    :modelValue="item.extendAttributes.gridRows"
+                    @update:modelValue="editNodeExtendAttr(item, 'gridRows', $event)"
+                    :min="1"
+                    :max="5"
+                  />
+                </el-form-item>
+              </template>
+              <el-divider />
+            </template>
           </div>
           <el-link type="primary" @click="addChild">添加</el-link>
         </el-form-item>
+      </template>
+      <template v-if="componentType === 'container'">
+        <el-form-item label="grid" prop="">
+          <el-switch
+            :modelValue="extendAttributes.grid"
+            @update:modelValue="setExtendAttribute('grid', $event)"
+          />
+        </el-form-item>
+        <template v-if="extendAttributes.grid">
+          <el-form-item label="gridColumns">
+            <el-input-number
+              :modelValue="extendAttributes.gridColumns"
+              @update:modelValue="setExtendAttribute('gridColumns', $event)"
+              :min="1"
+              :max="24"
+            />
+          </el-form-item>
+          <el-form-item label="gridRows">
+            <el-input-number
+              :modelValue="extendAttributes.gridRows"
+              @update:modelValue="setExtendAttribute('gridRows', $event)"
+              :min="1"
+              :max="24"
+            />
+          </el-form-item>
+        </template>
       </template>
       <!-- 容器添加子项 end -->
       <!-- 验证规则 -->
@@ -340,16 +404,16 @@
 
 <script setup lang="ts">
 import { colProperties, formFields, tabPaneProperties } from '@/config/fields'
-import Node from '@/model/treeNode'
+import Node, { type INode } from '@/model/treeNode'
 import type { ElButton, ElInput, ElInputNumber } from 'element-plus'
 import { reactive, ref, computed, type PropType } from 'vue'
 import BackConfigDialog from '../dialog/backConfig.vue'
 import type { IObjectKeys } from '@/config/common'
 import FileTypes from '@/config/fileType'
 
-const props = defineProps({
-  node: [Node, null] as PropType<Node | null>
-})
+const props = defineProps<{
+  node: INode
+}>()
 
 const componentType = computed(() => (props.node ? props.node.componentType : ''))
 
@@ -373,7 +437,7 @@ const properties = computed(() => (props.node ? props.node.properties : {}))
 
 const style = computed(() => (props.node ? props.node.style : {}))
 
-const options = computed(() => (props.node ? props.node.options : {}))
+const options = computed(() => (props.node ? props.node.options : []))
 
 const children = computed(() => (props.node ? props.node.children : []))
 
@@ -424,20 +488,20 @@ const rules = reactive({
   id: []
 })
 
-const remote = computed({
-  get() {
-    return props.node ? props.node.remote : 1
-  },
-  set(val) {
-    props.node!.remote = val
-  }
-})
+// const remote = computed({
+//   get() {
+//     return props.node ? props.node.remote : 1
+//   },
+//   set(val) {
+//     props.node!.remote = val ? true : false
+//   }
+// })
 
 /**
  * 添加配置项
  */
 const addOption = () => {
-  options.value.push({
+  options.value!.push({
     label: '',
     value: ''
   })
@@ -447,8 +511,8 @@ const addOption = () => {
  * 删除配置项
  */
 const removeOption = (index: number) => {
-  if (options.value.length <= 1) return
-  options.value.splice(index, 1)
+  if (options.value!.length <= 1) return
+  options.value!.splice(index, 1)
 }
 
 /**
@@ -456,7 +520,7 @@ const removeOption = (index: number) => {
  * 删除字节点
  */
 const removeChild = (item: Node) => {
-  if (children.value.length <= 1) return
+  if (children.value!.length <= 1) return
   if (props.node?.properties?.modelValue && props.node?.properties?.modelValue === item.key) {
     props.node?.setProperties({ modelValue: '' })
   }
@@ -503,7 +567,7 @@ const addChild = () => {
 /**
  * 修改 col 组件 span
  */
-const changeSpan = (node: Node, index: string) => {
+const changeSpan = (node: INode, index: string) => {
   if (Number(index) > 24) return
   node.setProperties({
     span: index ? Number(index) : null
@@ -614,7 +678,7 @@ const backConfigData = computed({
     return props.node?.backendConfig || {}
   },
   set(val: IObjectKeys<any>) {
-    props.node.backendConfig = val
+    props.node?.setAttrs({ backendConfig: val })
   }
 })
 
@@ -622,10 +686,38 @@ const setLabel = (val: string) => {
   props.node?.setAttrs({ componentName: val })
   setProperties('label', val)
 }
+
+// 编辑固有 children 属性
+const editSelected = ref<INode[]>([])
+
+const editAttr = (node: INode) => {
+  const index = editSelected.value.findIndex((item) => item.key === node.key)
+  if (index > -1) {
+    editSelected.value.splice(index, 1)
+  } else {
+    editSelected.value.push(node)
+  }
+}
+
+const childrenActive = (child: INode): boolean => {
+  if (editSelected.value.length === 0) return false
+  const index = editSelected.value.findIndex((item) => item.key === child.key)
+  if (index > -1) {
+    return true
+  }
+  return false
+}
+
+const editNodeExtendAttr = (node: INode, key: string, value: any) => {
+  node.setExtendAttribute({ [key]: value })
+}
 </script>
 
 <style scoped>
 .padding {
   padding: 15px;
+}
+.mgt_1 {
+  margin-top: 5px;
 }
 </style>

@@ -28,10 +28,10 @@
       <el-aside class="attrs_bar">
         <el-tabs v-model="activeName">
           <el-tab-pane label="属性" name="properties">
-            <AttributeBar :node="store.currentNode" />
+            <AttributeBar :node="store.currentNode!" />
           </el-tab-pane>
           <el-tab-pane label="表单" name="root">
-            <RootAttributeBar :node="store.root" />
+            <RootAttributeBar :node="store.root!" />
           </el-tab-pane>
         </el-tabs>
       </el-aside>
@@ -54,7 +54,7 @@ import DesignerForm from './components/layout/designerForm.vue'
 import ElementList from './components/layout/elementList.vue'
 import HeaderBar from './components/layout/headerBar.vue'
 
-const props = defineProps<{
+defineProps<{
   loading: boolean
   config: INodeOptions
 }>()
@@ -70,7 +70,7 @@ store.initialize({
   compoentType: 'root',
   componentName: 'root',
   properties: {
-    labelPosition: 'top',
+    labelPosition: 'top'
   }
 })
 

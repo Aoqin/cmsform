@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import type { ITreeStore } from './treeStore'
+import type { IFunctions, ITreeStore } from './treeStore'
 import { characters, generate } from 'shortid'
 import { deepCopy } from '@/utils'
 import type { ComponentType } from '@/config/fields'
@@ -21,7 +21,7 @@ export interface INode {
   style: any
   properties: any
   actions: {
-    [key: string]: Promise<any>
+    [key: string]: IFunctions
   }
   extendAttributes: any
   backendConfig: any
@@ -42,7 +42,7 @@ export interface INode {
   initialize(initChildren?: boolean): void
   remove(): void
   removeChild(child: INode): void
-  insertChild(child: INode, index: number): void
+  insertChild(child: INode, index?: number): void
   getChildren(): INode[]
   insertBefore(): void
   insertAfter(): void
@@ -55,6 +55,7 @@ export interface INode {
   setExtendAttribute(params: any): void
   getReadOnlyNode(exceptOptions?: INodeOptions): INodeOptions
   setData(data: any): void
+  setAttrs(attrs: any): void
   getModelKey(): string | null
   moveChild(child: INode, index: number, oldIndex?: number): void
   resetChildrenIndex(): void
@@ -86,10 +87,6 @@ export interface INodeOptions {
   children?: INodeOptions[] | null
   [key: string]: any
 }
-
-// type INodeProps = {
-
-// }
 
 class Node implements INode {
   // parent 不在构造函数中初始化
@@ -182,6 +179,8 @@ class Node implements INode {
       if (child.parent !== this) {
         // 如果child的parent不是当前node，说明child已经被移动到其他node下，不需要再从store中移除
         this.children?.splice(index, 1)
+        // 后端要求，移除的节点的id设置为空
+        child.id = ''
       } else {
         this.store && this.store.deregisterNode(child)
         child.parent = null
@@ -287,7 +286,7 @@ class Node implements INode {
     } else {
       this.children?.splice(index, 0, child)
     }
-    // this.resetChildrenIndex()
+    this.resetChildrenIndex()
   }
 
   moveChild(child: INode, index: number, oldIndex?: number) {

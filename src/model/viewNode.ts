@@ -1,10 +1,10 @@
+import { reactive } from 'vue'
 import type { ComponentType } from '@/config/fields'
 import type { ITreeStore } from './viewStore'
 import { deepCopy } from '@/utils'
 import type { NodeActionName, NodeActionParams } from '@/config/action'
 import type { IObjectKeys } from '@/config/common'
-import { reactive } from 'vue'
-
+import type { INodeOptions } from './treeNode'
 export interface INode {
   parent: INode | null
   index: number
@@ -24,7 +24,7 @@ export interface INode {
   componentType: ComponentType
   componentName: string
   value?: string | number | Array<any> | object | null
-  children?: Array<INode> | null
+  children?: INode[] | null
   store?: ITreeStore
   remote?: boolean
   remoteOptionProps?: {
@@ -35,30 +35,6 @@ export interface INode {
   action(key: NodeActionName, params: NodeActionParams): void
   getModelKey(): string | null
   getModel(): any
-  [key: string]: any
-}
-
-export type INodeOptions = {
-  parent?: INode | null
-  index?: Number
-  name?: string
-  key?: string
-  id?: string | null
-  data?: Array<any> | object
-  visible?: boolean
-  style?: any
-  properties?: any
-  actions?: {
-    [key: string]: Promise<any>
-  }
-  backendConfig?: any
-  extendAttributes?: any
-  options?: Array<any>
-  componentType?: ComponentType
-  componentName?: string
-  value?: string | Array<any> | Number | null
-  store?: ITreeStore
-  children?: INodeOptions[] | null
   [key: string]: any
 }
 

@@ -1,6 +1,5 @@
 <template>
   <div>
-    <div></div>
     <el-table :data="collection" lazy>
       <el-table-column
         v-for="(item, index) in columns"
@@ -24,22 +23,37 @@
       </el-table-column>
       <el-table-column if="operation" label="operation">
         <template #default="scope">
-          <el-button type="text" @click="handleEdit(scope.row, scope.$index)">编辑</el-button>
-          <el-button type="text" @click="handleDelete(scope.row)">删除</el-button>
+          <el-link type="primary" @click="handleEdit(scope.row, scope.$index)">编辑</el-link>
+          <el-link type="primary" @click="handleDelete(scope.row)">删除</el-link>
         </template>
       </el-table-column>
     </el-table>
+    <form-edit-dialog
+      v-model:visble="visible"
+      :element-options="elementOptions"
+      @submit="handleUpdate"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import type TreeNode from '@/model/treeNode'
+import { computed, ref } from 'vue'
+import TreeNode from '@/model/treeNode'
 import type { IObjectKeys } from '@/config/common'
+import FormEditDialog from '@/views/cms/components/formEditDialog.vue'
+import type { INode, INodeOptions } from '@/model/treeNode'
+import { deepCopy } from '@/utils'
+import type { ITreeStore } from '@/model/treeStore'
+
+const selectedKey = ref<string>('')
 
 const props = defineProps<{
   element: TreeNode
 }>()
+
+const store = computed((): ITreeStore => {
+  return props.element.store!
+})
 
 const collection = computed(() => {
   let arr: any[] = []
@@ -63,6 +77,7 @@ const collection = computed(() => {
       })
       if (!isNull) {
         tmp.$index = index
+        tmp.$key = item.key
         arr.push(tmp)
       }
     })
@@ -77,10 +92,33 @@ const columns = computed(() => {
   }))
 })
 
+const elementOptions = computed((): INodeOptions => {
+  let group
+  if (selectedKey.value) {
+    group = props.element.children?.find((item: any) => item.key === selectedKey.value)
+  } else {
+    group = props.element.children![props.element.children!.length - 1].clone(true)
+  }
+  const children = group?.children?.map((item: any) => {
+    return {
+      ...item.getReadOnlyNode(),
+      value: selectedKey.value ? item.getModel() : null
+    }
+  })
+  let opts = group?.getReadOnlyNode({ children: null })
+  return {
+    ...opts,
+    componentName: 'form',
+    componentType: 'form',
+    children: children
+  } as INodeOptions
+})
+
+const visible = ref<boolean>(false)
+
 const handleEdit = (row: any, index: number) => {
-  console.log('-------------edit:')
-  console.log(row)
-  console.log(index)
+  selectedKey.value = row.$key
+  visible.value = true
 }
 
 const handleDelete = (row: { $index: number }) => {
@@ -137,6 +175,43 @@ const isUpload = (prop: string, index: number): boolean => {
 const downloadFile = (params: { name: string; uid: string }) => {
   console.log('downloadFile')
 }
+
+const handleUpdate = (tmpstore: ITreeStore) => {
+  if (selectedKey.value) {
+    // 更新
+    for (const key in tmpstore!.model) {
+      const nodeKey = key.split('.')[1]
+      const node = store.value.nodesMap.get(nodeKey)
+      if (node) {
+        store.value.setModel(node, deepCopy(tmpstore.model![key]))
+      }
+    }
+  } else {
+    // 新增
+    let group = tmpstore.root?.getReadOnlyNode()
+    const setDefaultValue = (node: INodeOptions, store: ITreeStore) => {
+      if (node.children) {
+        node.children.forEach((item: INodeOptions) => {
+          setDefaultValue(item, store)
+        })
+      }
+    }
+    setDefaultValue(group!, tmpstore)
+    const first = props.element.children![0]
+    const groupNode = new TreeNode(group!, true)
+    props.element.insertChild(groupNode)
+  }
+  visible.value = false
+}
+
+const addColumn = () => {
+  selectedKey.value = ''
+  visible.value = true
+}
+
+defineExpose({
+  addColumn
+})
 </script>
 
 <style scoped></style>

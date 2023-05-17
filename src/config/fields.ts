@@ -46,7 +46,7 @@ export type ViewComponentType =
 
 export type ComponentType = FormComponentType | ContainerComponentType | ViewComponentType | ''
 
-export const formFields: Array<FormComponentType> = [
+export const formFields: Array<string> = [
   'input',
   'select',
   'radio',
@@ -71,7 +71,7 @@ export const formFields: Array<FormComponentType> = [
   'yearPicker'
 ]
 
-export const containerFields: Array<ContainerComponentType> = [
+export const containerFields: Array<string> = [
   'row',
   'col',
   'tabs',
@@ -80,7 +80,7 @@ export const containerFields: Array<ContainerComponentType> = [
   'flexContainerItem',
   'container'
 ]
-export const viewFields: Array<ViewComponentType> = [
+export const viewFields: Array<string> = [
   'table',
   'tableColumn',
   'button',

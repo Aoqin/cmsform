@@ -11,16 +11,37 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue'
+
 const props = defineProps({
   action: {
     type: Object,
     required: true
-  }
+  },
+  modelValue: Boolean
 })
 
 const emit = defineEmits<{
-  updateAction: (action: any) => void
+  (e: 'update:action', value: any): void
+  (e: 'update:modelValue', value: boolean): void
 }>()
+
+const dialogVisible = computed({
+  get() {
+    return props.modelValue
+  },
+  set(value: boolean) {
+    emit('update:modelValue', value)
+  }
+})
+
+const handleClose = () => {
+  dialogVisible.value = false
+}
+const handleConfirm = () => {
+  emit('update:action', props.action)
+  dialogVisible.value = false
+}
 </script>
 
 <style scoped></style>
