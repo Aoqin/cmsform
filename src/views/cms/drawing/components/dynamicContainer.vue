@@ -28,10 +28,25 @@ export default defineComponent({
   },
   render() {
     const { element } = this.$props
-    const { componentType, properties, children } = element!
+    const { componentType, properties, children, extendAttributes } = element!
     let comp: VNode | DefineComponent | Function | string = h('div')
     let childCompBuilder: VNode | DefineComponent | Function = () => null
     let attr: IObjectKeys<string> = {}
+
+    const classbuilder = (attrs: any) => {
+      let contentClassName = ''
+      if (extendAttributes && attrs.grid) {
+        contentClassName = 'grid'
+        if (attrs.gridColumns) {
+          contentClassName += ` grid_col_${attrs.gridColumns}`
+        }
+        if (attrs.gridRows) {
+          contentClassName += ` grid_row_${attrs.gridRows}`
+        }
+      }
+      return contentClassName
+    }
+
     switch (componentType) {
       case 'row':
         comp = ElRow
@@ -65,7 +80,8 @@ export default defineComponent({
               ElTabPane,
               {
                 ...subAttr,
-                name: el.key
+                name: el.key,
+                className: classbuilder(el.extendAttributes)
               },
               () =>
                 el.children?.map((child: INode) => {
@@ -82,6 +98,7 @@ export default defineComponent({
       case 'flexContainer':
         comp = Group
         if (!element.extendAttributes.table) {
+          // 非 table 样式展示
           childCompBuilder = () =>
             children!.map((el: INode, index: Number) => {
               return h(
@@ -123,6 +140,7 @@ export default defineComponent({
           })
         })
         attr.label = properties.label
+        attr.className = classbuilder(extendAttributes)
         break
     }
     if (!comp) {
@@ -139,4 +157,26 @@ export default defineComponent({
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+.grid {
+  display: grid;
+  grid-gap: 1rem;
+  align-items: start;
+  justify-content: start;
+}
+.grid_col_1 {
+  grid-template-columns: 1fr;
+}
+.grid_col_2 {
+  grid-template-columns: 1fr 1fr;
+}
+.grid_col_3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.grid_col_4 {
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+.grid_col_5 {
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+}
+</style>

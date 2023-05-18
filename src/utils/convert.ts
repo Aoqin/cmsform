@@ -1,7 +1,7 @@
 import type { IObjectKeys } from '@/config/common'
 import type { INode } from '@/model/treeNode'
 import Node from '@/model/treeNode'
-import type { INodeOptions } from '@/model/viewNode'
+import type { INodeOptions } from '@/model/treeNode'
 
 type BaseComponent = {
   id: string // 组件id
@@ -48,7 +48,7 @@ type InnerComponent = {
   innerComponentType: string // 内部组件类型
 } & BaseComponent
 
-type ContainerConfig = {
+type ContainerComponent = {
   componentContainerType: string // 容器类型
   containerConfigs: [] // 容器组件值
   innerComponentCode: string // 内部组件code
@@ -63,7 +63,7 @@ type ContainerConfig = {
 } & BaseComponent
 
 type FormComponent = {
-  containerConfigs: ContainerConfig[]
+  containerConfigs: ContainerComponent[]
   fileConfigs: FileComponent[]
   innerConfigs: InnerComponent[]
   inputConfigs: InputComponent[]
@@ -79,7 +79,7 @@ type ResponseNode = {
   inputConfigs?: InputComponent[]
   selectionConfigs?: SelectionComponent[]
   fileConfigs?: FileComponent[]
-  containerConfigs?: ContainerConfig[]
+  containerConfigs?: ContainerComponent[]
   innerConfigs?: InnerComponent[]
 }
 
@@ -88,7 +88,7 @@ type Components =
   | InputComponent
   | SelectionComponent
   | InnerComponent
-  | ContainerConfig
+  | ContainerComponent
 
 export type ViewResponse = {
   formConfigVo: {
@@ -137,7 +137,7 @@ const isFile = (componentType: string): boolean => {
  * @returns
  */
 export function getComponentConfig(node: INode): FormComponent {
-  const comp = nodeMapToComponent(node) as ContainerConfig
+  const comp = nodeMapToComponent(node) as ContainerComponent
   const formCssConfig: IObjectKeys<any> = {}
   const nodesMap = node.store!.nodesMap
   nodesMap.forEach((_node: INode, _key: string) => {
@@ -216,7 +216,7 @@ function nodeMapToComponent(
   | InputComponent
   | SelectionComponent
   | FileComponent
-  | ContainerConfig
+  | ContainerComponent
   | BaseComponent {
   const {
     componentKey,
@@ -255,7 +255,8 @@ function nodeMapToComponent(
     parentContainerId: parent ? parent.componentKeyId : '',
     errorMsg: '', // todo
     optTip: '', // todo
-    isAllowSelect
+    isAllowSelect,
+    componentRemark: '' // todo
   }
   const othersProps: { [key: string]: any } = {}
 
@@ -270,7 +271,7 @@ function nodeMapToComponent(
     }
     // 容器组件 包括 flexContainer, container, row, col,tabs,tabPane
 
-    const containerConfigs: ContainerConfig[] = []
+    const containerConfigs: ContainerComponent[] = []
     const fileConfigs: FileComponent[] = []
     const innerConfigs: InnerComponent[] = []
     const inputConfigs: InputComponent[] = []
@@ -282,7 +283,7 @@ function nodeMapToComponent(
           if (child.backendConfig.isbuildIn) {
             innerConfigs.push(childComp as InnerComponent)
           } else {
-            containerConfigs.push(childComp as ContainerConfig)
+            containerConfigs.push(childComp as ContainerComponent)
           }
         } else if (isFile(child.componentType)) {
           fileConfigs.push(childComp as FileComponent)
@@ -377,7 +378,7 @@ function componentMapToNode(
     fileConfigs = [],
     inputConfigs = [],
     selectionConfigs = []
-  } = component
+  } = component as ContainerComponent
   // 后端可能返回null 值
   innerConfigs = innerConfigs || []
   containerConfigs = containerConfigs || []

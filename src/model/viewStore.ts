@@ -1,9 +1,11 @@
 import { reactive, ref } from 'vue'
-import type { INode, INodeOptions } from './viewNode'
+import type { INode } from './viewNode'
+import type { INodeOptions } from './treeNode'
 import Node from './viewNode'
 import { deepCopy } from '@/utils'
 import type { IRuleOption } from '@/config/rules'
 import type { IObjectKeys } from '@/config/common'
+import { formFields, type FormComponentType } from '@/config/fields'
 
 export interface IFunOption {
   label: string
@@ -89,7 +91,10 @@ export class Treestore implements ITreeStore {
   registerNode(node: INode, registerChildren?: boolean): void {
     if (!this.nodesMap.get(node.key)) {
       this.nodesMap.set(node.key, node)
-      this.registerModel(node)
+      // 只有表单项才需要注册model
+      if (formFields.includes(node.componentType as FormComponentType)) {
+        this.registerModel(node)
+      }
     }
     if (registerChildren && node.children) {
       node.children.forEach((child) => {
@@ -193,14 +198,18 @@ export class Treestore implements ITreeStore {
   getCurrentNode(): INode | null {
     return this.currentNode
   }
+  //
   setCurrentNode(node: INode | null) {
     this.currentNode = node || null
     this.currentNodeKey = node ? node.key : null
   }
+  //
   setCurrentNodeKey(key: string | null) {}
+  //
   getNode(key: any) {
     return this.nodesMap.get(key)
   }
+  //
   setModel(node: INode, value?: any): void {
     const key = node.getModelKey()!
     if (value === undefined || value === null) {
@@ -221,6 +230,7 @@ export class Treestore implements ITreeStore {
       }
     }
   }
+  //
   createModel() {
     this.model = reactive<IObjectKeys<any>>({})
   }

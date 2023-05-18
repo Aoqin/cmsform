@@ -50,15 +50,14 @@ export default defineComponent({
   },
   methods: {
     updateConfig() {
-      this.$emit('update:config', this.$refs.aceBuildRef.getJson())
+      const aceBuild = this.$refs.aceBuildRef as InstanceType<typeof AceBuild>
+      this.$emit('update:config', aceBuild.getJson())
       this.visibleAsync = false
       //   console.log(this.$refs.aceBuildRef.getJson())
       //   console.log(this.$refs.confiDialog.getJson())
     }
   }
 })
-
-
 </script>
 
 <style scoped></style>

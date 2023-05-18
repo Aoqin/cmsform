@@ -20,12 +20,12 @@
       </el-col>
       <el-col :span="18">
         <el-form
-          :model="form"
           ref="form"
+          :model="form"
           :rules="rules"
-          label-width="80px"
           :inline="false"
           size="normal"
+          label-width="80px"
         >
           <el-form-item label=""> </el-form-item>
         </el-form>

@@ -1,7 +1,7 @@
 <script lang="ts">
-import { ElButton, ElLink, ElTable, ElTableColumn } from 'element-plus'
+import { ElLink, ElTable, ElTableColumn } from 'element-plus'
 import { defineComponent, h } from 'vue'
-import TreeNode, { type INode } from '@/model/treeNode'
+import type { INode } from '@/model/treeNode'
 
 const tableData = [
   {
@@ -33,7 +33,7 @@ function formFieldConvert(node?: INode): Array<any> {
 export default defineComponent({
   props: {
     element: {
-      type: TreeNode,
+      type: Object as () => INode,
       required: true
     }
   },

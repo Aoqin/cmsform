@@ -32,13 +32,26 @@ const dragGroupOptions = {
   scrollSpeed: 10
 }
 
-const dragableBuilder = (el: INode) =>
-  h(
+const dragableBuilder = (el: INode) => {
+  let className = 'dragable_wrap'
+  const { extendAttributes } = el
+  if (extendAttributes.grid) {
+    // todo: grid
+    className += ' grid'
+    if (extendAttributes.gridColumns) {
+      className += ` grid_col_${extendAttributes.gridColumns}`
+    }
+    if (extendAttributes.gridRows) {
+      className += ` grid_row_${extendAttributes.gridRows}`
+    }
+  }
+
+  return h(
     Draggable,
     {
       modelValue: el.children,
       group: dragGroupOptions,
-      class: 'dragable_wrap',
+      class: className,
       itemKey: 'key',
       onChange: (evt: any) => {
         if (evt.added) {
@@ -60,6 +73,7 @@ const dragableBuilder = (el: INode) =>
       }
     }
   )
+}
 
 const fieldBuilder = (el: INode) =>
   h(DesignerItem, {
@@ -178,7 +192,11 @@ export default defineComponent({
             })
           attr.onAdd = groupAddItem
         } else {
-          childCompBuilder = () => h(flexTable, { element })
+          childCompBuilder = () => h(flexTable, { element, ref: 'flexTable' })
+          attr.onAdd = () => {
+            console.log('add')
+            this.$refs.flexTable.addColumn()
+          }
         }
         attr.label = properties.label
         attr.onTransform = () => {
@@ -211,7 +229,28 @@ export default defineComponent({
   padding: 5px;
   min-height: 36px;
 }
-.dragable_wrap :deep .dragable_component:last-child {
+.grid {
+  display: grid;
+  grid-gap: 1rem;
+  align-items: start;
+  justify-content: start;
+}
+.grid_col_1 {
+  grid-template-columns: 1fr;
+}
+.grid_col_2 {
+  grid-template-columns: 1fr 1fr;
+}
+.grid_col_3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.grid_col_4 {
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+.grid_col_5 {
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+}
+.dragable_wrap :deep(.dragable_component:last-child) {
   margin-bottom: 0;
 }
 </style>
