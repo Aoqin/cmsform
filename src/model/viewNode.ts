@@ -1,10 +1,11 @@
 import { reactive } from 'vue'
 import type { ComponentType } from '@/config/fields'
-import type { ITreeStore } from './viewStore'
+import type { ITreeStore } from './treeStore'
 import { deepCopy } from '@/utils'
 import type { NodeActionName, NodeActionParams } from '@/config/action'
 import type { IObjectKeys } from '@/config/common'
 import type { INodeOptions } from './treeNode'
+
 export interface INode {
   parent: INode | null
   index: number
@@ -32,9 +33,13 @@ export interface INode {
     value: string
   }
   initialize(initChildren?: boolean): void
+  remove(): void
+  removeChild(child: INode): void
+  insertChild(child: INode, index?: number): void
   action(key: NodeActionName, params: NodeActionParams): void
   getModelKey(): string | null
   getModel(): any
+  clone(): (deep: boolean, parent?: INode) => INode
   [key: string]: any
 }
 
@@ -45,7 +50,7 @@ export default class Node implements INode {
   visible: boolean = true
   name: string = ''
   index: number = 0
-  componentType: ComponentType = ''
+  componentType: ComponentType = 'input'
   componentName: string = ''
   value: string | Array<any> | Number | null = null
   store?: ITreeStore | undefined
@@ -86,6 +91,9 @@ export default class Node implements INode {
         }
       }
     }
+    if (options.value === null || options.value === undefined) {
+      this.setDefaultValue()
+    }
   }
 
   initialize(initChildren?: boolean) {
@@ -101,6 +109,130 @@ export default class Node implements INode {
     }
     store.registerNode(this)
     this.action('init', null)
+  }
+
+  remove() {
+    if (this.parent) {
+      const parent = this.parent
+      parent.removeChild(this as any)
+      parent.resetChildrenIndex()
+    }
+  }
+
+  removeChild(child: INode) {
+    const index = this.children?.indexOf(child)
+    if (index !== -1 && index !== undefined) {
+      if (child.parent !== this) {
+        // 如果child的parent不是当前node，说明child已经被移动到其他node下，不需要再从store中移除
+        this.children?.splice(index, 1)
+      } else {
+        this.store && this.store.deregisterNode(child)
+        child.parent = null
+        this.children?.splice(index, 1)
+      }
+      this.resetChildrenIndex()
+    }
+  }
+
+  insertChild(child: INode | INodeOptions, index?: number) {
+    if (!child) {
+      throw new Error('InsertChild error: child is required')
+    }
+    if (this.store && child.key && this.store.getNode(child.key) && child instanceof Node) {
+      // 已在store中注册过的node，直接移动位置
+      this.children?.splice(index!, 0, child)
+      child.parent = this
+      return
+    }
+    const tmpGrandChildren = child?.children?.map((item) => item)
+    let constructorOptions: INodeOptions
+    if (child instanceof Node) {
+      // 不做深拷贝，直接使用原对象
+      constructorOptions = child.getReadOnlyNode({ children: [] })
+    } else {
+      constructorOptions = child as INodeOptions
+    }
+    child = reactive<INode>(
+      new Node({
+        ...constructorOptions,
+        parent: this,
+        store: this.store
+      })
+    )
+    child.initialize()
+    if (tmpGrandChildren && tmpGrandChildren?.length > 0) {
+      tmpGrandChildren!.forEach((item, i) => {
+        ;(child as Node).insertChild(item, i)
+      })
+    }
+    if (typeof index === 'undefined' || index < 0) {
+      this.children?.push(child)
+    } else {
+      this.children?.splice(index, 0, child)
+    }
+    this.resetChildrenIndex()
+  }
+
+  resetChildrenIndex(): void {
+    this.children?.forEach((child, index) => {
+      child.index = index
+    })
+  }
+
+  /**
+   *
+   * @param deep 是否深度clone
+   * @param parent 当前clone的节点的父节点
+   * @param recordMap 当前clone的节点和新节点的映射关系
+   * @returns
+   */
+  cloneTmpNode(
+    deep: boolean,
+    parent?: INode,
+    recordMap?: Map<string, { val: INode; old: INode }>
+  ): INode {
+    const excludeAttrs: IObjectKeys<any> = {
+      key: ''
+    }
+    const initParams = {
+      ...this.getReadOnlyNode(excludeAttrs),
+      parent: parent ? parent : this.parent,
+      store: this.store
+    }
+    if (this.componentType === 'upload') {
+      // 上传组件清空data
+      initParams.data = []
+    }
+    const node = new Node(initParams)
+    recordMap?.set(this.key, { val: node, old: this })
+    // 关联关系
+    if (deep) {
+      node.children = this.children?.map((item) => {
+        return item.cloneTmpNode(deep, node, recordMap)
+      })
+    }
+    return node
+  }
+
+  clone(deep: boolean, parent?: INode): INode {
+    const recordMap = new Map<string, { val: INode; old: INode }>()
+    const clonedNode = this.cloneTmpNode(deep, parent, recordMap)
+    recordMap.forEach((item) => {
+      const { val } = item
+      if (val.extendAttributes?.linked) {
+        // 此节点存在关联关系
+        const linkedNode = recordMap.get(val.extendAttributes.linkSource)
+        //
+        if (linkedNode) {
+          item.val.extendAttributes.linkSource = linkedNode.val.key
+          linkedNode.val.extendAttributes.linkTarget = item.val.key
+        } else {
+          // clone 时的节点中没有找到关联的节点
+          throw new Error('clone error: linked node not found')
+        }
+      }
+    })
+    return clonedNode
   }
 
   /**
@@ -317,5 +449,19 @@ export default class Node implements INode {
   // 获取组件的值
   getModel() {
     return this.store?.model![this.getModelKey()!]
+  }
+
+  // 设定默认值
+  setDefaultValue() {
+    const { componentType, properties } = this
+    if (
+      componentType === 'checkbox' ||
+      properties?.multiple ||
+      ['datetimerange', 'daterange'].includes(componentType)
+    ) {
+      this.value = []
+    } else {
+      this.value = ''
+    }
   }
 }

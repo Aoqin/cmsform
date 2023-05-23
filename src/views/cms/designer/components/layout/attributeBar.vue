@@ -23,7 +23,15 @@
       </el-form-item> -->
       <!-- 表单项通用配置 -->
       <el-form-item label="label">
-        <el-input :modelValue="properties.label" @update:modelValue="setLabel($event)" />
+        <el-input :modelValue="properties.label" @update:modelValue="setLabel($event)">
+          <template #append>
+            <el-switch
+              :modelValue="extendAttributes.hideLabel"
+              active-text="隐藏"
+              @update:modelValue="setExtendAttribute('hideLabel', $event)"
+            />
+          </template>
+        </el-input>
       </el-form-item>
       <template v-if="IsFormFiled">
         <el-form-item label="placeholder">
@@ -298,7 +306,7 @@
               <el-form-item label="componentKey" prop="">
                 <el-input
                   :modelValue="item.componentKey"
-                  @update:modelValue="editNodeExtendAttr(item, 'componentKey', $event)"
+                  @update:modelValue="editNodeAttr(item, 'componentKey', $event)"
                   placeholder=""
                 />
               </el-form-item>
@@ -333,7 +341,7 @@
         </el-form-item>
       </template>
       <template v-if="componentType === 'container'">
-        <el-form-item label="grid" prop="">
+        <el-form-item label="grid">
           <el-switch
             :modelValue="extendAttributes.grid"
             @update:modelValue="setExtendAttribute('grid', $event)"
@@ -357,6 +365,42 @@
             />
           </el-form-item>
         </template>
+      </template>
+      <template v-if="componentType === 'flexContainer'">
+        <el-form-item label="sub">
+          <template v-for="(item, index) in children" :key="item.key">
+            <el-input
+              class="mgt_1"
+              :modelValue="item.componentKey"
+              :placeholder="item.componentKey"
+              @update:modelValue="editNodeAttr(item, 'componentKey', $event)"
+            >
+              <template #prepend> componentKey </template>
+            </el-input>
+            <el-input
+              class="mgt_1"
+              :modelValue="item.componentName"
+              :placeholder="item.componentName"
+              @update:modelValue="editNodeAttr(item, 'componentName', $event)"
+            >
+              <template #prepend> componentName </template>
+            </el-input>
+            <el-link type="primary" @click="configNode(item)">配置信息</el-link>
+            <el-divider v-if="index + 1 !== children?.length" />
+          </template>
+        </el-form-item>
+        <el-form-item label="groupTitle">
+          <el-switch
+            :modelValue="extendAttributes.showSubTitle"
+            @update:modelValue="setExtendAttribute('showSubTitle', $event)"
+          />
+        </el-form-item>
+        <el-form-item label="groupIndex">
+          <el-switch
+            :modelValue="extendAttributes.showIndex"
+            @update:modelValue="setExtendAttribute('showIndex', $event)"
+          />
+        </el-form-item>
       </template>
       <!-- 容器添加子项 end -->
       <!-- 验证规则 -->
@@ -396,7 +440,12 @@
       <el-form-item label="config">
         <ElButton type="primary" @click="configVisible = true">配置信息</ElButton>
       </el-form-item>
+      <el-form-item label="style">
+        <ElButton type="primary" @click="styleVisible = true">配置样式</ElButton>
+      </el-form-item>
       <BackConfigDialog v-model="configVisible" v-model:config="backConfigData" />
+      <BackConfigDialog v-model="subConfigVisible" v-model:config="subBackConfigData" />
+      <BackConfigDialog v-model="styleVisible" v-model:config="styleData" />
       <!-- 后端配置信息 end -->
     </el-form>
   </div>
@@ -516,7 +565,7 @@ const removeOption = (index: number) => {
 }
 
 /**
- * 类似row组件，删除col
+ * 类似 row 组件，删除col
  * 删除字节点
  */
 const removeChild = (item: Node) => {
@@ -528,7 +577,7 @@ const removeChild = (item: Node) => {
 }
 
 /**
- * 类似row的组件，添加col
+ * 类似 row 的组件，添加col
  * 添加子节点
  */
 const addChild = () => {
@@ -708,9 +757,53 @@ const childrenActive = (child: INode): boolean => {
   return false
 }
 
+/**
+ * 编辑 node.extendAttrubtes - 扩展属性
+ * @param node
+ * @param key
+ * @param value
+ */
 const editNodeExtendAttr = (node: INode, key: string, value: any) => {
   node.setExtendAttribute({ [key]: value })
 }
+
+/**
+ * 编辑 node 属性
+ * @param node
+ * @param key
+ * @param value
+ */
+const editNodeAttr = (node: INode, key: string, value: any) => {
+  node.setAttrs({ [key]: value })
+}
+
+// 编辑 subNode 属性
+const currentEditNode = ref<INode>()
+const subConfigVisible = ref(false)
+const subBackConfigData = computed({
+  get() {
+    return currentEditNode.value?.backendConfig || {}
+  },
+  set(val: IObjectKeys<any>) {
+    currentEditNode.value?.setAttrs({ backendConfig: val })
+  }
+})
+
+const configNode = (node: INode) => {
+  currentEditNode.value = node
+  subConfigVisible.value = true
+}
+
+//
+const styleVisible = ref(false)
+const styleData = computed({
+  get() {
+    return props.node?.style || {}
+  },
+  set(val: IObjectKeys<any>) {
+    props.node?.setAttrs({ style: val })
+  }
+})
 </script>
 
 <style scoped>

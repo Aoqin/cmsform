@@ -24,8 +24,6 @@ const props = defineProps<{
   element: INode
 }>()
 
-console.log("props ----------->")
-console.log(props)
 const IsContainerComponent = computed(() => {
   return containerFields.includes(props.element.componentType as ContainerComponentType)
 })

@@ -9,7 +9,6 @@ import {
   defaultTabsProperties,
   defaultTabPaneProperties
 } from '@/config/fields'
-import type { IObjectKeys } from '@/config/common'
 import DrawingItem from './drawingItem.vue'
 import DynamicFormField from '../../designer/components/dynamicFormField.vue'
 import FlexTable from '../../designer/components/container/flexContainer/flexContainerTable.vue'
@@ -31,9 +30,9 @@ export default defineComponent({
     const { componentType, properties, children, extendAttributes } = element!
     let comp: VNode | DefineComponent | Function | string = h('div')
     let childCompBuilder: VNode | DefineComponent | Function = () => null
-    let attr: IObjectKeys<string> = {}
+    let attr: Record<string, any> = {}
 
-    const classbuilder = (attrs: any) => {
+    const classBuilder = (attrs: any) => {
       let contentClassName = ''
       if (extendAttributes && attrs.grid) {
         contentClassName = 'grid'
@@ -45,6 +44,28 @@ export default defineComponent({
         }
       }
       return contentClassName
+    }
+
+    const clearDefaulValue = (node: INode) => {
+      if (node.children) {
+        node.children.forEach((item: INode) => {
+          clearDefaulValue(item)
+        })
+      }
+      if (node.value instanceof Array) {
+        node.value = []
+      } else if (node.value instanceof Object) {
+        node.value = {}
+      } else {
+        node.value = ''
+      }
+    }
+
+    const groupAddItem = () => {
+      const first = children![0]
+      const cloneTmp = first.clone(true)
+      clearDefaulValue(cloneTmp)
+      element!.insertChild(cloneTmp)
     }
 
     switch (componentType) {
@@ -81,7 +102,7 @@ export default defineComponent({
               {
                 ...subAttr,
                 name: el.key,
-                className: classbuilder(el.extendAttributes)
+                className: classBuilder(el.extendAttributes)
               },
               () =>
                 el.children?.map((child: INode) => {
@@ -100,35 +121,58 @@ export default defineComponent({
         if (!element.extendAttributes.table) {
           // 非 table 样式展示
           childCompBuilder = () =>
-            children!.map((el: INode, index: Number) => {
+            children!.map((el: INode, index: number) => {
+              let label = ''
+              if (extendAttributes.showSubTitle) {
+                label = el.componentName
+              }
+              if (extendAttributes.showIndex) {
+                label = label + `${index + 1}`
+              }
+              const childAttr = {
+                operatiable: true,
+                noDrag: true,
+                label,
+                onEdit() {
+                  console.log('edit')
+                },
+                onDel() {
+                  el!.remove()
+                  console.log('delete')
+                }
+              }
+              if (!el.extendAttributes.hideLabel) {
+                childAttr.label = el.properties.label
+              }
               return h(
                 GroupItem,
                 {
-                  label: el.properties.label,
-                  operatiable: true,
-                  noDrag: true,
-                  onEdit() {
-                    console.log('edit')
-                  },
-                  onDel() {
-                    el!.remove()
-                    console.log('delete')
-                  }
+                  ...childAttr
                 },
                 el.children!.map((el: INode) => {
+                  const subChildAttr = {
+                    label: null,
+                    prop: el.key || undefined
+                  }
+                  if (!el.extendAttributes.hideLabel) {
+                    subChildAttr.label = el.properties.label
+                  }
                   return h(
                     ElFormItem,
                     {
-                      label: el.properties.label || undefined,
-                      prop: el.key || undefined
+                      ...subChildAttr
                     },
                     () => h(DynamicFormField, { element: el })
                   )
                 })
               )
             })
+          attr.onAdd = groupAddItem
         } else {
-          childCompBuilder = () => h(FlexTable, { element })
+          childCompBuilder = () => h(FlexTable, { element, ref: 'flexTable' })
+          attr.onAdd = () => {
+            ;(this.$refs.flexTable as InstanceType<typeof FlexTable>).addColumn()
+          }
         }
         attr.label = properties.label
         break
@@ -139,13 +183,17 @@ export default defineComponent({
             element: el
           })
         })
-        attr.label = properties.label
-        attr.className = classbuilder(extendAttributes)
+        extendAttributes.hideLabel
+          ? (attr.hideLabel = extendAttributes.hideLabel)
+          : (attr.hideLabel = false)
+        attr.className = classBuilder(extendAttributes)
         break
     }
+
     if (!comp) {
       return h('div', 'error')
     }
+
     return h(
       comp,
       {
@@ -160,7 +208,7 @@ export default defineComponent({
 <style scoped>
 .grid {
   display: grid;
-  grid-gap: 1rem;
+  grid-gap: 0 1rem;
   align-items: start;
   justify-content: start;
 }

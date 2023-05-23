@@ -7,7 +7,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import type { INode } from '@/model/treeNode'
-import type { IFormItemProperties } from '@/config/fields'
 import type { IRule } from '@/config/rules'
 import { deepCopy } from '@/utils'
 
@@ -22,10 +21,18 @@ export default defineComponent({
     properties() {
       const { componentType } = this.element!
       const { label, required, rules = [], validate } = this.element.properties
+      const { hideLabel = false } = this.element.extendAttributes
       const store = this.element.store!
-      const attr: IFormItemProperties = {
-        label,
+      const attr: {
+        label?: null | string
+        prop: string
+        rules?: IRule[]
+      } = {
+        label: null,
         prop: this.element.getModelKey()!
+      }
+      if (!hideLabel) {
+        attr.label = label
       }
       // input 框默认 blur 触发，其他组件默认 change 触发
       let triggerName = 'blur'

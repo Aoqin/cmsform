@@ -44,7 +44,7 @@ export type ViewComponentType =
   | 'divider'
   | 'link'
 
-export type ComponentType = FormComponentType | ContainerComponentType | ViewComponentType | ''
+export type ComponentType = FormComponentType | ContainerComponentType | ViewComponentType
 
 export const formFields: Array<string> = [
   'input',
@@ -80,6 +80,7 @@ export const containerFields: Array<string> = [
   'flexContainerItem',
   'container'
 ]
+
 export const viewFields: Array<string> = [
   'table',
   'tableColumn',

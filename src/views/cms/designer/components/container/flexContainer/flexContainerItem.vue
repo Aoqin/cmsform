@@ -1,12 +1,8 @@
 <template>
   <div class="group_item" :class="{ group_item_block: noDrag }">
+    <div class="group_item_title">{{ label }}</div>
     <slot></slot>
     <div v-if="operatiable" class="group_item_operation">
-      <el-link type="primary" @click="edit">
-        <el-icon size="18">
-          <Edit />
-        </el-icon>
-      </el-link>
       <el-link type="primary" @click="del">
         <el-icon size="18">
           <Delete />
@@ -17,24 +13,18 @@
 </template>
 
 <script setup lang="ts">
-import { Delete, Edit } from '@element-plus/icons-vue'
-import { computed, ref } from 'vue'
+import { Delete } from '@element-plus/icons-vue'
 
 const emits = defineEmits<{
-  (e: 'add'): void
   (e: 'del'): void
-  (e: 'edit'): void
 }>()
 
-const props = defineProps<{
+defineProps<{
   operatiable: boolean
   label: string
   noDrag: boolean
 }>()
 
-const edit = () => {
-  emits('edit')
-}
 const del = () => {
   emits('del')
 }
@@ -56,5 +46,9 @@ const del = () => {
   top: 0px;
   padding: 5px 10px;
   background: #fff;
+}
+.group_item_title {
+  padding: 8px 15px;
+  font-size: 14px;
 }
 </style>

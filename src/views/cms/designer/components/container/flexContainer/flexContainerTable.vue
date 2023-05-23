@@ -1,39 +1,38 @@
 <template>
-  <div>
-    <el-table :data="collection" lazy>
-      <el-table-column
-        v-for="(item, index) in columns"
-        :key="`${element.key}_${index}`"
-        :label="item.label"
-      >
-        <template #default="scope">
-          <template v-if="isUpload(item.prop, scope.$index)">
-            <el-link
-              v-for="(subItem, subIndex) in formartVal(scope.row, item.prop, scope.$index)"
-              @click="downloadFile(subItem)"
-              :key="`${item.prop}_${index}_${subIndex}`"
-            >
-              {{ subItem.name }}
-            </el-link>
-          </template>
-          <template v-else>
-            {{ formartVal(scope.row, item.prop, scope.$index) }}
-          </template>
+  <el-table :data="collection" style="width: 100%" lazy stripe border>
+    <el-table-column v-if="attributes.showIndex" type="index" label="序号" width="60px" fixed />
+    <el-table-column
+      v-for="(item, index) in columns"
+      :key="`${element.key}_${index}`"
+      :label="item.label"
+    >
+      <template #default="scope">
+        <template v-if="isUpload(item.prop, scope.$index)">
+          <el-link
+            v-for="(subItem, subIndex) in formartVal(scope.row, item.prop, scope.$index)"
+            @click="downloadFile(subItem)"
+            :key="`${item.prop}_${index}_${subIndex}`"
+          >
+            {{ subItem.name }}
+          </el-link>
         </template>
-      </el-table-column>
-      <el-table-column if="operation" label="operation">
-        <template #default="scope">
-          <el-link type="primary" @click="handleEdit(scope.row, scope.$index)">编辑</el-link>
-          <el-link type="primary" @click="handleDelete(scope.row)">删除</el-link>
+        <template v-else>
+          {{ formartVal(scope.row, item.prop, scope.$index) }}
         </template>
-      </el-table-column>
-    </el-table>
-    <form-edit-dialog
-      v-model:visble="visible"
-      :element-options="elementOptions"
-      @submit="handleUpdate"
-    />
-  </div>
+      </template>
+    </el-table-column>
+    <el-table-column if="operation" fixed="right" label="操作">
+      <template #default="scope">
+        <el-link type="primary" @click="handleEdit(scope.row)">编辑</el-link>
+        <el-link type="primary" @click="handleDelete(scope.row)">删除</el-link>
+      </template>
+    </el-table-column>
+  </el-table>
+  <form-edit-dialog
+    v-model:visble="visible"
+    :element-options="elementOptions"
+    @submit="handleUpdate"
+  />
 </template>
 
 <script setup lang="ts">
@@ -48,11 +47,15 @@ import type { ITreeStore } from '@/model/treeStore'
 const selectedKey = ref<string>('')
 
 const props = defineProps<{
-  element: TreeNode
+  element: INode
 }>()
 
 const store = computed((): ITreeStore => {
   return props.element.store!
+})
+
+const attributes = computed(() => {
+  return props.element.extendAttributes
 })
 
 const collection = computed(() => {
@@ -94,10 +97,11 @@ const columns = computed(() => {
 
 const elementOptions = computed((): INodeOptions => {
   let group
+  const nodes = props.element.children
   if (selectedKey.value) {
-    group = props.element.children?.find((item: any) => item.key === selectedKey.value)
+    group = nodes?.find((item: any) => item.key === selectedKey.value)
   } else {
-    group = props.element.children![props.element.children!.length - 1].clone(true)
+    group = nodes![nodes!.length - 1].clone(true)
   }
   const children = group?.children?.map((item: any) => {
     return {
@@ -116,29 +120,29 @@ const elementOptions = computed((): INodeOptions => {
 
 const visible = ref<boolean>(false)
 
-const handleEdit = (row: any, index: number) => {
+const handleEdit = (row: any) => {
   selectedKey.value = row.$key
   visible.value = true
 }
 
 const handleDelete = (row: { $index: number }) => {
   const group = props.element!.children![row.$index]
-  if (row.$index === 0 && group) {
-    // 第一行不做物理删除，置空
-    console.log(props.element.children)
+  if (props.element.children?.length === 1) {
+    // 最后一行不做物理删除，置空
     if (group) {
       group.children?.forEach((item: any) => {
         console.log(item)
         item.store!.setModel(item)
       })
     }
-  } else if (row.$index > 0 && group) {
+  } else {
     group.remove()
   }
 }
 
-const formartVal = (obj: Object, propName: string, index: number) => {
-  const group = props.element.children ? props.element.children[index] : undefined
+const formartVal = (obj: Record<string, any>, propName: string, index: number) => {
+  const children = props.element.children
+  const group = children ? children[index] : undefined
   if (group) {
     const el = group.children?.find((item: any) => item.name === propName)
     if (el && ['select', 'radio', 'checkbox'].includes(el.componentType)) {
@@ -184,6 +188,11 @@ const handleUpdate = (tmpstore: ITreeStore) => {
       const node = store.value.nodesMap.get(nodeKey)
       if (node) {
         store.value.setModel(node, deepCopy(tmpstore.model![key]))
+        const tmpNode = tmpstore.nodesMap.get(nodeKey)
+        if (node.componentType === 'upload') {
+          // 上传组件需要单独处理, 缓存区也需要更新
+          node.data = deepCopy(tmpNode?.data || {})
+        }
       }
     }
   } else {
@@ -195,11 +204,27 @@ const handleUpdate = (tmpstore: ITreeStore) => {
           setDefaultValue(item, store)
         })
       }
+      node.value = store.nodesMap.get(node.key!)!.getModel()
+      if (node.componentType === 'upload') {
+        node.data = deepCopy(store.nodesMap.get(node.key!)?.data || {})
+      }
     }
     setDefaultValue(group!, tmpstore)
-    const first = props.element.children![0]
     const groupNode = new TreeNode(group!, true)
-    props.element.insertChild(groupNode)
+    if (collection.value.length !== props.element.children?.length) {
+      // 存在空行数据，直接填充
+      const nullDataArr = props.element.children?.filter((item) => {
+        return collection.value.findIndex((tmp: any) => tmp.$key === item.key) === -1
+      })
+      nullDataArr![0].children?.forEach((item: any, index: number) => {
+        if (item.componentType === 'upload') {
+          item.data = deepCopy(group!.children![index].data || {})
+        }
+        item.store!.setModel(item, deepCopy(group?.children![index].value))
+      })
+    } else {
+      props.element.insertChild(groupNode)
+    }
   }
   visible.value = false
 }

@@ -22,7 +22,7 @@ export const config: INodeOptions = {
   },
   style: {},
   actions: {},
-  value: '',
+  value: {},
   children: [
     {
       name: 'name',
@@ -38,8 +38,7 @@ export const config: INodeOptions = {
       actions: {},
       value: '',
       backendConfig: {
-        build: true,
-        searchable: true
+        inputType: ''
       }
     },
     {
@@ -276,7 +275,10 @@ export const config: INodeOptions = {
           properties: {},
           style: {},
           actions: {},
-          value: ''
+          value: '',
+          backendConfig: {
+            isDynamic: 1
+          }
         }
       ],
       properties: {

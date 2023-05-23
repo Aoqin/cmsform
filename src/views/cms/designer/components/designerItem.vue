@@ -1,5 +1,5 @@
 <template>
-  <div class="dragable_component" :class="{ active: isActive }" @click.stop="selectNode">
+  <div class="dragable_component" :class="classNames" @click.stop="selectNode">
     <div class="dragable_icon">
       <el-icon :size="20">
         <Rank />
@@ -62,6 +62,15 @@ const selectNode = () => {
   props.element.store?.setCurrentNode(props.element)
 }
 
+const classNames = computed(() => {
+  const style = props.element.style
+  let classList: string[] = [isActive.value ? 'active' : '']
+  if (style.gridColumnEnd) {
+    classList.push(`col_end_${style.gridColumnEnd}`)
+  }
+  return classList
+})
+
 onMounted(() => {
   // console.log(compRef.value)
 })
@@ -111,5 +120,17 @@ onMounted(() => {
   right: 0px;
   padding: 0 5px;
   background: #fff;
+}
+.col_end_2 {
+  grid-column-end: span 2;
+}
+.col_end_3 {
+  grid-column-end: span 3;
+}
+.col_end_4 {
+  grid-column-end: span 4;
+}
+.col_end_5 {
+  grid-column-end: span 5;
 }
 </style>

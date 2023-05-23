@@ -54,7 +54,9 @@ const model = computed<any>(() => props.config.store?.model)
 const properties = computed<any>(() => props.config.properties)
 
 const changeEvent = (evt: any) => {
+  console.log('evt', evt)
   if (evt.added) {
+    console.log('evt remove', evt.added.element.remove)
     props.config.insertChild(evt.added.element, evt.added.newIndex)
   }
   if (evt.removed) {

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="container_label" v-if="label">{{ label }}</div>
+    <div class="container_label" v-if="label && !hideLabel">{{ label }}</div>
     <div class="container_component" :class="className">
       <slot></slot>
     </div>
@@ -11,13 +11,14 @@
 defineProps<{
   label: string
   className: string
+  hideLabel: boolean
 }>()
 </script>
 
 <style scoped>
 .grid {
   display: grid;
-  grid-gap: 1rem;
+  grid-gap: 0 1rem;
   align-items: start;
   justify-content: start;
 }

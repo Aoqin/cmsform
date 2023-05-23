@@ -8,6 +8,7 @@ import {
   defaultTimePickerProperties,
   defaultUploadProperties
 } from '@/config/fields'
+import type { INode } from '@/model/treeNode'
 import { objMapToSet } from '@/utils'
 import {
   ElAlert,
@@ -25,12 +26,12 @@ import {
   type UploadRequestOptions,
   ElLink
 } from 'element-plus'
-import { defineComponent, h, type VNode, type DefineComponent } from 'vue'
+import { defineComponent, h, type VNode, type DefineComponent, type PropType } from 'vue'
 
 export default defineComponent({
   props: {
     element: {
-      type: Object,
+      type: Object as PropType<INode>,
       required: true
     },
     modelValue: [Object, String, Number, Array, Boolean]
@@ -49,7 +50,7 @@ export default defineComponent({
     let comp: VNode | DefineComponent | Function
     let slots: { default?: Function | null; tip?: Function | null } = {}
     let attr: any = {}
-    const { componentType, options, properties, data = [], extendAttributes } = this.element!
+    const { componentType, options, properties, data = [], extendAttributes, store } = this.element!
     switch (componentType) {
       case 'input':
         comp = ElInput
@@ -150,10 +151,10 @@ export default defineComponent({
       }
       // 上传函数
       if (extendAttributes.uploadFunName) {
-        attr.httpRequest = this.element.store.functions[extendAttributes.uploadFunName]
+        attr.httpRequest = store!.functions[extendAttributes.uploadFunName]
           ? (options: UploadRequestOptions) => {
               console.log(options)
-              return this.element.store.functions[extendAttributes.uploadFunName].fun(options.file)
+              return store!.functions[extendAttributes.uploadFunName].fun(options.file)
             }
           : () => {
               throw new Error('请配置上传函数')

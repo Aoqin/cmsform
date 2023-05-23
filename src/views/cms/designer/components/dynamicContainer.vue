@@ -6,7 +6,7 @@ import type { INode } from '@/model/treeNode'
 import DesignerItem from './designerItem.vue'
 import Group from './container/flexContainer/flexContainer.vue'
 import GroupItem from './container/flexContainer/flexContainerItem.vue'
-import flexTable from './container/flexContainer/flexContainerTable.vue'
+import FlexTable from './container/flexContainer/flexContainerTable.vue'
 import { objMapToSet } from '@/utils'
 import {
   defaultColProperties,
@@ -54,7 +54,10 @@ const dragableBuilder = (el: INode) => {
       class: className,
       itemKey: 'key',
       onChange: (evt: any) => {
+        console.log('evt', evt)
         if (evt.added) {
+          console.log('evt.added.element.remove')
+          console.log(evt.added.element.remove)
           el.insertChild(evt.added.element, evt.added.newIndex)
         }
         if (evt.removed) {
@@ -88,25 +91,31 @@ export default defineComponent({
       required: true
     }
   },
-  setup(props) {},
   render() {
     const { element } = this.$props
-    const { componentType, properties, children } = element!
+    const { componentType, properties, children, extendAttributes } = element!
     let comp: VNode | DefineComponent | Function | string = h('div')
     let childCompBuilder: VNode | DefineComponent | Function = () => null
     let attr: any = {}
+    const clearDefaulValue = (node: INode) => {
+      if (node.children) {
+        node.children.forEach((item: INode) => {
+          clearDefaulValue(item)
+        })
+      }
+      if (node.value instanceof Array) {
+        node.value = []
+      } else if (node.value instanceof Object) {
+        node.value = {}
+      } else {
+        node.value = ''
+      }
+    }
     const groupAddItem = () => {
       const first = children[0]
       const cloneTmp = first.clone(true)
+      clearDefaulValue(cloneTmp)
       element!.insertChild(cloneTmp)
-    }
-
-    const groupItemDel = () => {
-      console.log('del')
-    }
-
-    const groupItemEdit = () => {
-      console.log('edit')
     }
 
     switch (componentType) {
@@ -151,14 +160,20 @@ export default defineComponent({
         comp = Group
         if (!element.extendAttributes.table) {
           childCompBuilder = () =>
-            children.map((el: INode, index: Number) => {
+            children.map((el: INode, index: number) => {
+              let label = ''
+              if (extendAttributes.showSubTitle) {
+                label = el.componentName
+              }
+              if (extendAttributes.showIndex) {
+                label = label + `${index + 1}`
+              }
+
               if (index === 0) {
                 return h(
                   GroupItem,
                   {
-                    label: el.properties.label,
-                    onEdit: groupItemEdit,
-                    onDel: groupItemDel
+                    label
                   },
                   () => dragableBuilder(el)
                 )
@@ -166,7 +181,7 @@ export default defineComponent({
                 return h(
                   GroupItem,
                   {
-                    label: el.name,
+                    label,
                     operatiable: true,
                     noDrag: true,
                     onEdit() {
@@ -192,13 +207,12 @@ export default defineComponent({
             })
           attr.onAdd = groupAddItem
         } else {
-          childCompBuilder = () => h(flexTable, { element, ref: 'flexTable' })
+          childCompBuilder = () => h(FlexTable, { element, ref: 'flexTable' })
           attr.onAdd = () => {
-            console.log('add')
-            this.$refs.flexTable.addColumn()
+            ;(this.$refs.flexTable as InstanceType<typeof FlexTable>).addColumn()
           }
         }
-        attr.label = properties.label
+        properties.label ? (attr.label = properties.label) : ''
         attr.onTransform = () => {
           element.setExtendAttribute({ table: !element.extendAttributes.table })
         }
@@ -206,7 +220,11 @@ export default defineComponent({
       case 'container':
         comp = OrdinaryContainer
         childCompBuilder = () => dragableBuilder(element as INode)
-        attr.label = properties.label
+        properties.label ? (attr.label = properties.label) : ''
+        extendAttributes.hideLabel
+          ? (attr.hideLabel = extendAttributes.hideLabel)
+          : (attr.hideLabel = false)
+
         break
     }
     if (!comp) {
@@ -231,7 +249,7 @@ export default defineComponent({
 }
 .grid {
   display: grid;
-  grid-gap: 1rem;
+  grid-gap: 0 1rem;
   align-items: start;
   justify-content: start;
 }
