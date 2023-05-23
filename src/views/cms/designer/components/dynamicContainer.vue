@@ -6,7 +6,7 @@ import type { INode } from '@/model/treeNode'
 import DesignerItem from './designerItem.vue'
 import Group from './container/flexContainer/flexContainer.vue'
 import GroupItem from './container/flexContainer/flexContainerItem.vue'
-import flexTable from './container/flexContainer/flexContainerTable.vue'
+import FlexTable from './container/flexContainer/flexContainerTable.vue'
 import { objMapToSet } from '@/utils'
 import {
   defaultColProperties,
@@ -118,14 +118,6 @@ export default defineComponent({
       element!.insertChild(cloneTmp)
     }
 
-    const groupItemDel = () => {
-      console.log('del')
-    }
-
-    const groupItemEdit = () => {
-      console.log('edit')
-    }
-
     switch (componentType) {
       case 'row':
         comp = ElRow
@@ -181,9 +173,7 @@ export default defineComponent({
                 return h(
                   GroupItem,
                   {
-                    label,
-                    onEdit: groupItemEdit,
-                    onDel: groupItemDel
+                    label
                   },
                   () => dragableBuilder(el)
                 )
@@ -217,10 +207,9 @@ export default defineComponent({
             })
           attr.onAdd = groupAddItem
         } else {
-          childCompBuilder = () => h(flexTable, { element, ref: 'flexTable' })
+          childCompBuilder = () => h(FlexTable, { element, ref: 'flexTable' })
           attr.onAdd = () => {
-            console.log('add')
-            this.$refs.flexTable.addColumn()
+            ;(this.$refs.flexTable as InstanceType<typeof FlexTable>).addColumn()
           }
         }
         properties.label ? (attr.label = properties.label) : ''

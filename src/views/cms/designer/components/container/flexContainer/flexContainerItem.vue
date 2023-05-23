@@ -16,9 +16,7 @@
 import { Delete } from '@element-plus/icons-vue'
 
 const emits = defineEmits<{
-  (e: 'add'): void
   (e: 'del'): void
-  (e: 'edit'): void
 }>()
 
 defineProps<{

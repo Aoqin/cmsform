@@ -1,10 +1,11 @@
 import { reactive } from 'vue'
 import type { ComponentType } from '@/config/fields'
-import type { ITreeStore } from './viewStore'
+import type { ITreeStore } from './treeStore'
 import { deepCopy } from '@/utils'
 import type { NodeActionName, NodeActionParams } from '@/config/action'
 import type { IObjectKeys } from '@/config/common'
 import type { INodeOptions } from './treeNode'
+
 export interface INode {
   parent: INode | null
   index: number
@@ -32,6 +33,9 @@ export interface INode {
     value: string
   }
   initialize(initChildren?: boolean): void
+  remove(): void
+  removeChild(child: INode): void
+  insertChild(child: INode, index?: number): void
   action(key: NodeActionName, params: NodeActionParams): void
   getModelKey(): string | null
   getModel(): any
@@ -105,6 +109,74 @@ export default class Node implements INode {
     }
     store.registerNode(this)
     this.action('init', null)
+  }
+
+  remove() {
+    if (this.parent) {
+      const parent = this.parent
+      parent.removeChild(this as any)
+      parent.resetChildrenIndex()
+    }
+  }
+
+  removeChild(child: INode) {
+    const index = this.children?.indexOf(child)
+    if (index !== -1 && index !== undefined) {
+      if (child.parent !== this) {
+        // 如果child的parent不是当前node，说明child已经被移动到其他node下，不需要再从store中移除
+        this.children?.splice(index, 1)
+      } else {
+        this.store && this.store.deregisterNode(child)
+        child.parent = null
+        this.children?.splice(index, 1)
+      }
+      this.resetChildrenIndex()
+    }
+  }
+
+  insertChild(child: INode | INodeOptions, index?: number) {
+    if (!child) {
+      throw new Error('InsertChild error: child is required')
+    }
+    if (this.store && child.key && this.store.getNode(child.key) && child instanceof Node) {
+      // 已在store中注册过的node，直接移动位置
+      this.children?.splice(index!, 0, child)
+      child.parent = this
+      return
+    }
+    const tmpGrandChildren = child?.children?.map((item) => item)
+    let constructorOptions: INodeOptions
+    if (child instanceof Node) {
+      // 不做深拷贝，直接使用原对象
+      constructorOptions = child.getReadOnlyNode({ children: [] })
+    } else {
+      constructorOptions = child as INodeOptions
+    }
+    child = reactive<INode>(
+      new Node({
+        ...constructorOptions,
+        parent: this,
+        store: this.store
+      })
+    )
+    child.initialize()
+    if (tmpGrandChildren && tmpGrandChildren?.length > 0) {
+      tmpGrandChildren!.forEach((item, i) => {
+        ;(child as Node).insertChild(item, i)
+      })
+    }
+    if (typeof index === 'undefined' || index < 0) {
+      this.children?.push(child)
+    } else {
+      this.children?.splice(index, 0, child)
+    }
+    this.resetChildrenIndex()
+  }
+
+  resetChildrenIndex(): void {
+    this.children?.forEach((child, index) => {
+      child.index = index
+    })
   }
 
   /**

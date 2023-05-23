@@ -46,6 +46,28 @@ export default defineComponent({
       return contentClassName
     }
 
+    const clearDefaulValue = (node: INode) => {
+      if (node.children) {
+        node.children.forEach((item: INode) => {
+          clearDefaulValue(item)
+        })
+      }
+      if (node.value instanceof Array) {
+        node.value = []
+      } else if (node.value instanceof Object) {
+        node.value = {}
+      } else {
+        node.value = ''
+      }
+    }
+
+    const groupAddItem = () => {
+      const first = children![0]
+      const cloneTmp = first.clone(true)
+      clearDefaulValue(cloneTmp)
+      element!.insertChild(cloneTmp)
+    }
+
     switch (componentType) {
       case 'row':
         comp = ElRow
@@ -145,8 +167,12 @@ export default defineComponent({
                 })
               )
             })
+          attr.onAdd = groupAddItem
         } else {
-          childCompBuilder = () => h(FlexTable, { element })
+          childCompBuilder = () => h(FlexTable, { element, ref: 'flexTable' })
+          attr.onAdd = () => {
+            ;(this.$refs.flexTable as InstanceType<typeof FlexTable>).addColumn()
+          }
         }
         attr.label = properties.label
         break

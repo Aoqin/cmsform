@@ -7,9 +7,8 @@
 <script lang="ts" setup>
 import { computed, ref, reactive } from 'vue'
 import { ElForm, type FormInstance } from 'element-plus'
-import type { INode } from '@/model/viewNode'
-import { Treestore } from '@/model/viewStore'
-import type { ITreeStore } from '@/model/viewStore'
+import type { INode } from '@/model/treeNode'
+import { Treestore, type ITreeStore } from '@/model/treeStore'
 import { rules } from '@/config/rules'
 import functions from '@/config/functions'
 import DrawingItem from './components/drawingItem.vue'

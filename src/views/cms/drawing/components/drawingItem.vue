@@ -14,7 +14,7 @@ import {
   type ContainerComponentType,
   type ViewComponentType
 } from '@/config/fields'
-import type { INode } from '@/model/viewNode'
+import type { INode } from '@/model/treeNode'
 import DynamicFormItem from '../../designer/components/dynamicFormItem.vue'
 import DynamicFormField from '../../designer/components/dynamicFormField.vue'
 import DynamicContainer from './dynamicContainer.vue'
