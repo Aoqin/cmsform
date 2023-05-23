@@ -35,6 +35,7 @@ export interface INode {
   action(key: NodeActionName, params: NodeActionParams): void
   getModelKey(): string | null
   getModel(): any
+  clone(): (deep: boolean, parent?: INode) => INode
   [key: string]: any
 }
 
@@ -45,7 +46,7 @@ export default class Node implements INode {
   visible: boolean = true
   name: string = ''
   index: number = 0
-  componentType: ComponentType = ''
+  componentType: ComponentType = 'input'
   componentName: string = ''
   value: string | Array<any> | Number | null = null
   store?: ITreeStore | undefined
@@ -86,6 +87,9 @@ export default class Node implements INode {
         }
       }
     }
+    if (options.value === null || options.value === undefined) {
+      this.setDefaultValue()
+    }
   }
 
   initialize(initChildren?: boolean) {
@@ -101,6 +105,62 @@ export default class Node implements INode {
     }
     store.registerNode(this)
     this.action('init', null)
+  }
+
+  /**
+   *
+   * @param deep 是否深度clone
+   * @param parent 当前clone的节点的父节点
+   * @param recordMap 当前clone的节点和新节点的映射关系
+   * @returns
+   */
+  cloneTmpNode(
+    deep: boolean,
+    parent?: INode,
+    recordMap?: Map<string, { val: INode; old: INode }>
+  ): INode {
+    const excludeAttrs: IObjectKeys<any> = {
+      key: ''
+    }
+    const initParams = {
+      ...this.getReadOnlyNode(excludeAttrs),
+      parent: parent ? parent : this.parent,
+      store: this.store
+    }
+    if (this.componentType === 'upload') {
+      // 上传组件清空data
+      initParams.data = []
+    }
+    const node = new Node(initParams)
+    recordMap?.set(this.key, { val: node, old: this })
+    // 关联关系
+    if (deep) {
+      node.children = this.children?.map((item) => {
+        return item.cloneTmpNode(deep, node, recordMap)
+      })
+    }
+    return node
+  }
+
+  clone(deep: boolean, parent?: INode): INode {
+    const recordMap = new Map<string, { val: INode; old: INode }>()
+    const clonedNode = this.cloneTmpNode(deep, parent, recordMap)
+    recordMap.forEach((item) => {
+      const { val } = item
+      if (val.extendAttributes?.linked) {
+        // 此节点存在关联关系
+        const linkedNode = recordMap.get(val.extendAttributes.linkSource)
+        //
+        if (linkedNode) {
+          item.val.extendAttributes.linkSource = linkedNode.val.key
+          linkedNode.val.extendAttributes.linkTarget = item.val.key
+        } else {
+          // clone 时的节点中没有找到关联的节点
+          throw new Error('clone error: linked node not found')
+        }
+      }
+    })
+    return clonedNode
   }
 
   /**
@@ -317,5 +377,19 @@ export default class Node implements INode {
   // 获取组件的值
   getModel() {
     return this.store?.model![this.getModelKey()!]
+  }
+
+  // 设定默认值
+  setDefaultValue() {
+    const { componentType, properties } = this
+    if (
+      componentType === 'checkbox' ||
+      properties?.multiple ||
+      ['datetimerange', 'daterange'].includes(componentType)
+    ) {
+      this.value = []
+    } else {
+      this.value = ''
+    }
   }
 }

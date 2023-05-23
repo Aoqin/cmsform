@@ -14,7 +14,7 @@ import {
   type ContainerComponentType,
   type ViewComponentType
 } from '@/config/fields'
-import type { INode } from '@/model/treeNode'
+import type { INode } from '@/model/viewNode'
 import DynamicFormItem from '../../designer/components/dynamicFormItem.vue'
 import DynamicFormField from '../../designer/components/dynamicFormField.vue'
 import DynamicContainer from './dynamicContainer.vue'
@@ -24,8 +24,6 @@ const props = defineProps<{
   element: INode
 }>()
 
-console.log("props ----------->")
-console.log(props)
 const IsContainerComponent = computed(() => {
   return containerFields.includes(props.element.componentType as ContainerComponentType)
 })

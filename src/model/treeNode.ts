@@ -82,7 +82,7 @@ export interface INodeOptions {
   componentName?: string
   componentKey?: string // 后端需要定制key
   componentKeyId?: string // 后端配置的id
-  value?: string | Array<any> | Number | null
+  value?: string | Array<any> | Number | Object | null
   store?: ITreeStore
   children?: INodeOptions[] | null
   [key: string]: any
@@ -96,11 +96,11 @@ class Node implements INode {
   visible: boolean = true
   name: string = ''
   index: number = 0
-  componentType: ComponentType = ''
+  componentType: ComponentType = 'text'
   componentName: string = ''
   componentKey: string = ''
   componentKeyId: string = ''
-  value: string | Array<any> | Number | null = null
+  value: string | Array<any> | Number | Object | null = null
   store?: ITreeStore | undefined
   // 引用类型的属性，需要在构造函数中初始化隔离数据
   properties: any = {}
@@ -148,6 +148,9 @@ class Node implements INode {
     if (!this.componentKey) {
       this.componentKey = generate()
     }
+    if (options.value === null || options.value === undefined) {
+      this.setDefaultValue()
+    }
   }
 
   initialize(initChildren?: boolean) {
@@ -179,8 +182,6 @@ class Node implements INode {
       if (child.parent !== this) {
         // 如果child的parent不是当前node，说明child已经被移动到其他node下，不需要再从store中移除
         this.children?.splice(index, 1)
-        // 后端要求，移除的节点的id设置为空
-        child.id = ''
       } else {
         this.store && this.store.deregisterNode(child)
         child.parent = null
@@ -370,6 +371,8 @@ class Node implements INode {
    * @param params
    */
   setExtendAttribute(params: any) {
+    console.log('=====================>>>>>>>')
+    console.log(params)
     for (const key in params) {
       this.extendAttributes[key] = params[key]
     }
@@ -551,6 +554,20 @@ class Node implements INode {
 
   getModel() {
     return this.store?.model![this.getModelKey()!]
+  }
+
+  // 设定默认值
+  setDefaultValue() {
+    const { componentType, properties } = this
+    if (
+      componentType === 'checkbox' ||
+      properties?.multiple ||
+      ['datetimerange', 'daterange'].includes(componentType)
+    ) {
+      this.value = []
+    } else {
+      this.value = ''
+    }
   }
 }
 

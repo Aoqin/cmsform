@@ -1,6 +1,5 @@
 import type { IObjectKeys } from '@/config/common'
 import type { INode } from '@/model/treeNode'
-import Node from '@/model/treeNode'
 import type { INodeOptions } from '@/model/treeNode'
 
 type BaseComponent = {
@@ -108,6 +107,7 @@ const isContainer = (componentType: string): boolean => {
   return [
     'container',
     'flexContainer',
+    'flexContainerItem',
     'row',
     'col',
     'tabs',
@@ -138,7 +138,7 @@ const isFile = (componentType: string): boolean => {
  */
 export function getComponentConfig(node: INode): FormComponent {
   const comp = nodeMapToComponent(node) as ContainerComponent
-  const formCssConfig: IObjectKeys<any> = {}
+  const formCssConfig: Record<string, any> = {}
   const nodesMap = node.store!.nodesMap
   nodesMap.forEach((_node: INode, _key: string) => {
     formCssConfig[_key] = getNodeCssConfig(_node)
@@ -166,10 +166,10 @@ export function getContainerConfig(response: ViewResponse): INodeOptions {
   const {
     formConfigVo: {
       formConfigName,
-      formConfigId,
+      // formConfigId,
       formConfigCode,
       formConfigRemark,
-      formVersion,
+      // formVersion,
       formCssConfig
     },
     formComponentDetailVo: {
@@ -232,7 +232,7 @@ function nodeMapToComponent(
     extendAttributes,
     backendConfig
   } = node
-  const { multiple, maxlength, minlength } = properties
+  const { multiple } = properties
   const {
     isAllowSelect = 0,
     isbuildIn,
@@ -240,7 +240,8 @@ function nodeMapToComponent(
     innerComponentType,
     inputType,
     selectionType,
-    componentContainerType = 'COMMON'
+    componentContainerType = 'COMMON',
+    isDynamic = 0
   } = backendConfig
 
   const { remote } = extendAttributes
@@ -301,10 +302,10 @@ function nodeMapToComponent(
     othersProps.innerConfigs = innerConfigs
     othersProps.inputConfigs = inputConfigs
     othersProps.selectionConfigs = selectionConfigs
-    othersProps.isDynamic = 0
-    if (componentType === 'flexContainer') {
-      othersProps.isDynamic = 1
-    }
+    othersProps.isDynamic = isDynamic
+    // if (componentType === 'flexContainer') {
+    //   othersProps.isDynamic = 1
+    // }
   } else if (isInput(componentType)) {
     // 输入框组件 包括 input,datePicker
     othersProps.maxLimit = properties.maxlength
@@ -318,7 +319,7 @@ function nodeMapToComponent(
           othersProps.inputType = 'DATE'
           break
         default:
-          othersProps.inputType = 'INPUT'
+          othersProps.inputType = 'TEXT'
       }
     }
   } else if (isSelection(componentType)) {
@@ -371,7 +372,7 @@ function componentMapToNode(
   component: Components,
   nodeMap: Map<string, INodeOptions>
 ): INodeOptions {
-  const { componentKeyId, displayKey, customSort: index, id } = component
+  const { componentKeyId, displayKey, customSort: index, id, isDynamic } = component
   let {
     innerConfigs = [],
     containerConfigs = [],
@@ -386,13 +387,13 @@ function componentMapToNode(
   inputConfigs = inputConfigs || []
   selectionConfigs = selectionConfigs || []
 
+
   const options: INodeOptions = {
     ...nodeMap.get(displayKey),
     componentKeyId,
     id,
     index
   }
-
   options.children = [
     ...innerConfigs,
     ...containerConfigs,

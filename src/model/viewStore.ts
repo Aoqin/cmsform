@@ -6,6 +6,7 @@ import { deepCopy } from '@/utils'
 import type { IRuleOption } from '@/config/rules'
 import type { IObjectKeys } from '@/config/common'
 import { formFields, type FormComponentType } from '@/config/fields'
+import { nodeModelFactory } from './treeStore'
 
 export interface IFunOption {
   label: string
@@ -124,19 +125,13 @@ export class Treestore implements ITreeStore {
    */
   registerModel(node: INode): void {
     const key = node.getModelKey()
-    const multiple = node.properties?.multiple
     if (key) {
-      // todo: 一套标准的初始化对应model的方法
-      if (node.value === undefined || node.value === null) {
-        this.model![key] = multiple ? ref([]) : ref(null)
+      if (node.value instanceof Array) {
+        this.model![key] = ref([...node.value])
+      } else if (node.value instanceof Object) {
+        this.model![key] = reactive({ ...deepCopy(node.value) })
       } else {
-        if (node.value instanceof Array) {
-          this.model![key] = ref([...node.value])
-        } else if (node.value instanceof Object) {
-          this.model![key] = reactive({ ...deepCopy(node.value) })
-        } else {
-          this.model![key] = ref(node.value)
-        }
+        this.model![key] = ref(node.value)
       }
     }
   }
@@ -212,23 +207,10 @@ export class Treestore implements ITreeStore {
   //
   setModel(node: INode, value?: any): void {
     const key = node.getModelKey()!
-    if (value === undefined || value === null) {
-      if (this.model![key] instanceof Array) {
-        this.model![key] = []
-      } else if (this.model![key] instanceof Object) {
-        this.model![key] = {}
-      } else {
-        this.model![key] = ''
-      }
-    } else {
-      if (value instanceof Array) {
-        this.model![key] = [...value]
-      } else if (value instanceof Object) {
-        this.model![key] = { ...deepCopy(value) }
-      } else {
-        this.model![key] = value
-      }
-    }
+    this.model![key] = nodeModelFactory(
+      { componentType: node.componentType as FormComponentType, properties: node.properties },
+      value
+    )
   }
   //
   createModel() {

@@ -25,6 +25,35 @@ type DictionaryOption = {
   url: string
 }
 
+export function nodeModelFactory(
+  node: {
+    componentType: FormComponentType
+    properties: Record<string, any>
+  },
+  val?: any
+) {
+  const { componentType, properties } = node
+  if (val === undefined || val === null) {
+    if (
+      componentType === 'checkbox' ||
+      properties?.type === 'dateRang' ||
+      properties?.type === 'datetimerRang' ||
+      properties?.multiple
+    ) {
+      return ref([])
+    }
+    return ref(null)
+  } else {
+    if (val instanceof Array) {
+      return ref([...val])
+    } else if (val instanceof Object) {
+      return reactive(deepCopy(val))
+    } else {
+      return ref(val)
+    }
+  }
+}
+
 export interface ITreeStore {
   currentNode: INode | null
   currentNodeKey: string | null
@@ -110,20 +139,12 @@ export class Treestore implements ITreeStore {
 
   registerModel(node: INode): void {
     const key = node.getModelKey()
-    const multiple = node.properties?.multiple
-    if (key) {
-      // todo: 一套标准的初始化对应model的方法
-      if (node.value === undefined || node.value === null) {
-        this.model![key] = multiple ? ref([]) : ref(null)
-      } else {
-        if (node.value instanceof Array) {
-          this.model![key] = ref([...node.value])
-        } else if (node.value instanceof Object) {
-          this.model![key] = reactive({ ...deepCopy(node.value) })
-        } else {
-          this.model![key] = ref(node.value)
-        }
-      }
+    if (node.value instanceof Array) {
+      this.model![key] = ref([...node.value])
+    } else if (node.value instanceof Object) {
+      this.model![key] = reactive({ ...deepCopy(node.value) })
+    } else {
+      this.model![key] = ref(node.value)
     }
   }
 
@@ -179,23 +200,7 @@ export class Treestore implements ITreeStore {
 
   setModel(node: INode, value?: any): void {
     const key = node.getModelKey()!
-    if (value === undefined || value === null) {
-      if (this.model![key] instanceof Array) {
-        this.model![key] = []
-      } else if (this.model![key] instanceof Object) {
-        this.model![key] = {}
-      } else {
-        this.model![key] = ''
-      }
-    } else {
-      if (value instanceof Array) {
-        this.model![key] = [...value]
-      } else if (value instanceof Object) {
-        this.model![key] = { ...deepCopy(value) }
-      } else {
-        this.model![key] = value
-      }
-    }
+    this.model![key] = nodeModelFactory(node, value)
   }
 
   createModel() {

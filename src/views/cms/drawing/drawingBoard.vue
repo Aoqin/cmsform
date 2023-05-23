@@ -7,7 +7,7 @@
 <script lang="ts" setup>
 import { computed, ref, reactive } from 'vue'
 import { ElForm, type FormInstance } from 'element-plus'
-import type { INode } from '@/model/treeNode'
+import type { INode } from '@/model/viewNode'
 import { Treestore } from '@/model/viewStore'
 import type { ITreeStore } from '@/model/viewStore'
 import { rules } from '@/config/rules'
@@ -38,10 +38,9 @@ const validate = () => {
 const models = computed(() => store.model as Record<string, any>)
 
 store.initialize(props.config)
-
 const list = computed((): INode[] => {
   if (!store.root || !store.root.children) return []
-  else return store.root.children
+  return store.root.children
 })
 
 const getStore = () => {
