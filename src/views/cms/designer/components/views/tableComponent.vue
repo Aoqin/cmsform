@@ -2,12 +2,6 @@
   <div></div>
 </template>
 
-<script setup lang="ts">
-import { ElTable } from 'element-plus'
-
-const props = defineProps<{
-  element: INode
-}>()
-</script>
+<script setup lang="ts"></script>
 
 <style scoped></style>

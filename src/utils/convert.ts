@@ -162,7 +162,7 @@ export function getComponentConfig(node: INode): FormComponent {
  * 根据后端返回的数据结构，转换为node树
  * @param response
  */
-export function getContainerConfig(response: ViewResponse): INodeOptions {
+export function getContainerConfig(response: ViewResponse): INodeOptions {  
   const {
     formConfigVo: {
       formConfigName,
@@ -235,7 +235,7 @@ function nodeMapToComponent(
   const { multiple } = properties
   const {
     isAllowSelect = 0,
-    isbuildIn,
+    isBuildIn,
     innerComponentCode,
     innerComponentType,
     inputType,
@@ -262,16 +262,13 @@ function nodeMapToComponent(
   const othersProps: { [key: string]: any } = {}
 
   // 后端提供了6种类型组件
+  if (isBuildIn) {
+    // 内置容器组件
+    othersProps.innerComponentCode = innerComponentCode
+    othersProps.innerComponentType = innerComponentType
+  }
   if (isContainer(componentType)) {
-    // 容器组件又分为两种，一种是内置容器组件，一种是普通容器组件
-    // 表单容器
-    if (isbuildIn) {
-      // 内置容器组件
-      othersProps.innerComponentCode = innerComponentCode
-      othersProps.innerComponentType = innerComponentType
-    }
-    // 容器组件 包括 flexContainer, container, row, col,tabs,tabPane
-
+    // 容器组件
     const containerConfigs: ContainerComponent[] = []
     const fileConfigs: FileComponent[] = []
     const innerConfigs: InnerComponent[] = []
@@ -280,12 +277,11 @@ function nodeMapToComponent(
     if (node.children && node.children.length > 0) {
       node.children.forEach((child: INode, index: number) => {
         const childComp = nodeMapToComponent(child)
-        if (isContainer(child.componentType)) {
-          if (child.backendConfig.isbuildIn) {
-            innerConfigs.push(childComp as InnerComponent)
-          } else {
-            containerConfigs.push(childComp as ContainerComponent)
-          }
+        if (isBuildIn) {
+          // 内置容器组件, 子组件全部放在innerConfigs中
+          innerConfigs.push(childComp as InnerComponent)
+        } else if (isContainer(child.componentType)) {
+          containerConfigs.push(childComp as ContainerComponent)
         } else if (isFile(child.componentType)) {
           fileConfigs.push(childComp as FileComponent)
         } else if (isInput(child.componentType)) {
@@ -298,6 +294,10 @@ function nodeMapToComponent(
     }
     othersProps.containerConfigs = containerConfigs
     othersProps.componentContainerType = componentContainerType
+    if (isBuildIn && isContainer(componentType) && innerComponentType) {
+      console.log(node.children)
+      othersProps.componentContainerType = innerComponentType
+    }
     othersProps.fileConfigs = fileConfigs
     othersProps.innerConfigs = innerConfigs
     othersProps.inputConfigs = inputConfigs
@@ -372,7 +372,7 @@ function componentMapToNode(
   component: Components,
   nodeMap: Map<string, INodeOptions>
 ): INodeOptions {
-  const { componentKeyId, displayKey, customSort: index, id, isDynamic } = component
+  const { componentKeyId, displayKey, customSort: index, id } = component
   let {
     innerConfigs = [],
     containerConfigs = [],
@@ -386,7 +386,6 @@ function componentMapToNode(
   fileConfigs = fileConfigs || []
   inputConfigs = inputConfigs || []
   selectionConfigs = selectionConfigs || []
-
 
   const options: INodeOptions = {
     ...nodeMap.get(displayKey),

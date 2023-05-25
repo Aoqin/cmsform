@@ -1,5 +1,5 @@
 <template>
-  <el-table :data="collection" style="width: 100%" lazy stripe border>
+  <el-table :data="collection" lazy stripe border>
     <el-table-column v-if="attributes.showIndex" type="index" label="序号" width="60px" fixed />
     <el-table-column
       v-for="(item, index) in columns"
@@ -13,7 +13,7 @@
             @click="downloadFile(subItem)"
             :key="`${item.prop}_${index}_${subIndex}`"
           >
-            {{ subItem.name }}
+            {{ subItem.componentKey }}
           </el-link>
         </template>
         <template v-else>
@@ -64,7 +64,7 @@ const collection = computed(() => {
     props.element.children?.forEach((item: any, index: number) => {
       let tmp: IObjectKeys<any> = {}
       item.children.forEach((child: TreeNode) => {
-        tmp[child.name] =
+        tmp[child.componentKey] =
           child.getModel() instanceof Array ? [...child.getModel()] : child.getModel()
       })
       // 过滤空数据
@@ -85,13 +85,16 @@ const collection = computed(() => {
       }
     })
   }
+  console.log('======================')
+  console.log(arr)
+  console.log('======================')
   return arr
 })
 
 const columns = computed(() => {
   return props.element!.children![0].children?.map((item: any) => ({
     label: item.properties.label,
-    prop: item.name
+    prop: item.componentKey
   }))
 })
 
@@ -144,7 +147,7 @@ const formartVal = (obj: Record<string, any>, propName: string, index: number) =
   const children = props.element.children
   const group = children ? children[index] : undefined
   if (group) {
-    const el = group.children?.find((item: any) => item.name === propName)
+    const el = group.children?.find((item: any) => item.componentKey === propName)
     if (el && ['select', 'radio', 'checkbox'].includes(el.componentType)) {
       let options = el.options || []
       if (el.extendAttributes.remote) {

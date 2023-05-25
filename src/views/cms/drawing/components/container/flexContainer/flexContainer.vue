@@ -38,13 +38,20 @@ const add = () => {
 
 <style scoped>
 .flex_containr {
-  margin-bottom: 15px;
+  margin-bottom: 18px;
+  box-sizing: border-box;
+  width: 100%;
 }
 .flex_contaier_header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0px;
+  padding: 10px 0;
   font-size: 14px;
+  box-sizing: border-box;
+}
+.flex_contaier_body {
+  box-sizing: border-box;
+  margin: 0;
 }
 </style>

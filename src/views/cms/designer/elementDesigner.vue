@@ -67,7 +67,7 @@ const emits = defineEmits<{
 
 const store = reactive<ITreeStore>(new Treestore({ rules, functions, componentType: 'form' }))
 store.initialize({
-  compoentType: 'root',
+  componentType: 'root',
   componentName: 'root',
   properties: {
     labelPosition: 'top'

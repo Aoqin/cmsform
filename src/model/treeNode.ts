@@ -3,7 +3,6 @@ import type { IFunctions, ITreeStore } from './treeStore'
 import { characters, generate } from 'shortid'
 import { deepCopy } from '@/utils'
 import type { ComponentType } from '@/config/fields'
-
 import type { NodeActionName, NodeActionParams } from '@/config/action'
 import type { IObjectKeys } from '@/config/common'
 
@@ -23,6 +22,7 @@ export interface INode {
   actions: {
     [key: string]: IFunctions
   }
+  operations: Record<string, any>
   extendAttributes: any
   backendConfig: any
   options?: Array<any>
@@ -75,6 +75,7 @@ export interface INodeOptions {
   actions?: {
     [key: string]: Promise<any>
   }
+  operations?: Record<string, any>
   backendConfig?: any
   extendAttributes?: any
   options?: Array<any>
@@ -103,14 +104,14 @@ class Node implements INode {
   value: string | Array<any> | Number | Object | null = null
   store?: ITreeStore | undefined
   // 引用类型的属性，需要在构造函数中初始化隔离数据
-  properties: any = {}
-  extendAttributes: any = {}
+  properties: Record<string, any> = {}
+  extendAttributes: Record<string, any> = {}
+  operations: Record<string, any> = {}
   options: any = {}
-  actions: any = {}
-  style: any = {}
+  actions: Record<string, any> = {}
+  style: Record<string, any> = {}
   data: any = []
-  backendConfig: any = {}
-  // children 不能在构造函数中直接赋值
+  backendConfig: Record<string, any> = {}
   children?: Array<INode> | null = []
   // timer
   // timer: any = null
@@ -350,7 +351,9 @@ class Node implements INode {
 
   setAttrs(params: INodeOptions) {
     for (const key in params) {
-      Object.hasOwnProperty.call(this, key) && (this[key] = params[key])
+      if (Object.hasOwnProperty.call(this, key)) {
+        ;(this as Record<string, any>)[key] = params[key]
+      }
     }
   }
 
@@ -371,8 +374,6 @@ class Node implements INode {
    * @param params
    */
   setExtendAttribute(params: any) {
-    console.log('=====================>>>>>>>')
-    console.log(params)
     for (const key in params) {
       this.extendAttributes[key] = params[key]
     }

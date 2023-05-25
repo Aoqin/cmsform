@@ -7,7 +7,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import DesignerForm from '../cms/designer/elementDesigner.vue'
 import { getContainerConfig, getComponentConfig } from '@/utils/convert'
-import { createForm, getForm, updateForm } from '@/services/index'
+import { createForm, getForm, updateForm } from '@/services/form'
 import type { INode } from '@/model/treeNode'
 import { ElMessage } from 'element-plus'
 
@@ -36,7 +36,7 @@ if (id) {
 }
 
 const save = (params: INode) => {
-  const container = getComponentConfig(params)
+  const container = getComponentConfig({ ...params, noseVersion: 'v2' })
   if (id) {
     container.formConfigId = id as string
     updateForm(container).then((res) => {
@@ -48,7 +48,7 @@ const save = (params: INode) => {
       }
     })
   } else {
-    createForm(container).then((res) => {
+    createForm({ ...container, noseVersion: 'v2' }).then((res) => {
       if (res.status === 200) {
         if (res.data.code === '0') {
           console.log(res.data.data)

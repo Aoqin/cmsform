@@ -59,7 +59,7 @@ export interface ITreeStore {
   currentNodeKey: string | null
   nodesMap: Map<string, INode>
   root?: INode | null
-  model: IObjectKeys<any> | null
+  model: Record<string, any> | null
   functions: IObjectKeys<IFunOption>
   dictionnary: IObjectKeys<DictionaryOption>
   rules: IObjectKeys<IRuleOption>
@@ -85,7 +85,7 @@ export class Treestore implements ITreeStore {
   currentNodeKey: string | null = null
   nodesMap = new Map<string, INode>()
   root: INode | null = null
-  model: IObjectKeys<any> | null = null
+  model: Record<string, any> | null = null
   functions: IObjectKeys<IFunOption> = {}
   rules: IObjectKeys<IRuleOption> = {}
   dictionnary: IObjectKeys<DictionaryOption> = {}

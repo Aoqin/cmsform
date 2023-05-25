@@ -1,5 +1,5 @@
 <template>
-  <ElForm ref="formRef" v-buid="properties" :model="models">
+  <ElForm ref="formRef" v-bind="properties" :model="models">
     <DrawingItem v-for="item in list" :key="`drawing_${item.key}`" :element="item" />
   </ElForm>
 </template>

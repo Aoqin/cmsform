@@ -1,5 +1,5 @@
 <template>
-  <el-table :data="collection" border lazy>
+  <el-table :data="collection" lazy stripe border>
     <el-table-column
       v-for="(item, index) in columns"
       :key="`${element.key}_${index}`"
@@ -112,7 +112,6 @@ const store = computed((): ITreeStore => {
   return props.element.store!
 })
 
-
 const visible = ref<boolean>(false)
 
 const handleEdit = (row: any, index: number) => {
@@ -125,7 +124,6 @@ const handleDelete = (row: { $index: number }) => {
   const group = props.element!.children![row.$index]
   if (row.$index === 0 && group) {
     // 第一行不做物理删除，置空
-    console.log(props.element.children)
     if (group) {
       group.children?.forEach((item: any) => {
         console.log(item)
@@ -226,7 +224,6 @@ const handleUpdate = (tmpstore: ITreeStore) => {
   }
   visible.value = false
 }
-
 const operatiable = computed(() => {
   return true
 })

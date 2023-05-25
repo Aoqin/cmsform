@@ -38,7 +38,7 @@ export const config: INodeOptions = {
       actions: {},
       value: '',
       backendConfig: {
-        inputType: ''
+        inputType: 'TEXT'
       }
     },
     {

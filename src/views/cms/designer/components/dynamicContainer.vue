@@ -248,6 +248,9 @@ export default defineComponent({
   min-height: 36px;
 }
 .grid {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
   display: grid;
   grid-gap: 0 1rem;
   align-items: start;
